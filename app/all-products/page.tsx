@@ -1,229 +1,206 @@
 // app/all-products/page.tsx
 "use client";
 
-import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { Search, Filter, Grid, List, ChevronRight, Package, Sparkles } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
+import {
+  Search,
+  Grid,
+  List,
+  ChevronRight,
+  Package,
+  Sparkles,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 // Product data organized by letter
-const productsByLetter = {
-  A: [
-    'Acrylic Boards',
-    'A-Frame Signs',
-    'Aluminum Boards',
-  ],
+const productsByLetter: Record<string, string[]> = {
+  A: ["Acrylic Boards", "A-Frame Signs", "Aluminum Boards"],
   B: [
-    'Banners',
-    'Biz Card Magnets',
-    'Blank Letterheads',
-    'Booklets',
-    'Bookmarks',
-    'Brochures',
-    'Business Cards',
+    "Banners",
+    "Biz Card Magnets",
+    "Blank Letterheads",
+    "Booklets",
+    "Bookmarks",
+    "Brochures",
+    "Business Cards",
   ],
   C: [
-    'Calendars',
-    'Canvas Prints',
-    'Car Magnets',
-    'Cardboards',
-    'Catalogs',
-    'Club Flyers',
-    'Collectors Cards',
-    'Corrugated Boards',
+    "Calendars",
+    "Canvas Prints",
+    "Car Magnets",
+    "Cardboards",
+    "Catalogs",
+    "Club Flyers",
+    "Collectors Cards",
+    "Corrugated Boards",
   ],
-  D: [
-    'Digital Paper Prints',
-    'Door Hangers',
-  ],
-  E: [
-    'Envelopes - Custom',
-    'Envelopes - Logo',
-    'Event Tickets',
-  ],
+  D: ["Digital Paper Prints", "Door Hangers"],
+  E: ["Envelopes - Custom", "Envelopes - Logo", "Event Tickets"],
   F: [
-    'Fabric Prints',
-    'Flex Banners',
-    'Floor Decals',
-    'Flyers',
-    'Foam Boards',
-    'Folded Biz Cards',
-    'Folded Hang Tags',
-    'Folders',
-    'Framed Prints',
+    "Fabric Prints",
+    "Flex Banners",
+    "Floor Decals",
+    "Flyers",
+    "Foam Boards",
+    "Folded Biz Cards",
+    "Folded Hang Tags",
+    "Folders",
+    "Framed Prints",
   ],
-  G: [
-    'Greeting Cards',
-  ],
-  H: [
-    'Hang Tags',
-    'Hats',
-  ],
-  L: [
-    'Letterheads',
-  ],
+  G: ["Greeting Cards"],
+  H: ["Hang Tags", "Hats"],
+  L: ["Letterheads"],
   M: [
-    'Metal Wall Prints',
-    'Mini Menus',
-    'Mounted Wall Prints',
-    'Mouse Pads',
-    'Mugs',
+    "Metal Wall Prints",
+    "Mini Menus",
+    "Mounted Wall Prints",
+    "Mouse Pads",
+    "Mugs",
   ],
-  N: [
-    'Notepads',
-  ],
+  N: ["Notepads"],
   P: [
-    'Photo Plaques',
-    'Photo Book',
-    'Polos',
-    'Postcards',
-    'Postcard Magnets',
-    'Posters - Bulk',
-    'Posters - Large Format',
-    'Promotional Items',
-    'Puzzles',
-    'PVC Boards',
+    "Photo Plaques",
+    "Photo Book",
+    "Polos",
+    "Postcards",
+    "Postcard Magnets",
+    "Posters - Bulk",
+    "Posters - Large Format",
+    "Promotional Items",
+    "Puzzles",
+    "PVC Boards",
   ],
-  R: [
-    'Rack Cards',
-    'Retractable Banners',
-    'Rip Cards',
-    'Roll Labels',
-  ],
+  R: ["Rack Cards", "Retractable Banners", "Rip Cards", "Roll Labels"],
   S: [
-    'Signage Solutions',
-    'Special Shapes',
-    'Staggered Flyers',
-    'Stickers',
-    'Sweatshirts - Crewnecks',
-    'Sweatshirts - Full Zip Hoodies',
-    'Sweatshirts - Hoodies',
+    "Signage Solutions",
+    "Special Shapes",
+    "Staggered Flyers",
+    "Stickers",
+    "Sweatshirts - Crewnecks",
+    "Sweatshirts - Full Zip Hoodies",
+    "Sweatshirts - Hoodies",
   ],
-  T: [
-    'Table Tents',
-    'T-Shirts',
-  ],
-  V: [
-    'Vinyl Prints & Wraps',
-  ],
-  W: [
-    'Window Clings',
-    'Window Decals',
-    'Window Perfs',
-  ],
-  Y: [
-    'Yard Signs',
-  ],
+  T: ["Table Tents", "T-Shirts"],
+  V: ["Vinyl Prints & Wraps"],
+  W: ["Window Clings", "Window Decals", "Window Perfs"],
+  Y: ["Yard Signs"],
 };
-
-// Get all products as a flat array
-const allProducts = Object.values(productsByLetter).flat();
 
 // Sample images for placeholders (cycling through available samples)
 const getProductImage = (index: number) => {
-  const sampleImages = Array.from({ length: 30 }, (_, i) => `/sample${i + 1}.jpg`);
+  const sampleImages = Array.from(
+    { length: 30 },
+    (_, i) => `/sample${i + 1}.jpg`,
+  );
   return sampleImages[index % sampleImages.length];
+};
+
+// Helper function to convert product name to slug
+const productToSlug = (product: string) => {
+  return product
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9-]/g, "");
 };
 
 interface ProductCardProps {
   product: string;
   index: number;
-  viewMode: 'grid' | 'list';
+  viewMode: "grid" | "list";
 }
 
 const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
-  const [isHovered, setIsHovered] = useState(false);
+  const productSlug = productToSlug(product);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.02 }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`group relative bg-card border border-border/50 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 ${
-        viewMode === 'list' ? 'flex' : ''
-      }`}
     >
-      {/* Product Image */}
-      <div className={`relative ${viewMode === 'list' ? 'w-64 h-64' : 'h-64'} overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/20`}>
-        <motion.div
-          animate={isHovered ? { scale: 1.1 } : { scale: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="relative w-full h-full"
+      <Link href={`/products/${productSlug}`} className="block h-full">
+        <div
+          className={`group relative bg-card border border-border/50 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer ${
+            viewMode === "list" ? "flex" : ""
+          }`}
         >
-          <Image
-            src={getProductImage(index)}
-            alt={product}
-            fill
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        </motion.div>
-        
-        {/* Hover Overlay Content */}
-        {isHovered && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="absolute bottom-4 left-4 right-4"
+          {/* Product Image */}
+          <div
+            className={`relative ${viewMode === "list" ? "w-64 h-64" : "h-64"} overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/20`}
           >
-            <Link
-              href={`/products/${product.toLowerCase().replace(/\s+/g, '-').replace(/&/g, 'and').replace(/[^a-z0-9-]/g, '')}`}
-              className="w-full btn-pana text-sm py-3 inline-flex items-center justify-center"
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="relative w-full h-full"
             >
-              View Details
-              <ChevronRight className="h-4 w-4 ml-2" />
-            </Link>
-          </motion.div>
-        )}
+              <Image
+                src={getProductImage(index)}
+                alt={product}
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </motion.div>
 
-        {/* Badge */}
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={isHovered ? { scale: 1 } : { scale: 0 }}
-          transition={{ type: "spring", stiffness: 200 }}
-          className="absolute top-4 right-4"
-        >
-          <span className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-            New
-          </span>
-        </motion.div>
-      </div>
+            {/* Hover Overlay Content */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileHover={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <span className="w-full btn-pana text-sm py-3 inline-flex items-center justify-center">
+                View Details
+                <ChevronRight className="h-4 w-4 ml-2" />
+              </span>
+            </motion.div>
 
-      {/* Product Info */}
-      <div className={`p-6 ${viewMode === 'list' ? 'flex-1 flex flex-col justify-between' : ''}`}>
-        <div>
-          <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2 text-lg">
-            {product}
-          </h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Premium quality printing service
-          </p>
-        </div>
+            {/* Badge */}
+            <motion.div
+              initial={{ scale: 0 }}
+              whileHover={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200 }}
+              className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <span className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                New
+              </span>
+            </motion.div>
+          </div>
 
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center space-x-2 mb-2">
-              <span className="text-2xl font-bold text-foreground">From ETB 299</span>
+          {/* Product Info */}
+          <div
+            className={`p-6 ${viewMode === "list" ? "flex-1 flex flex-col justify-between" : ""}`}
+          >
+            <div>
+              <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2 text-lg">
+                {product}
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Premium quality printing service
+              </p>
             </div>
-            <div className="flex items-center">
-              <div className="w-2 h-2 rounded-full mr-2 bg-green-500"></div>
-              <span className="text-sm text-green-600">In Stock</span>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="w-2 h-2 rounded-full mr-2 bg-green-500"></div>
+                <span className="text-sm text-green-600">Available</span>
+              </div>
+
+              <motion.div
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+                className="p-2 rounded-full bg-primary/10 text-primary"
+              >
+                <Package className="h-5 w-5" />
+              </motion.div>
             </div>
           </div>
-          
-          <motion.div
-            whileHover={{ rotate: 360 }}
-            transition={{ duration: 0.5 }}
-            className="p-2 rounded-full bg-primary/10 text-primary"
-          >
-            <Package className="h-5 w-5" />
-          </motion.div>
         </div>
-      </div>
+      </Link>
     </motion.div>
   );
 };
@@ -231,11 +208,16 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
 interface LetterSectionProps {
   letter: string;
   products: string[];
-  viewMode: 'grid' | 'list';
+  viewMode: "grid" | "list";
   startIndex: number;
 }
 
-const LetterSection = ({ letter, products, viewMode, startIndex }: LetterSectionProps) => {
+const LetterSection = ({
+  letter,
+  products,
+  viewMode,
+  startIndex,
+}: LetterSectionProps) => {
   return (
     <motion.section
       initial={{ opacity: 0 }}
@@ -260,19 +242,25 @@ const LetterSection = ({ letter, products, viewMode, startIndex }: LetterSection
             {letter}
           </motion.div>
           <div>
-            <h2 className="text-2xl font-bold text-foreground">Products Starting with {letter}</h2>
-            <p className="text-sm text-muted-foreground">{products.length} products available</p>
+            <h2 className="text-2xl font-bold text-foreground">
+              Products Starting with {letter}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {products.length} products available
+            </p>
           </div>
         </div>
         <div className="flex-1 h-px bg-gradient-to-r from-primary/50 to-transparent"></div>
       </motion.div>
 
       {/* Products Grid */}
-      <div className={`grid gap-6 ${
-        viewMode === 'grid' 
-          ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
-          : 'grid-cols-1'
-      }`}>
+      <div
+        className={`grid gap-6 ${
+          viewMode === "grid"
+            ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            : "grid-cols-1"
+        }`}
+      >
         {products.map((product, index) => (
           <ProductCard
             key={product}
@@ -287,8 +275,8 @@ const LetterSection = ({ letter, products, viewMode, startIndex }: LetterSection
 };
 
 export default function AllProductsPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
 
   // Filter products based on search
@@ -301,8 +289,8 @@ export default function AllProductsPage() {
     const query = searchQuery.toLowerCase();
 
     Object.entries(productsByLetter).forEach(([letter, products]) => {
-      const filteredProducts = products.filter(product =>
-        product.toLowerCase().includes(query)
+      const filteredProducts = products.filter((product) =>
+        product.toLowerCase().includes(query),
       );
       if (filteredProducts.length > 0) {
         filtered[letter] = filteredProducts;
@@ -314,7 +302,10 @@ export default function AllProductsPage() {
 
   // Calculate total products count
   const totalProducts = useMemo(() => {
-    return Object.values(filteredProductsByLetter).reduce((sum, products) => sum + products.length, 0);
+    return Object.values(filteredProductsByLetter).reduce(
+      (sum, products) => sum + products.length,
+      0,
+    );
   }, [filteredProductsByLetter]);
 
   // Get available letters
@@ -323,7 +314,7 @@ export default function AllProductsPage() {
   // Calculate start index for each letter section
   let currentIndex = 0;
   const letterStartIndices: Record<string, number> = {};
-  Object.keys(productsByLetter).forEach(letter => {
+  Object.keys(productsByLetter).forEach((letter) => {
     letterStartIndices[letter] = currentIndex;
     currentIndex += productsByLetter[letter].length;
   });
@@ -357,7 +348,9 @@ export default function AllProductsPage() {
               className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-sm text-white px-4 py-2 rounded-full mb-4"
             >
               <Sparkles className="h-4 w-4" />
-              <span className="text-sm font-medium">{totalProducts} Products Available</span>
+              <span className="text-sm font-medium">
+                {totalProducts} Products Available
+              </span>
             </motion.div>
 
             <motion.h1
@@ -375,7 +368,9 @@ export default function AllProductsPage() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="text-xl text-gray-200 mb-8 max-w-2xl"
             >
-              Explore our complete range of premium printing solutions and promotional products. From business cards to large format prints, we have everything you need.
+              Explore our complete range of premium printing solutions and
+              promotional products. From business cards to large format prints,
+              we have everything you need.
             </motion.p>
 
             {/* Search Bar */}
@@ -413,7 +408,8 @@ export default function AllProductsPage() {
                 Browse All Products
               </h2>
               <p className="text-muted-foreground">
-                {totalProducts} {totalProducts === 1 ? 'product' : 'products'} found
+                {totalProducts} {totalProducts === 1 ? "product" : "products"}{" "}
+                found
                 {searchQuery && ` for "${searchQuery}"`}
               </p>
             </div>
@@ -427,13 +423,20 @@ export default function AllProductsPage() {
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
-                      setSelectedLetter(selectedLetter === letter ? null : letter);
-                      document.getElementById(`letter-${letter}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      setSelectedLetter(
+                        selectedLetter === letter ? null : letter,
+                      );
+                      document
+                        .getElementById(`letter-${letter}`)
+                        ?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        });
                     }}
                     className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                       selectedLetter === letter
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-secondary text-foreground hover:bg-secondary/80'
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary text-foreground hover:bg-secondary/80"
                     }`}
                   >
                     {letter}
@@ -446,9 +449,11 @@ export default function AllProductsPage() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setViewMode('grid')}
+                  onClick={() => setViewMode("grid")}
                   className={`p-3 transition-colors ${
-                    viewMode === 'grid' ? 'bg-primary text-primary-foreground' : ''
+                    viewMode === "grid"
+                      ? "bg-primary text-primary-foreground"
+                      : ""
                   }`}
                 >
                   <Grid className="h-5 w-5" />
@@ -456,9 +461,11 @@ export default function AllProductsPage() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setViewMode('list')}
+                  onClick={() => setViewMode("list")}
                   className={`p-3 transition-colors ${
-                    viewMode === 'list' ? 'bg-primary text-primary-foreground' : ''
+                    viewMode === "list"
+                      ? "bg-primary text-primary-foreground"
+                      : ""
                   }`}
                 >
                   <List className="h-5 w-5" />
@@ -488,7 +495,9 @@ export default function AllProductsPage() {
               className="text-center py-20"
             >
               <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-2xl font-bold text-foreground mb-2">No products found</h3>
+              <h3 className="text-2xl font-bold text-foreground mb-2">
+                No products found
+              </h3>
               <p className="text-muted-foreground">
                 Try adjusting your search query
               </p>
@@ -499,4 +508,3 @@ export default function AllProductsPage() {
     </div>
   );
 }
-

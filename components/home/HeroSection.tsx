@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ArrowRight, Play, Star } from "lucide-react";
+import { ArrowRight, Star } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
 const HeroSection = () => {
@@ -16,21 +17,18 @@ const HeroSection = () => {
       title: "Professional Printing Solutions",
       subtitle: "High-quality prints for your business needs",
       image: "/sample1.jpg",
-      cta: "Shop Now",
     },
     {
       id: 2,
       title: "Custom Branding Materials",
       subtitle: "Stand out with personalized designs",
       image: "/sample2.jpg",
-      cta: "Explore Products",
     },
     {
       id: 3,
       title: "Premium Promotional Items",
       subtitle: "Elevate your brand presence",
       image: "/sample3.jpg",
-      cta: "View Catalog",
     },
   ];
 
@@ -77,7 +75,7 @@ const HeroSection = () => {
                     <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/50 to-transparent" />
                   </div>
                 </motion.div>
-              )
+              ),
           )}
         </AnimatePresence>
       </div>
@@ -116,55 +114,19 @@ const HeroSection = () => {
               {slides[currentSlide].subtitle}
             </motion.p>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <motion.a
-                href="#products"
-                className="btn-pana p-3 text-black inline-flex items-center justify-center w-full sm:w-auto"
-                whileTap={{ scale: 0.98 }}
-                whileHover={{
-                  translateY: -3,
-                  boxShadow: "0 8px 30px rgba(0,0,0,0.35)",
-                }}
+            {/* Order Now Button */}
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+              <Link
+                href="/all-products"
+                className="btn-pana py-4 px-8 text-lg font-semibold inline-flex items-center justify-center gap-3 shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all duration-300"
               >
-                {slides[currentSlide].cta}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </motion.a>
-
-              <motion.button
-                whileTap={{ scale: 0.98 }}
-                className="bg-transparent border-2 border-white text-white inline-flex items-center justify-center rounded-(--radius) px-6 py-3 transition-all duration-200 w-full sm:w-auto"
-              >
-                <Play className="mr-2 h-5 w-5" />
-                Watch Demo
-              </motion.button>
-            </div>
-
-            <div className="mt-8 md:mt-12 grid grid-cols-3 gap-4 md:gap-8">
-              <motion.div whileHover={{ translateY: -6 }}>
-                <div className="p-1 md:p-2 border-l-2 border-yellow-400/50 pl-3 md:border-none md:pl-0">
-                  <p className="text-xl md:text-3xl font-bold">10K+</p>
-                  <p className="text-xs md:text-sm text-gray-300">
-                    Happy Customers
-                  </p>
-                </div>
-              </motion.div>
-              <motion.div whileHover={{ translateY: -6 }}>
-                <div className="p-1 md:p-2 border-l-2 border-yellow-400/50 pl-3 md:border-none md:pl-0">
-                  <p className="text-xl md:text-3xl font-bold">50K+</p>
-                  <p className="text-xs md:text-sm text-gray-300">
-                    Products Delivered
-                  </p>
-                </div>
-              </motion.div>
-              <motion.div whileHover={{ translateY: -6 }}>
-                <div className="p-1 md:p-2 border-l-2 border-yellow-400/50 pl-3 md:border-none md:pl-0">
-                  <p className="text-xl md:text-3xl font-bold">9+ Yrs</p>
-                  <p className="text-xs md:text-sm text-gray-300">
-                    Industry Experience
-                  </p>
-                </div>
-              </motion.div>
-            </div>
+                <span className="relative">
+                  Order Now
+                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-white/50 rounded-full"></span>
+                </span>
+                <ArrowRight className="h-6 w-6" />
+              </Link>
+            </motion.div>
           </div>
         </motion.div>
       </div>

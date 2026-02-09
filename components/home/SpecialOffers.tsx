@@ -1,7 +1,8 @@
 "use client";
 
-import { Clock, Tag, TrendingUp } from "lucide-react";
+import { Clock, Tag, TrendingUp, ArrowRight } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 
 const SpecialOffers = () => {
@@ -10,31 +11,31 @@ const SpecialOffers = () => {
       id: 1,
       title: "Flash Sale",
       subtitle: "Business Cards",
-      discount: 40, // percentage
       description: "Premium quality business cards with custom designs",
       image: "/sample20.jpg",
       expires: "2 days left",
       bgColor: "bg-red-500",
+      link: "/products/premium-business-cards",
     },
     {
       id: 2,
       title: "Bundle Deal",
       subtitle: "Complete Branding Package",
-      discount: 150, // fixed ETB discount
       description: "Get logo, business cards, and letterheads together",
       image: "/sample21.jpg",
       expires: "5 days left",
       bgColor: "bg-blue-500",
+      link: "/digital-paper-prints",
     },
     {
       id: 3,
       title: "Limited Time",
       subtitle: "Banner Printing",
-      discount: 30, // percentage
       description: "Large format banners for events and promotions",
       image: "/sample22.jpg",
       expires: "1 week left",
       bgColor: "bg-green-500",
+      link: "/flex-banners",
     },
   ];
 
@@ -65,55 +66,60 @@ const SpecialOffers = () => {
               whileHover={{ scale: 1.02, rotate: 0.3 }}
               transition={{ type: "spring", stiffness: 250 }}
             >
-              <div className="relative group rounded-2xl overflow-hidden shadow-lg cursor-pointer">
-              <div className="relative h-72 rounded-2xl overflow-hidden mb-4">
-                <Image
-                  src={offer.image}
-                  alt={offer.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <Link href={offer.link} className="block">
+                <div className="relative group rounded-2xl overflow-hidden shadow-lg cursor-pointer">
+                  <div className="relative h-72 rounded-2xl overflow-hidden mb-4">
+                    <Image
+                      src={offer.image}
+                      alt={offer.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
-                {/* Discount badge */}
-                <motion.div
-                  initial={{ y: -20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.1 * offer.id }}
-                >
-                  <div className={`absolute top-4 left-4 ${offer.bgColor} text-white px-4 py-2 rounded-lg`}>
-                  <p className="text-2xl font-bold">
-                    {offer.discount > 50
-                      ? `${offer.discount}% OFF`
-                      : `Save ETB ${offer.discount.toLocaleString("en-ET")}`}
-                  </p>
+                    {/* Badge */}
+                    <motion.div
+                      initial={{ y: -20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.1 * offer.id }}
+                    >
+                      <div
+                        className={`absolute top-4 left-4 ${offer.bgColor} text-white px-4 py-2 rounded-lg`}
+                      >
+                        <p className="text-lg font-bold">Special Offer</p>
+                      </div>
+                    </motion.div>
+
+                    {/* Timer */}
+                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg">
+                      <div className="flex items-center space-x-1">
+                        <Clock className="h-4 w-4 text-orange-500" />
+                        <span className="text-sm font-medium">
+                          {offer.expires}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                      <h3 className="text-2xl font-bold mb-1">{offer.title}</h3>
+                      <p className="text-xl mb-2">{offer.subtitle}</p>
+                      <p className="text-sm text-white/80">
+                        {offer.description}
+                      </p>
+                    </div>
                   </div>
-                </motion.div>
 
-                {/* Timer */}
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg">
-                  <div className="flex items-center space-x-1">
-                    <Clock className="h-4 w-4 text-orange-500" />
-                    <span className="text-sm font-medium">{offer.expires}</span>
-                  </div>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                    className="w-full btn-pana text-lg py-3 inline-flex items-center justify-center gap-2"
+                  >
+                    View Offer
+                    <ArrowRight className="h-5 w-5" />
+                  </motion.div>
                 </div>
-
-                {/* Content */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                  <h3 className="text-2xl font-bold mb-1">{offer.title}</h3>
-                  <p className="text-xl mb-2">{offer.subtitle}</p>
-                  <p className="text-sm text-white/80">{offer.description}</p>
-                </div>
-              </div>
-
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 300 }}
-                className="w-full btn-pana text-lg py-3"
-              >
-              Claim Offer
-              </motion.button>
-              </div>
+              </Link>
             </motion.div>
           ))}
         </div>
@@ -123,7 +129,7 @@ const SpecialOffers = () => {
           <div className="inline-flex items-center space-x-2 bg-primary/10 px-6 py-3 rounded-full">
             <TrendingUp className="h-5 w-5 text-primary" />
             <span className="text-sm font-medium text-primary">
-              Join 10,000+ customers saving with our deals
+              Join thousands of customers with our deals
             </span>
           </div>
         </div>

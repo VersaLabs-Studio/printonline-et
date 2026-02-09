@@ -2,6 +2,7 @@
 
 import { ArrowRight, Sparkles, Shield, Truck } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 
 const FeaturedProducts = () => {
@@ -13,7 +14,6 @@ const FeaturedProducts = () => {
         "Complete professional branding package with business cards, letterheads, and envelopes",
       image: "/sample18.jpg",
       features: ["Premium Paper", "Custom Design", "Fast Delivery"],
-      price: 89,
       link: "/digital-paper-prints",
     },
     {
@@ -23,7 +23,6 @@ const FeaturedProducts = () => {
         "Durable weather-resistant signs for maximum visibility and impact",
       image: "/sample24.jpg",
       features: ["UV Resistant", "Weather Proof", "LED Options"],
-      price: 199,
       link: "/signage-solutions",
     },
     {
@@ -33,7 +32,6 @@ const FeaturedProducts = () => {
         "Complete event setup with banners, backdrops, and promotional materials",
       image: "/sample13.jpg",
       features: ["All-in-One", "Custom Sizes", "Quick Setup"],
-      price: 299,
       link: "/flex-banners",
     },
   ];
@@ -85,56 +83,48 @@ const FeaturedProducts = () => {
               whileHover={{ y: -8 }}
               className="group h-full"
             >
-              <div className="relative h-full bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-border/50 flex flex-col">
-                <div className="relative h-72 overflow-hidden">
-                  <Image
-                    src={product.image}
-                    alt={product.title}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
+              <Link href={product.link} className="block h-full">
+                <div className="relative h-full bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-border/50 flex flex-col cursor-pointer">
+                  <div className="relative h-72 overflow-hidden">
+                    <Image
+                      src={product.image}
+                      alt={product.title}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
+                    />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
 
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <div className="flex flex-wrap gap-2">
-                      {product.features.map((feature, idx) => (
-                        <span
-                          key={idx}
-                          className="bg-white/20 backdrop-blur-md text-white text-[10px] font-medium px-2.5 py-1 rounded-full border border-white/10"
-                        >
-                          {feature}
-                        </span>
-                      ))}
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <div className="flex flex-wrap gap-2">
+                        {product.features.map((feature, idx) => (
+                          <span
+                            key={idx}
+                            className="bg-white/20 backdrop-blur-md text-white text-[10px] font-medium px-2.5 py-1 rounded-full border border-white/10"
+                          >
+                            {feature}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="p-6 flex flex-col grow bg-card">
-                  <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
-                    {product.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm mb-6 grow">
-                    {product.description}
-                  </p>
+                  <div className="p-6 flex flex-col grow bg-card">
+                    <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
+                      {product.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm mb-6 grow">
+                      {product.description}
+                    </p>
 
-                  <div className="pt-4 border-t border-border/50 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-0.5">
-                        Starting from
-                      </p>
-                      <span className="text-xl font-bold text-foreground">
-                        ETB {product.price.toLocaleString("en-ET")}
+                    <div className="pt-4 border-t border-border/50 flex items-center justify-center">
+                      <span className="inline-flex items-center gap-2 text-primary font-semibold group-hover:gap-3 transition-all">
+                        View Details
+                        <ArrowRight className="h-5 w-5" />
                       </span>
                     </div>
-                    <a
-                      href={product.link}
-                      className="btn-pana text-primary-foreground h-10 w-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-primary/25"
-                    >
-                      <ArrowRight className="h-5 w-5" />
-                    </a>
                   </div>
                 </div>
-              </div>
+              </Link>
             </motion.div>
           ))}
         </div>
