@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X, User, Sun, Moon, Search } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
@@ -12,6 +12,10 @@ const Header = () => {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
   const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toggleMenu = () => setIsMenuOpen((s) => !s);
 
@@ -24,23 +28,15 @@ const Header = () => {
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-3">
-            <Link href="/" className="flex items-center gap-3 shrink-0">
-              <div className="relative w-12 h-12 shrink-0">
+            <Link href="/" className="flex items-center shrink-0">
+              <div className="relative w-56 h-14 shrink-0">
                 <Image
-                  src="/logo.png"
+                  src="/nav-logo.png"
                   alt="Print Online ET Logo"
                   fill
-                  className="object-contain"
+                  className="object-contain object-left"
                   priority
                 />
-              </div>
-              <div className="hidden sm:block">
-                <h1 className="text-lg font-semibold text-foreground leading-none">
-                  Print Online ET
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  powered by Pana Promotion
-                </p>
               </div>
             </Link>
 

@@ -13,7 +13,11 @@ import {
   Ruler,
   ArrowRight,
   X,
+  UploadCloud,
+  Palette,
+  User,
 } from "lucide-react";
+import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -68,10 +72,6 @@ const ProductDetailPage = ({ product }: ProductDetailPageProps) => {
     () => getProductFormSchema(product.name),
     [product.name],
   );
-  const formType = useMemo(
-    () => getProductFormType(product.name),
-    [product.name],
-  );
   const tabContent = useMemo(
     () => product.tabs ?? getProductTabContent(product.name),
     [product],
@@ -106,6 +106,19 @@ const ProductDetailPage = ({ product }: ProductDetailPageProps) => {
       return states;
     },
   );
+
+  const [designFile, setDesignFile] = useState<{
+    name: string;
+    size: number;
+  } | null>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setDesignFile({ name: file.name, size: file.size });
+      toast.success(`Design "${file.name}" attached to order`);
+    }
+  };
 
   // Update field states based on conditional logic
   useEffect(() => {
@@ -144,7 +157,7 @@ const ProductDetailPage = ({ product }: ProductDetailPageProps) => {
     });
 
     setFieldStates(newStates);
-  }, [formData, formSchema]);
+  }, [formData, formSchema, fieldStates]);
 
   const handleFieldChange = (fieldKey: string, value: unknown) => {
     setFormData((prev) => ({
@@ -196,6 +209,7 @@ const ProductDetailPage = ({ product }: ProductDetailPageProps) => {
       productImage: product.images[0],
       category: product.category,
       customOptions: formData,
+      designFile: designFile,
     };
 
     sessionStorage.setItem("pendingOrder", JSON.stringify(orderData));
@@ -734,6 +748,53 @@ const ProductDetailPage = ({ product }: ProductDetailPageProps) => {
             })}
           </div>
 
+          {/* Design Options - Rich & Large */}
+          <div className="space-y-3 pt-2">
+            <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+              <Palette className="h-4 w-4 text-primary" />
+              Design & Artwork
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="relative flex flex-col items-center justify-center p-4 h-32 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary transition-all cursor-pointer group">
+                <input
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                  accept=".pdf,.ai,.psd,.jpg,.png"
+                />
+                <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                  <UploadCloud className="h-6 w-6" />
+                </div>
+                <span className="text-xs font-bold text-foreground">
+                  {designFile ? "Change Design" : "Upload Design"}
+                </span>
+                <span className="text-[10px] text-muted-foreground mt-1 text-center line-clamp-1 px-2">
+                  {designFile ? designFile.name : "PDF, AI, PSD, JPG"}
+                </span>
+                {designFile && (
+                  <div className="absolute top-2 right-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 fill-white" />
+                  </div>
+                )}
+              </label>
+
+              <Link
+                href="/contact"
+                className="flex flex-col items-center justify-center p-4 h-32 rounded-xl border-2 border-secondary bg-secondary/10 hover:bg-secondary/20 transition-all group"
+              >
+                <div className="w-10 h-10 bg-secondary text-foreground rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                  <User className="h-6 w-6" />
+                </div>
+                <span className="text-xs font-bold text-foreground">
+                  Hire a Designer
+                </span>
+                <span className="text-[10px] text-muted-foreground mt-1 text-center">
+                  Professional help
+                </span>
+              </Link>
+            </div>
+          </div>
+
           {/* Proceed to Order & Actions - Compact */}
           <div className="space-y-2 pt-3 border-t border-border/50">
             <div className="flex gap-2">
@@ -847,9 +908,15 @@ const ProductDetailPage = ({ product }: ProductDetailPageProps) => {
                       {["S", "M", "L", "XL", "2XL", "3XL"].map((size) => (
                         <tr key={size} className="border-b border-border/50">
                           <td className="p-2 font-medium">{size}</td>
-                          <td className="p-2 text-muted-foreground">38-40"</td>
-                          <td className="p-2 text-muted-foreground">28"</td>
-                          <td className="p-2 text-muted-foreground">8.5"</td>
+                          <td className="p-2 text-muted-foreground">
+                            38-40&quot;
+                          </td>
+                          <td className="p-2 text-muted-foreground">
+                            28&quot;
+                          </td>
+                          <td className="p-2 text-muted-foreground">
+                            8.5&quot;
+                          </td>
                         </tr>
                       ))}
                     </tbody>

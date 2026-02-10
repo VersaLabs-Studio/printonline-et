@@ -26,6 +26,7 @@ interface OrderItem {
   productImage: string;
   category: string;
   customOptions: Record<string, unknown>;
+  designFile?: { name: string; size: number } | null;
 }
 
 export default function OrderSummaryPage() {
@@ -592,6 +593,26 @@ export default function OrderSummaryPage() {
                 </div>
               ))}
             </div>
+
+            {/* Design File */}
+            {orderItem.designFile && (
+              <div className="py-4 border-t border-border">
+                <h3 className="font-medium text-foreground mb-3">
+                  Design Artwork
+                </h3>
+                <div className="flex items-center p-3 bg-primary/5 rounded-lg border border-primary/10">
+                  <FileText className="h-5 w-5 text-primary mr-3" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {orderItem.designFile.name}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {(orderItem.designFile.size / 1024).toFixed(1)} KB
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Info Notice */}
             <div className="mt-4 p-3 bg-secondary/30 rounded-lg">

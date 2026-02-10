@@ -10,6 +10,7 @@ import {
   Phone,
   MapPin,
   ArrowRight,
+  FileText,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,6 +24,7 @@ interface OrderConfirmation {
     productImage: string;
     category: string;
     customOptions: Record<string, unknown>;
+    designFile?: { name: string; size: number } | null;
   };
   contact: {
     firstName: string;
@@ -244,6 +246,27 @@ export default function OrderConfirmationPage() {
                   )}
                 </div>
               </div>
+
+              {/* Design File */}
+              {orderDetails.item.designFile && (
+                <div className="py-4 border-t border-border">
+                  <h3 className="font-medium text-foreground mb-3">
+                    Design Artwork
+                  </h3>
+                  <div className="flex items-center p-3 bg-primary/5 rounded-lg border border-primary/10">
+                    <FileText className="h-5 w-5 text-primary mr-3" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {orderDetails.item.designFile.name}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {(orderDetails.item.designFile.size / 1024).toFixed(1)}{" "}
+                        KB
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Special Instructions */}
               {orderDetails.specialInstructions && (

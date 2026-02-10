@@ -1,5 +1,6 @@
 // components/Footer.tsx
 import Link from "next/link";
+import Image from "next/image";
 import {
   Phone,
   Mail,
@@ -16,19 +17,14 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-primary rounded-md flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">
-                  P
-                </span>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-foreground">
-                  printonline.et
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  powered by Pana Promotion
-                </p>
+            <div className="flex items-center">
+              <div className="relative w-64 h-64 shrink-0">
+                <Image
+                  src="/footer-logo.png"
+                  alt="Print Online ET Footer Logo"
+                  fill
+                  className="object-contain object-left"
+                />
               </div>
             </div>
             <p className="text-sm text-muted-foreground max-w-xs">
@@ -164,38 +160,38 @@ const Footer = () => {
             <h4 className="font-semibold text-foreground">Contact Us</h4>
             <ul className="space-y-3">
               <li className="flex items-start space-x-2">
-                <MapPin className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                 <span className="text-sm text-muted-foreground">
                   Hayahulet Rd. Infront of Worku Bld, Wakero Bld. Addis Ababa,
                   Ethiopia
                 </span>
               </li>
               <li className="flex items-center space-x-2">
-                <Phone className="h-5 w-5 text-primary flex-shrink-0" />
+                <Phone className="h-5 w-5 text-primary shrink-0" />
                 <span className="text-sm text-muted-foreground">
                   +251 116 68 69 40
                 </span>
               </li>
               <li className="flex items-center space-x-2">
-                <Phone className="h-5 w-5 text-primary flex-shrink-0" />
+                <Phone className="h-5 w-5 text-primary shrink-0" />
                 <span className="text-sm text-muted-foreground">
                   +251 911 00 52 55
                 </span>
               </li>
               <li className="flex items-center space-x-2">
-                <Phone className="h-5 w-5 text-primary flex-shrink-0" />
+                <Phone className="h-5 w-5 text-primary shrink-0" />
                 <span className="text-sm text-muted-foreground">
                   +251 924 10 67 67
                 </span>
               </li>
               <li className="flex items-center space-x-2">
-                <Phone className="h-5 w-5 text-primary flex-shrink-0" />
+                <Phone className="h-5 w-5 text-primary shrink-0" />
                 <span className="text-sm text-muted-foreground">
                   +251 983 26 75 43
                 </span>
               </li>
               <li className="flex items-center space-x-2">
-                <Mail className="h-5 w-5 text-primary flex-shrink-0" />
+                <Mail className="h-5 w-5 text-primary shrink-0" />
                 <span className="text-sm text-muted-foreground">
                   panapromotionplc@gmail.com
                 </span>
