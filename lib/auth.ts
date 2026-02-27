@@ -120,10 +120,9 @@ export const auth = betterAuth({
               phone:
                 ((user as Record<string, unknown>).phone as string) || null,
               tin_number:
-                ((user as Record<string, unknown>).tin_number as string) ||
-                null,
+                ((user as Record<string, unknown>).tinNumber as string) || null,
               company_name:
-                ((user as Record<string, unknown>).company_name as string) ||
+                ((user as Record<string, unknown>).companyName as string) ||
                 null,
             });
           } catch (error) {
