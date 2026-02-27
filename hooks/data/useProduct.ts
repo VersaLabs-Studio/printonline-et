@@ -1,0 +1,119 @@
+// hooks/data/useProduct.ts
+// TanStack Query hook for fetching a single product with all related data
+// Used on the product detail page
+
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { createClient } from "@/lib/supabase/client";
+import type { ProductWithDetails } from "@/types/database";
+
+/**
+ * Fetch a single product by slug with full details:
+ * - Category info
+ * - All product images (ordered)
+ * - All product options with their values (ordered)
+ */
+export function useProduct(slug: string) {
+  const supabase = createClient();
+
+  return useQuery({
+    queryKey: ["products", slug],
+    queryFn: async (): Promise<ProductWithDetails> => {
+      const { data, error } = await supabase
+        .from("products")
+        .select(
+          `
+          *,
+          category:categories(name, slug),
+          product_images(
+            id, image_url, alt_text, display_order, is_primary
+          ),
+          product_options(
+            id, option_key, option_label, field_type, is_required,
+            display_order, description, group_label,
+            depends_on_option, depends_on_value,
+            product_option_values(
+              id, value, label, price_amount, price_type,
+              group_name, description, display_order,
+              is_default, is_active, metadata
+            )
+          )
+        `,
+        )
+        .eq("slug", slug)
+        .eq("is_active", true)
+        .single();
+
+      if (error) throw error;
+      if (!data) throw new Error("Product not found");
+
+      // Sort images by display_order
+      const product = data as unknown as ProductWithDetails;
+      product.product_images.sort(
+        (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
+      );
+
+      // Sort options and their values by display_order
+      product.product_options.sort(
+        (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
+      );
+      product.product_options.forEach((option) => {
+        option.product_option_values.sort(
+          (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
+        );
+        // Filter out inactive values
+        option.product_option_values = option.product_option_values.filter(
+          (v) => v.is_active !== false,
+        );
+      });
+
+      return product;
+    },
+    enabled: !!slug,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+}
+
+/**
+ * Fetch a product by ID (used in CMS and order detail).
+ */
+export function useProductById(id: string) {
+  const supabase = createClient();
+
+  return useQuery({
+    queryKey: ["products", "id", id],
+    queryFn: async (): Promise<ProductWithDetails> => {
+      const { data, error } = await supabase
+        .from("products")
+        .select(
+          `
+          *,
+          category:categories(name, slug),
+          product_images(
+            id, image_url, alt_text, display_order, is_primary
+          ),
+          product_options(
+            id, option_key, option_label, field_type, is_required,
+            display_order, description, group_label,
+            depends_on_option, depends_on_value,
+            product_option_values(
+              id, value, label, price_amount, price_type,
+              group_name, description, display_order,
+              is_default, is_active, metadata
+            )
+          )
+        `,
+        )
+        .eq("id", id)
+        .single();
+
+      if (error) throw error;
+      if (!data) throw new Error("Product not found");
+
+      return data as unknown as ProductWithDetails;
+    },
+    enabled: !!id,
+    staleTime: 2 * 60 * 1000,
+  });
+}

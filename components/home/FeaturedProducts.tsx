@@ -1,40 +1,18 @@
 "use client";
 
-import { ArrowRight, Sparkles, Shield, Truck } from "lucide-react";
+import { ArrowRight, Sparkles, Shield, Truck, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useProducts } from "@/hooks/data";
+import { PriceDisplay } from "@/components/shared/PriceDisplay";
 
 const FeaturedProducts = () => {
-  const featuredProducts = [
-    {
-      id: 1,
-      title: "Premium Business Stationery",
-      description:
-        "Complete professional branding package with business cards, letterheads, and envelopes",
-      image: "/sample18.jpg",
-      features: ["Premium Paper", "Custom Design", "Fast Delivery"],
-      link: "/digital-paper-prints",
-    },
-    {
-      id: 2,
-      title: "Outdoor Signage Solutions",
-      description:
-        "Durable weather-resistant signs for maximum visibility and impact",
-      image: "/sample24.jpg",
-      features: ["UV Resistant", "Weather Proof", "LED Options"],
-      link: "/signage-solutions",
-    },
-    {
-      id: 3,
-      title: "Event Branding Package",
-      description:
-        "Complete event setup with banners, backdrops, and promotional materials",
-      image: "/sample13.jpg",
-      features: ["All-in-One", "Custom Sizes", "Quick Setup"],
-      link: "/flex-banners",
-    },
-  ];
+  // Fetch products that have a badge (Best Seller, Premium, Popular)
+  const { data: products, isLoading } = useProducts({ limit: 3 });
+
+  // Filter to only products with a badge for the featured section
+  const featuredProducts = (products ?? []).filter((p) => p.badge);
 
   return (
     <section className="py-24 relative overflow-hidden">
@@ -61,73 +39,106 @@ const FeaturedProducts = () => {
             Curated Printing Solutions
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Hand-picked combinations designed to meet your specific business
-            needs with premium quality and speed.
+            Hand-picked products designed to meet your specific business needs
+            with premium quality and speed.
           </p>
         </motion.div>
 
-        {/* Products */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredProducts.map((product, idx) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{
-                delay: idx * 0.15,
-                duration: 0.6,
-                type: "spring",
-                stiffness: 100,
-              }}
-              whileHover={{ y: -8 }}
-              className="group h-full"
-            >
-              <Link href={product.link} className="block h-full">
-                <div className="relative h-full bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-border/50 flex flex-col cursor-pointer">
-                  <div className="relative h-72 overflow-hidden">
-                    <Image
-                      src={product.image}
-                      alt={product.title}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
+        {/* Loading */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        )}
 
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <div className="flex flex-wrap gap-2">
-                        {product.features.map((feature, idx) => (
-                          <span
-                            key={idx}
-                            className="bg-white/20 backdrop-blur-md text-white text-[10px] font-medium px-2.5 py-1 rounded-full border border-white/10"
-                          >
-                            {feature}
+        {/* Products */}
+        {featuredProducts.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredProducts.map((product, idx) => {
+              const features = Array.isArray(product.features)
+                ? (product.features as string[]).slice(0, 3)
+                : [];
+
+              return (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{
+                    delay: idx * 0.15,
+                    duration: 0.6,
+                    type: "spring",
+                    stiffness: 100,
+                  }}
+                  whileHover={{ y: -8 }}
+                  className="group h-full"
+                >
+                  <Link
+                    href={`/products/${product.slug}`}
+                    className="block h-full"
+                  >
+                    <div className="relative h-full bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-border/50 flex flex-col cursor-pointer">
+                      <div className="relative h-72 overflow-hidden">
+                        <Image
+                          src={`/product-images/${product.slug === "business-cards" ? "Business-Card-Design-1.webp" : product.slug === "flyers" ? "Flyers (1).jpg" : product.slug === "premium-gift-bags" ? "Full_Color_Paper_Bags_Marketing_Materials_A_Updated.jpg" : "Business-Card-Design-1.webp"}`}
+                          alt={product.name}
+                          fill
+                          className="object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
+                        />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
+
+                        <div className="absolute bottom-4 left-4 right-4">
+                          <div className="flex flex-wrap gap-2">
+                            {features.map((feature, fIdx) => (
+                              <span
+                                key={fIdx}
+                                className="bg-white/20 backdrop-blur-md text-white text-[10px] font-medium px-2.5 py-1 rounded-full border border-white/10"
+                              >
+                                {feature as string}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-6 flex flex-col grow bg-card">
+                        {product.badge && (
+                          <span className="inline-flex self-start bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 rounded-full mb-3">
+                            {product.badge}
                           </span>
-                        ))}
+                        )}
+                        <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
+                          {product.name}
+                        </h3>
+                        <p className="text-muted-foreground text-sm mb-4 grow line-clamp-2">
+                          {product.short_description || product.description}
+                        </p>
+
+                        <div className="mb-4">
+                          <PriceDisplay
+                            amount={product.base_price}
+                            variant={
+                              product.base_price === 0 ? "from" : "default"
+                            }
+                            size="sm"
+                          />
+                        </div>
+
+                        <div className="pt-4 border-t border-border/50 flex items-center justify-center">
+                          <span className="inline-flex items-center gap-2 text-primary font-semibold group-hover:gap-3 transition-all">
+                            View Details
+                            <ArrowRight className="h-5 w-5" />
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="p-6 flex flex-col grow bg-card">
-                    <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
-                      {product.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm mb-6 grow">
-                      {product.description}
-                    </p>
-
-                    <div className="pt-4 border-t border-border/50 flex items-center justify-center">
-                      <span className="inline-flex items-center gap-2 text-primary font-semibold group-hover:gap-3 transition-all">
-                        View Details
-                        <ArrowRight className="h-5 w-5" />
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Benefits */}
         <motion.div
@@ -161,8 +172,8 @@ const FeaturedProducts = () => {
                 Fast Delivery
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Quick turnaround times with reliable, tracked shipping options
-                across all of Ethiopia.
+                Quick turnaround times with reliable delivery options across all
+                of Ethiopia.
               </p>
             </div>
           </div>

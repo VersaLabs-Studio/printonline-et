@@ -1,116 +1,170 @@
 // context/CartContext.tsx
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  ReactNode,
+} from "react";
 
+/**
+ * CartItem — aligned with database types.
+ * Uses string IDs (UUID), stores selected options as a record,
+ * and keeps product slug for linking back to the detail page.
+ */
 export interface CartItem {
-  id: number;
+  /** Unique cart line ID (generated client-side, not the product ID) */
+  cartLineId: string;
+  /** Product UUID from Supabase */
+  productId: string;
+  /** Product slug for URL routing */
+  productSlug: string;
+  /** Product name (snapshot) */
   name: string;
-  price: number;
+  /** Unit price in ETB after option selection */
+  unitPrice: number;
+  /** Primary image URL */
   image: string;
+  /** Category name */
   category: string;
+  /** Quantity ordered */
   quantity: number;
-  designStyle?: string;
-  template?: string;
-  customOptions?: Record<string, unknown>;
+  /** Selected option values: { size: "a4", lamination: "matte", ... } */
+  selectedOptions: Record<string, string>;
+  /** Design file URL (if uploaded) */
+  designFileUrl?: string;
+  /** Design file name */
+  designFileName?: string;
 }
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (item: CartItem) => void;
-  removeFromCart: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
+  addToCart: (item: Omit<CartItem, "cartLineId">) => void;
+  removeFromCart: (cartLineId: string) => void;
+  updateQuantity: (cartLineId: string, quantity: number) => void;
   clearCart: () => void;
   getCartTotal: () => number;
   getCartCount: () => number;
 }
 
+const STORAGE_KEY = "printonline-cart";
+
 const CartContext = createContext<CartContextType | undefined>(undefined);
+
+/**
+ * Generate a unique cart line ID.
+ * Two items with the same product but different options get different line IDs.
+ */
+function generateCartLineId(
+  productId: string,
+  selectedOptions: Record<string, string>,
+): string {
+  const optionStr = Object.entries(selectedOptions)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([k, v]) => `${k}:${v}`)
+    .join("|");
+  return `${productId}__${optionStr}`;
+}
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>(() => {
-    if (typeof window !== 'undefined') {
-      const savedCart = localStorage.getItem('printonline-cart');
+    if (typeof window !== "undefined") {
+      const savedCart = localStorage.getItem(STORAGE_KEY);
       if (savedCart) {
         try {
           return JSON.parse(savedCart);
         } catch (error) {
-          console.error('Failed to parse cart from localStorage:', error);
+          console.error("Failed to parse cart from localStorage:", error);
         }
       }
     }
     return [];
   });
 
-  // Save cart to localStorage whenever it changes
+  // Persist cart to localStorage
   useEffect(() => {
-    localStorage.setItem('printonline-cart', JSON.stringify(cart));
-    
-    // Trigger storage event for other tabs/windows
-    window.dispatchEvent(new Event('storage'));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+    window.dispatchEvent(new Event("storage"));
   }, [cart]);
 
-  const addToCart = (item: CartItem) => {
-    setCart((prevCart: CartItem[]) => {
-      // Check if item already exists in cart
-      const existingItemIndex = prevCart.findIndex(
-        cartItem => 
-          cartItem.id === item.id && 
-          cartItem.designStyle === item.designStyle && 
-          cartItem.template === item.template
+  const addToCart = useCallback((item: Omit<CartItem, "cartLineId">) => {
+    setCart((prevCart) => {
+      const cartLineId = generateCartLineId(
+        item.productId,
+        item.selectedOptions,
       );
-      
-      if (existingItemIndex !== -1) {
-        // Update quantity of existing item
+
+      // Check if same product + same options already in cart
+      const existingIndex = prevCart.findIndex(
+        (cartItem) => cartItem.cartLineId === cartLineId,
+      );
+
+      if (existingIndex !== -1) {
+        // Update quantity of existing line
         const updatedCart = [...prevCart];
-        updatedCart[existingItemIndex].quantity += item.quantity;
+        updatedCart[existingIndex] = {
+          ...updatedCart[existingIndex],
+          quantity: updatedCart[existingIndex].quantity + item.quantity,
+        };
         return updatedCart;
       } else {
-        // Add new item to cart
-        return [...prevCart, item];
+        // Add new line
+        return [...prevCart, { ...item, cartLineId }];
       }
     });
-  };
+  }, []);
 
-  const removeFromCart = (id: number) => {
-    setCart((prevCart: CartItem[]) => prevCart.filter((item: CartItem) => item.id !== id));
-  };
+  const removeFromCart = useCallback((cartLineId: string) => {
+    setCart((prevCart) =>
+      prevCart.filter((item) => item.cartLineId !== cartLineId),
+    );
+  }, []);
 
-  const updateQuantity = (id: number, quantity: number) => {
+  const updateQuantity = useCallback((cartLineId: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(id);
+      setCart((prevCart) =>
+        prevCart.filter((item) => item.cartLineId !== cartLineId),
+      );
       return;
     }
-    
-    setCart((prevCart: CartItem[]) => 
-      prevCart.map((item: CartItem) => 
-        item.id === id ? { ...item, quantity } : item
-      )
+
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item.cartLineId === cartLineId ? { ...item, quantity } : item,
+      ),
     );
-  };
+  }, []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCart([]);
-  };
+  }, []);
 
-  const getCartTotal = () => {
-    return cart.reduce((total: number, item: CartItem) => total + (item.price * item.quantity), 0);
-  };
+  const getCartTotal = useCallback(() => {
+    return cart.reduce(
+      (total, item) => total + item.unitPrice * item.quantity,
+      0,
+    );
+  }, [cart]);
 
-  const getCartCount = () => {
-    return cart.reduce((total: number, item: CartItem) => total + item.quantity, 0);
-  };
+  const getCartCount = useCallback(() => {
+    return cart.reduce((total, item) => total + item.quantity, 0);
+  }, [cart]);
 
   return (
-    <CartContext.Provider value={{
-      cart,
-      addToCart,
-      removeFromCart,
-      updateQuantity,
-      clearCart,
-      getCartTotal,
-      getCartCount
-    }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        getCartTotal,
+        getCartCount,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
@@ -119,7 +173,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 export const useCart = () => {
   const context = useContext(CartContext);
   if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
+    throw new Error("useCart must be used within a CartProvider");
   }
   return context;
 };

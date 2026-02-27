@@ -6,17 +6,19 @@ import Image from "next/image";
 import { useState } from "react";
 import { Minus, Plus, Trash2, ArrowRight, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { PriceDisplay } from "@/components/shared/PriceDisplay";
+import { formatETB } from "@/lib/currency";
 import { toast } from "sonner";
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, getCartTotal } =
     useCart();
-  const [isUpdating, setIsUpdating] = useState<number | null>(null);
+  const [isUpdating, setIsUpdating] = useState<string | null>(null);
 
-  const handleQuantityChange = async (id: number, quantity: number) => {
-    setIsUpdating(id);
+  const handleQuantityChange = async (cartLineId: string, quantity: number) => {
+    setIsUpdating(cartLineId);
     try {
-      updateQuantity(id, quantity);
+      updateQuantity(cartLineId, quantity);
     } catch {
       toast.error("Failed to update quantity");
     } finally {
@@ -24,9 +26,9 @@ export default function CartPage() {
     }
   };
 
-  const handleRemoveItem = async (id: number) => {
+  const handleRemoveItem = async (cartLineId: string) => {
     try {
-      removeFromCart(id);
+      removeFromCart(cartLineId);
       toast.success("Item removed from cart");
     } catch {
       toast.error("Failed to remove item");
@@ -43,9 +45,8 @@ export default function CartPage() {
   };
 
   const subtotal = getCartTotal();
-  const shipping = subtotal > 100 ? 0 : 9.99;
-  const tax = subtotal * 0.1; // 10% tax
-  const total = subtotal + shipping + tax;
+  const shipping = subtotal > 5000 ? 0 : 200; // Free shipping over 5000 ETB
+  const total = subtotal + shipping;
 
   if (cart.length === 0) {
     return (
@@ -62,7 +63,10 @@ export default function CartPage() {
             Browse our catalog to find the perfect printing solutions for your
             needs.
           </p>
-          <Link href="/catalog" className="btn-pana inline-flex items-center p-3">
+          <Link
+            href="/all-products"
+            className="btn-pana inline-flex items-center p-3"
+          >
             Continue Shopping
             <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
@@ -80,7 +84,7 @@ export default function CartPage() {
         <div className="lg:col-span-2 space-y-4">
           {cart.map((item) => (
             <div
-              key={`${item.id}-${item.designStyle}-${item.template}`}
+              key={item.cartLineId}
               className="bg-card rounded-xl shadow-sm p-6"
             >
               <div className="flex flex-col sm:flex-row gap-4">
@@ -98,25 +102,38 @@ export default function CartPage() {
                 <div className="flex-1">
                   <div className="flex justify-between mb-2">
                     <div>
-                      <h3 className="font-semibold text-foreground">
+                      <Link
+                        href={`/products/${item.productSlug}`}
+                        className="font-semibold text-foreground hover:text-primary transition-colors"
+                      >
                         {item.name}
-                      </h3>
+                      </Link>
                       <p className="text-sm text-muted-foreground">
                         {item.category}
                       </p>
-                      {item.designStyle && (
-                        <p className="text-sm text-muted-foreground">
-                          Design: {item.designStyle}
-                        </p>
+                      {/* Show selected options */}
+                      {Object.entries(item.selectedOptions).length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {Object.entries(item.selectedOptions).map(
+                            ([key, value]) => (
+                              <span
+                                key={key}
+                                className="text-xs bg-secondary px-2 py-0.5 rounded-full text-muted-foreground"
+                              >
+                                {key}: {value}
+                              </span>
+                            ),
+                          )}
+                        </div>
                       )}
-                      {item.template && (
-                        <p className="text-sm text-muted-foreground">
-                          Template: {item.template}
+                      {item.designFileName && (
+                        <p className="text-xs text-primary mt-1">
+                          📎 {item.designFileName}
                         </p>
                       )}
                     </div>
                     <button
-                      onClick={() => handleRemoveItem(item.id)}
+                      onClick={() => handleRemoveItem(item.cartLineId)}
                       className="text-muted-foreground hover:text-red-500 transition-colors"
                       aria-label="Remove item"
                     >
@@ -128,9 +145,14 @@ export default function CartPage() {
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() =>
-                          handleQuantityChange(item.id, item.quantity - 1)
+                          handleQuantityChange(
+                            item.cartLineId,
+                            item.quantity - 1,
+                          )
                         }
-                        disabled={isUpdating === item.id || item.quantity <= 1}
+                        disabled={
+                          isUpdating === item.cartLineId || item.quantity <= 1
+                        }
                         className="p-1 rounded border border-border hover:bg-secondary transition-colors disabled:opacity-50"
                       >
                         <Minus className="h-4 w-4" />
@@ -138,17 +160,22 @@ export default function CartPage() {
                       <span className="w-8 text-center">{item.quantity}</span>
                       <button
                         onClick={() =>
-                          handleQuantityChange(item.id, item.quantity + 1)
+                          handleQuantityChange(
+                            item.cartLineId,
+                            item.quantity + 1,
+                          )
                         }
-                        disabled={isUpdating === item.id}
+                        disabled={isUpdating === item.cartLineId}
                         className="p-1 rounded border border-border hover:bg-secondary transition-colors disabled:opacity-50"
                       >
                         <Plus className="h-4 w-4" />
                       </button>
                     </div>
-                    <p className="font-semibold text-foreground">
-                      ETB {(item.price * item.quantity).toFixed(2)}
-                    </p>
+                    <PriceDisplay
+                      amount={item.unitPrice * item.quantity}
+                      size="md"
+                      className="font-semibold"
+                    />
                   </div>
                 </div>
               </div>
@@ -164,7 +191,7 @@ export default function CartPage() {
               Clear Cart
             </button>
             <Link
-              href="/catalog"
+              href="/all-products"
               className="text-primary hover:text-primary/80 transition-colors"
             >
               Continue Shopping
@@ -182,29 +209,23 @@ export default function CartPage() {
             <div className="space-y-3 mb-6">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span className="text-foreground">
-                  ETB {subtotal.toFixed(2)}
-                </span>
+                <span className="text-foreground">{formatETB(subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Shipping</span>
+                <span className="text-muted-foreground">Delivery</span>
                 <span className="text-foreground">
-                  {shipping === 0 ? "Free" : `ETB ${shipping.toFixed(2)}`}
+                  {shipping === 0 ? "Free" : formatETB(shipping)}
                 </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Tax</span>
-                <span className="text-foreground">ETB {tax.toFixed(2)}</span>
               </div>
               {shipping === 0 && (
                 <div className="text-sm text-green-600 font-medium">
-                  You&apos;ve qualified for free shipping!
+                  You&apos;ve qualified for free delivery!
                 </div>
               )}
               <div className="border-t border-border pt-3">
                 <div className="flex justify-between font-semibold text-foreground">
                   <span>Total</span>
-                  <span>ETB {total.toFixed(2)}</span>
+                  <PriceDisplay amount={total} size="lg" />
                 </div>
               </div>
             </div>
@@ -217,13 +238,7 @@ export default function CartPage() {
             </button>
 
             <div className="text-center text-sm text-muted-foreground">
-              <p>Secure checkout powered by Stripe</p>
-              <div className="flex justify-center space-x-2 mt-2">
-                <div className="w-8 h-5 bg-gray-200 rounded"></div>
-                <div className="w-8 h-5 bg-gray-200 rounded"></div>
-                <div className="w-8 h-5 bg-gray-200 rounded"></div>
-                <div className="w-8 h-5 bg-gray-200 rounded"></div>
-              </div>
+              <p>Prices shown in Ethiopian Birr (ETB)</p>
             </div>
           </div>
         </div>

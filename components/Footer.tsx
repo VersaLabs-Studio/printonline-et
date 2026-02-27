@@ -207,12 +207,12 @@ const Footer = () => {
             © {new Date().getFullYear()} printonline.et. All rights reserved.
           </p>
 
+          {/* 
           <div className="flex items-center gap-15 mt-4 md:mt-0 bg-neutral-900 px-4 py-2.5 rounded-lg border border-white/10 shadow-sm hover:bg-black transition-colors group cursor-pointer">
             <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest group-hover:text-white/60 transition-colors">
               Built by
             </span>
             <div className="flex items-center opacity-100 group-hover:opacity-100 transition-opacity">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/yonniny.png"
                 alt="Yonniny - Digital Service"
@@ -220,6 +220,7 @@ const Footer = () => {
               />
             </div>
           </div>
+          */}
 
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link

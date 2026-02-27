@@ -1,7 +1,7 @@
 // app/all-products/page.tsx
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -10,118 +10,38 @@ import {
   ChevronRight,
   Package,
   Sparkles,
+  Loader2,
+  Filter,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-
-// Product data organized by letter
-const productsByLetter: Record<string, string[]> = {
-  A: ["Acrylic Boards", "A-Frame Signs", "Aluminum Boards"],
-  B: [
-    "Banners",
-    "Biz Card Magnets",
-    "Blank Letterheads",
-    "Booklets",
-    "Bookmarks",
-    "Brochures",
-    "Business Cards",
-  ],
-  C: [
-    "Calendars",
-    "Canvas Prints",
-    "Car Magnets",
-    "Cardboards",
-    "Catalogs",
-    "Club Flyers",
-    "Collectors Cards",
-    "Corrugated Boards",
-  ],
-  D: ["Digital Paper Prints", "Door Hangers"],
-  E: ["Envelopes - Custom", "Envelopes - Logo", "Event Tickets"],
-  F: [
-    "Fabric Prints",
-    "Flex Banners",
-    "Floor Decals",
-    "Flyers",
-    "Foam Boards",
-    "Folded Biz Cards",
-    "Folded Hang Tags",
-    "Folders",
-    "Framed Prints",
-  ],
-  G: ["Greeting Cards"],
-  H: ["Hang Tags", "Hats"],
-  L: ["Letterheads"],
-  M: [
-    "Metal Wall Prints",
-    "Mini Menus",
-    "Mounted Wall Prints",
-    "Mouse Pads",
-    "Mugs",
-  ],
-  N: ["Notepads"],
-  P: [
-    "Photo Plaques",
-    "Photo Book",
-    "Polos",
-    "Postcards",
-    "Postcard Magnets",
-    "Posters - Bulk",
-    "Posters - Large Format",
-    "Promotional Items",
-    "Puzzles",
-    "PVC Boards",
-  ],
-  R: ["Rack Cards", "Retractable Banners", "Rip Cards", "Roll Labels"],
-  S: [
-    "Signage Solutions",
-    "Special Shapes",
-    "Staggered Flyers",
-    "Stickers",
-    "Sweatshirts - Crewnecks",
-    "Sweatshirts - Full Zip Hoodies",
-    "Sweatshirts - Hoodies",
-  ],
-  T: ["Table Tents", "T-Shirts"],
-  V: ["Vinyl Prints & Wraps"],
-  W: ["Window Clings", "Window Decals", "Window Perfs"],
-  Y: ["Yard Signs"],
-};
-
-// Sample images for placeholders (cycling through available samples)
-const getProductImage = (index: number) => {
-  const sampleImages = Array.from(
-    { length: 30 },
-    (_, i) => `/sample${i + 1}.jpg`,
-  );
-  return sampleImages[index % sampleImages.length];
-};
-
-// Helper function to convert product name to slug
-const productToSlug = (product: string) => {
-  return product
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/&/g, "and")
-    .replace(/[^a-z0-9-]/g, "");
-};
+import { useSearchParams } from "next/navigation";
+import { useProducts, useCategories } from "@/hooks/data";
+import { PriceDisplay } from "@/components/shared/PriceDisplay";
+import type { ProductWithCategory } from "@/types/database";
 
 interface ProductCardProps {
-  product: string;
+  product: ProductWithCategory;
   index: number;
   viewMode: "grid" | "list";
 }
 
 const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
-  const productSlug = productToSlug(product);
+  // Get primary image from product_images or fallback
+  const images = (product as Record<string, unknown>).product_images as
+    | { image_url: string; is_primary: boolean; display_order: number }[]
+    | undefined;
+  const primaryImage = images?.find((img) => img.is_primary) ?? images?.[0];
+  const imageUrl =
+    primaryImage?.image_url || "/product-images/Business-Card-Design-1.webp";
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.02 }}
+      transition={{ duration: 0.4, delay: index * 0.03 }}
     >
-      <Link href={`/products/${productSlug}`} className="block h-full">
+      <Link href={`/products/${product.slug}`} className="block h-full">
         <div
           className={`group relative bg-card border border-border/50 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer ${
             viewMode === "list" ? "flex" : ""
@@ -137,15 +57,24 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
               className="relative w-full h-full"
             >
               <Image
-                src={getProductImage(index)}
-                alt={product}
+                src={imageUrl}
+                alt={product.name}
                 fill
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </motion.div>
 
-            {/* Hover Overlay Content */}
+            {/* Badge */}
+            {product.badge && (
+              <div className="absolute top-4 left-4 z-10">
+                <span className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                  {product.badge}
+                </span>
+              </div>
+            )}
+
+            {/* Hover Overlay */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               whileHover={{ opacity: 1, y: 0 }}
@@ -157,18 +86,6 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
                 <ChevronRight className="h-4 w-4 ml-2" />
               </span>
             </motion.div>
-
-            {/* Badge */}
-            <motion.div
-              initial={{ scale: 0 }}
-              whileHover={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 200 }}
-              className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <span className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                New
-              </span>
-            </motion.div>
           </div>
 
           {/* Product Info */}
@@ -176,18 +93,42 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
             className={`p-6 ${viewMode === "list" ? "flex-1 flex flex-col justify-between" : ""}`}
           >
             <div>
+              {product.category && (
+                <p className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wider">
+                  {product.category.name}
+                </p>
+              )}
               <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2 text-lg">
-                {product}
+                {product.name}
               </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Premium quality printing service
-              </p>
+              {viewMode === "list" && product.short_description && (
+                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                  {product.short_description}
+                </p>
+              )}
+              <div className="mb-3">
+                <PriceDisplay
+                  amount={product.base_price}
+                  variant={product.base_price === 0 ? "from" : "default"}
+                  size="sm"
+                />
+              </div>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className="w-2 h-2 rounded-full mr-2 bg-green-500"></div>
-                <span className="text-sm text-green-600">Available</span>
+                <div
+                  className={`w-2 h-2 rounded-full mr-2 ${
+                    product.in_stock ? "bg-green-500" : "bg-red-500"
+                  }`}
+                ></div>
+                <span
+                  className={`text-sm ${
+                    product.in_stock ? "text-green-600" : "text-red-500"
+                  }`}
+                >
+                  {product.in_stock ? "Available" : "Out of Stock"}
+                </span>
               </div>
 
               <motion.div
@@ -205,172 +146,114 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
   );
 };
 
-interface LetterSectionProps {
-  letter: string;
-  products: string[];
-  viewMode: "grid" | "list";
-  startIndex: number;
-}
-
-const LetterSection = ({
-  letter,
-  products,
-  viewMode,
-  startIndex,
-}: LetterSectionProps) => {
-  return (
-    <motion.section
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.6 }}
-      className="mb-16"
-    >
-      {/* Letter Header */}
-      <motion.div
-        initial={{ x: -20, opacity: 0 }}
-        whileInView={{ x: 0, opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-        className="mb-8 flex items-center gap-4"
-      >
-        <div className="flex items-center gap-3">
-          <motion.div
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            className="w-12 h-12 bg-primary text-primary-foreground rounded-lg flex items-center justify-center font-bold text-xl shadow-lg"
-          >
-            {letter}
-          </motion.div>
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">
-              Products Starting with {letter}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {products.length} products available
-            </p>
-          </div>
-        </div>
-        <div className="flex-1 h-px bg-gradient-to-r from-primary/50 to-transparent"></div>
-      </motion.div>
-
-      {/* Products Grid */}
-      <div
-        className={`grid gap-6 ${
-          viewMode === "grid"
-            ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-            : "grid-cols-1"
-        }`}
-      >
-        {products.map((product, index) => (
-          <ProductCard
-            key={product}
-            product={product}
-            index={startIndex + index}
-            viewMode={viewMode}
-          />
-        ))}
-      </div>
-    </motion.section>
-  );
-};
-
 export default function AllProductsPage() {
+  const searchParams = useSearchParams();
+  const initialCategory = searchParams.get("category") || "";
+
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
 
-  // Filter products based on search
-  const filteredProductsByLetter = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return productsByLetter;
-    }
-
-    const filtered: Record<string, string[]> = {};
-    const query = searchQuery.toLowerCase();
-
-    Object.entries(productsByLetter).forEach(([letter, products]) => {
-      const filteredProducts = products.filter((product) =>
-        product.toLowerCase().includes(query),
-      );
-      if (filteredProducts.length > 0) {
-        filtered[letter] = filteredProducts;
-      }
-    });
-
-    return filtered;
-  }, [searchQuery]);
-
-  // Calculate total products count
-  const totalProducts = useMemo(() => {
-    return Object.values(filteredProductsByLetter).reduce(
-      (sum, products) => sum + products.length,
-      0,
-    );
-  }, [filteredProductsByLetter]);
-
-  // Get available letters
-  const availableLetters = Object.keys(filteredProductsByLetter).sort();
-
-  // Calculate start index for each letter section
-  let currentIndex = 0;
-  const letterStartIndices: Record<string, number> = {};
-  Object.keys(productsByLetter).forEach((letter) => {
-    letterStartIndices[letter] = currentIndex;
-    currentIndex += productsByLetter[letter].length;
+  // Fetch products from Supabase
+  const {
+    data: products,
+    isLoading,
+    error,
+  } = useProducts({
+    categorySlug: selectedCategory || undefined,
+    search: searchQuery || undefined,
   });
+
+  // Fetch categories for filter
+  const { data: categories } = useCategories();
+
+  const totalProducts = products?.length ?? 0;
 
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-[400px] md:h-[500px] overflow-hidden">
-        <div className="absolute inset-0">
-          <Image
-            src="/sample1.jpg"
-            alt="All Products"
-            fill
-            className="object-cover"
-            priority
+      <section className="relative h-[400px] md:h-[500px] overflow-hidden bg-slate-950 flex items-center">
+        {/* Animated Background Figures */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+            className="absolute -top-[20%] -left-[10%] w-[50%] h-[70%] rounded-full bg-primary/20 blur-[120px]"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-transparent"></div>
+          <motion.div
+            animate={{
+              scale: [1, 1.5, 1],
+              x: [0, -40, 0],
+              y: [0, 50, 0],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+            className="absolute top-[20%] -right-[10%] w-[40%] h-[60%] rounded-full bg-blue-500/20 blur-[120px]"
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.3, 1],
+              x: [0, 30, 0],
+              y: [0, -40, 0],
+            }}
+            transition={{
+              duration: 15,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+            className="absolute -bottom-[20%] left-[20%] w-[60%] h-[50%] rounded-full bg-purple-500/20 blur-[120px]"
+          />
         </div>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="relative container mx-auto px-4 h-full flex items-center"
+          className="relative container mx-auto px-4 z-10"
         >
-          <div className="max-w-3xl">
+          <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-              className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-sm text-white px-4 py-2 rounded-full mb-4"
+              className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/10 text-white/90 px-5 py-2 rounded-full mb-6 shadow-2xl"
             >
-              <Sparkles className="h-4 w-4" />
-              <span className="text-sm font-medium">
-                {totalProducts} Products Available
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium tracking-wide">
+                {totalProducts} Premium Products Available
               </span>
             </motion.div>
 
             <motion.h1
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="text-4xl md:text-6xl font-bold text-white mb-4"
+              className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-white/90 to-white/70 mb-6 tracking-tight"
             >
-              All Products
+              Our Collection
             </motion.h1>
 
             <motion.p
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-xl text-gray-200 mb-8 max-w-2xl"
+              className="text-lg md:text-xl text-white/60 mb-10 max-w-2xl font-light"
             >
-              Explore our complete range of premium printing solutions and
-              promotional products. From business cards to large format prints,
-              we have everything you need.
+              Explore our complete range of premium printing solutions.{" "}
+              <br className="hidden md:block" /> All prices in Ethiopian Birr
+              (ETB).
             </motion.p>
 
             {/* Search Bar */}
@@ -378,16 +261,19 @@ export default function AllProductsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.5 }}
-              className="relative max-w-2xl"
+              className="relative w-full max-w-2xl group"
             >
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
-              />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-2xl blur-xl transition-opacity opacity-0 group-hover:opacity-100 duration-500"></div>
+              <div className="relative flex items-center">
+                <Search className="absolute left-5 h-5 w-5 text-white/40 group-focus-within:text-primary transition-colors duration-300 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-14 pr-6 py-5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 text-lg transition-all duration-300 shadow-2xl"
+                />
+              </div>
             </motion.div>
           </div>
         </motion.div>
@@ -411,37 +297,27 @@ export default function AllProductsPage() {
                 {totalProducts} {totalProducts === 1 ? "product" : "products"}{" "}
                 found
                 {searchQuery && ` for "${searchQuery}"`}
+                {selectedCategory &&
+                  ` in ${selectedCategory.replace("-", " ")}`}
               </p>
             </div>
 
-            <div className="flex items-center gap-4">
-              {/* Letter Filter */}
-              <div className="hidden lg:flex items-center gap-2 flex-wrap max-w-md">
-                {availableLetters.map((letter) => (
-                  <motion.button
-                    key={letter}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => {
-                      setSelectedLetter(
-                        selectedLetter === letter ? null : letter,
-                      );
-                      document
-                        .getElementById(`letter-${letter}`)
-                        ?.scrollIntoView({
-                          behavior: "smooth",
-                          block: "start",
-                        });
-                    }}
-                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                      selectedLetter === letter
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-foreground hover:bg-secondary/80"
-                    }`}
-                  >
-                    {letter}
-                  </motion.button>
-                ))}
+            <div className="flex items-center gap-4 flex-wrap">
+              {/* Category Filter */}
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="">All Categories</option>
+                  {categories?.map((cat) => (
+                    <option key={cat.id} value={cat.slug}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* View Mode Toggle */}
@@ -474,21 +350,51 @@ export default function AllProductsPage() {
             </div>
           </motion.div>
 
-          {/* Products by Letter */}
-          {availableLetters.length > 0 ? (
-            <div>
-              {availableLetters.map((letter) => (
-                <div key={letter} id={`letter-${letter}`}>
-                  <LetterSection
-                    letter={letter}
-                    products={filteredProductsByLetter[letter]}
-                    viewMode={viewMode}
-                    startIndex={letterStartIndices[letter] || 0}
-                  />
-                </div>
+          {/* Loading State */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-3 text-muted-foreground">
+                Loading products...
+              </span>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div className="text-center py-20">
+              <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-2xl font-bold text-foreground mb-2">
+                Something went wrong
+              </h3>
+              <p className="text-muted-foreground">
+                Unable to load products. Please try again later.
+              </p>
+            </div>
+          )}
+
+          {/* Products Grid */}
+          {!isLoading && !error && products && products.length > 0 && (
+            <div
+              className={`grid gap-6 ${
+                viewMode === "grid"
+                  ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  : "grid-cols-1"
+              }`}
+            >
+              {products.map((product, index) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  index={index}
+                  viewMode={viewMode}
+                />
               ))}
             </div>
-          ) : (
+          )}
+
+          {/* Empty State */}
+          {!isLoading && !error && products && products.length === 0 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -499,7 +405,7 @@ export default function AllProductsPage() {
                 No products found
               </h3>
               <p className="text-muted-foreground">
-                Try adjusting your search query
+                Try adjusting your search query or category filter.
               </p>
             </motion.div>
           )}
