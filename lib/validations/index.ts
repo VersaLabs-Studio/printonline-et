@@ -45,3 +45,17 @@ export {
   type DesignFileFormData,
   type DesignFileMetadata,
 } from "./design-upload";
+
+// Authentication schemas
+export {
+  signUpSchema,
+  signInSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  profileUpdateSchema,
+  type SignUpInput,
+  type SignInInput,
+  type ForgotPasswordInput,
+  type ResetPasswordInput,
+  type ProfileUpdateInput,
+} from "./auth";
