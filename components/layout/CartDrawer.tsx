@@ -8,6 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
   SheetFooter,
+  SheetClose,
 } from "@/components/ui/sheet";
 import { ShoppingBag, Trash2, ArrowRight, Package } from "lucide-react";
 import { useCart } from "@/context/CartContext";
@@ -136,25 +137,29 @@ export function CartDrawer() {
                 <PriceDisplay amount={total} />
               </span>
             </div>
-            <Button
-              asChild
-              className="w-full h-14 rounded-2xl font-bold uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20 gap-3 group"
-            >
-              <Link href="/checkout">
-                Secure Checkout
-                <ArrowRight
-                  size={18}
-                  className="ml-auto group-hover:translate-x-1 transition-transform opacity-40"
-                />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="w-full h-12 rounded-2xl font-bold uppercase tracking-widest text-[11px] border-border/40 hover:bg-muted transition-all"
-            >
-              <Link href="/cart">Review Full Cart</Link>
-            </Button>
+            <SheetClose asChild>
+              <Button
+                asChild
+                className="w-full h-14 rounded-2xl font-bold uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20 gap-3 group"
+              >
+                <Link href="/checkout">
+                  Secure Checkout
+                  <ArrowRight
+                    size={18}
+                    className="ml-auto group-hover:translate-x-1 transition-transform opacity-40"
+                  />
+                </Link>
+              </Button>
+            </SheetClose>
+            <SheetClose asChild>
+              <Button
+                asChild
+                variant="outline"
+                className="w-full h-12 rounded-2xl font-bold uppercase tracking-widest text-[11px] border-border/40 hover:bg-muted transition-all"
+              >
+                <Link href="/cart">Review Full Cart</Link>
+              </Button>
+            </SheetClose>
             <p className="text-[9px] text-center font-bold text-muted-foreground uppercase tracking-widest opacity-50 mt-2">
               VAT included • Production begins after order confirmation
             </p>

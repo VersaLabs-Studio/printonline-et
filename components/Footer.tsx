@@ -18,12 +18,12 @@ const Footer = () => {
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center">
-              <div className="relative w-64 h-64 shrink-0">
+              <div className="relative w-32 h-12 shrink-0">
                 <Image
                   src="/footer-logo.png"
                   alt="Print Online ET Footer Logo"
                   fill
-                  className="object-contain object-left"
+                  className="object-contain object-left dark:brightness-0 dark:invert"
                 />
               </div>
             </div>

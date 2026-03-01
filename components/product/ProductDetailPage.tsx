@@ -35,11 +35,6 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
             className="space-y-8 lg:space-y-12 flex flex-col"
           >
             <ProductGallery product={product} />
-
-            {/* Moved Product Tabs Below Gallery (Mobile First Order) */}
-            <div className="pt-4 lg:pt-8 w-full">
-              <ProductTabs product={product} />
-            </div>
           </motion.section>
 
           {/* Right Column: Interaction & Specs */}
@@ -56,6 +51,9 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
 
         {/* Full Width Sections */}
         <section className="space-y-16">
+          <div className="pt-4 lg:pt-8 w-full border-t border-border/20">
+            <ProductTabs product={product} />
+          </div>
           <RelatedProducts currentProduct={product} />
         </section>
       </main>

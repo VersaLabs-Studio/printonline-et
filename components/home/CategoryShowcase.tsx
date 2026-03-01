@@ -78,38 +78,42 @@ const CategoryShowcase = () => {
                 >
                   <Link
                     href={`/all-products?category=${category.slug}`}
-                    className="group relative bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-border/50 block"
+                    className="group relative bg-card rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-border/40 block"
                   >
-                    <div className="relative h-64 overflow-hidden">
+                    <div className="relative h-56 md:h-72 overflow-hidden">
                       <Image
                         src={imageUrl}
                         alt={category.name}
                         fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                        className="object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
                       />
-                      <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
+                      <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500"></div>
 
                       {/* Product count badge */}
-                      <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md border border-white/20 px-3 py-1 rounded-full">
-                        <span className="text-xs font-semibold text-white">
+                      <div className="absolute top-4 right-4 bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full z-10">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-white">
                           {category.productCount}{" "}
-                          {category.productCount === 1 ? "Product" : "Products"}
+                          {category.productCount === 1 ? "Item" : "Items"}
                         </span>
                       </div>
 
-                      <div className="absolute bottom-0 left-0 p-6 w-full transform translate-y-0 md:translate-y-2 md:group-hover:translate-y-0 transition-transform duration-300">
-                        <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-primary transition-colors">
-                          {category.name}
-                        </h3>
-                        <div className="h-0.5 w-12 bg-primary mb-3 origin-left transform scale-x-100 md:scale-x-0 md:group-hover:scale-x-100 transition-transform duration-300"></div>
-                        <p className="text-gray-300 text-sm mb-4 line-clamp-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 delay-75">
-                          {category.description}
-                        </p>
+                      <div className="absolute inset-0 p-6 flex flex-col justify-end transform transition-all duration-500">
+                        <div className="translate-y-4 md:translate-y-8 group-hover:translate-y-0 transition-transform duration-500">
+                          <h3 className="text-xl md:text-2xl font-bold text-white mb-2 group-hover:text-primary transition-colors uppercase tracking-tight">
+                            {category.name}
+                          </h3>
+                          <div className="h-1 w-12 bg-primary mb-3 origin-left scale-x-50 group-hover:scale-x-100 transition-transform duration-500"></div>
 
-                        <div className="flex items-center text-white font-bold text-sm md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 transform translate-y-0 md:translate-y-4 md:group-hover:translate-y-0">
-                          <span className="mr-2">Explore Collection</span>
-                          <div className="bg-primary rounded-full p-1">
-                            <ArrowRight className="h-3 w-3 text-primary-foreground" />
+                          <p className="text-gray-300 text-xs mb-4 line-clamp-2 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100">
+                            {category.description ||
+                              `Premium quality ${category.name} solutions.`}
+                          </p>
+
+                          <div className="flex items-center text-white font-bold text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200">
+                            <span className="mr-2">Explore Collection</span>
+                            <div className="bg-primary rounded-full p-1 group-hover:translate-x-1 transition-transform">
+                              <ArrowRight className="h-3 w-3 text-primary-foreground" />
+                            </div>
                           </div>
                         </div>
                       </div>

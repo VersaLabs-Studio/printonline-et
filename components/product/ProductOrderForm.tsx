@@ -367,11 +367,15 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
         <div className="flex gap-2">
           <Button
             onClick={handleProceed}
-            className="flex-1 h-14 rounded-2xl font-bold uppercase tracking-wider text-sm shadow-sm hover:shadow-xl hover:shadow-primary/20 gap-3 active:scale-95 transition-all outline outline-2 outline-offset-2 outline-transparent hover:outline-primary/30 btn-pana"
+            className="flex-1 h-16 rounded-3xl font-bold uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20 gap-4 group active:scale-95 transition-all btn-pana overflow-hidden relative"
           >
-            <ShoppingCart size={18} />
-            <span className="flex-1 text-left px-2">Add to Cart</span>
-            <span className="border-l border-primary-foreground/20 pl-4">
+            <div className="absolute inset-0 bg-linear-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <ShoppingCart
+              size={18}
+              className="group-hover:scale-110 transition-transform"
+            />
+            <span className="flex-1 text-left">Add to Cart</span>
+            <span className="bg-white/20 px-4 py-2 rounded-2xl border border-white/10">
               ETB {totalPrice.toLocaleString()}
             </span>
           </Button>

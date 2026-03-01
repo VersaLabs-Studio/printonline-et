@@ -102,14 +102,17 @@ export function CartSummary({ cart, subtotal, total }: CartSummaryProps) {
 
         <Button
           asChild
-          className="w-full btn-pana py-4 text-sm font-semibold uppercase tracking-wider gap-3 active:scale-[0.98] transition-all"
+          className="w-full h-16 rounded-3xl font-bold uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20 gap-4 group active:scale-95 transition-all btn-pana overflow-hidden relative"
         >
-          <Link href="/order-summary">
-            Proceed to Checkout
-            <ArrowRight
-              size={20}
-              className="ml-auto opacity-40 group-hover:translate-x-1 transition-transform"
-            />
+          <Link
+            href="/checkout"
+            className="w-full flex items-center justify-center"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="flex-1 text-center">Proceed to Checkout</span>
+            <div className="ml-auto w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+              <ArrowRight size={18} />
+            </div>
           </Link>
         </Button>
       </div>
