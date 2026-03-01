@@ -105,6 +105,7 @@ export default function CartPage() {
             {/* Order Summary */}
             <div className="lg:col-span-1">
               <CartSummary
+                cart={cart}
                 subtotal={subtotal}
                 delivery={shipping}
                 total={total}

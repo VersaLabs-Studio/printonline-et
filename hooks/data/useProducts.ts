@@ -20,19 +20,19 @@ export function useProducts(options: UseProductsOptions = {}) {
   return useQuery({
     queryKey: ["products", options],
     queryFn: async (): Promise<ProductWithCategory[]> => {
-      let query = supabase
-        .from("products")
-        .select(
-          "*, category:categories(name, slug), product_images(image_url, alt_text, is_primary, display_order)",
-        );
+      const selectStr = options.categorySlug
+        ? "*, categories!inner(name, slug), product_images(image_url, alt_text, is_primary, display_order)"
+        : "*, categories(name, slug), product_images(image_url, alt_text, is_primary, display_order)";
+
+      let query = supabase.from("products").select(selectStr);
 
       // For CMS we might want all products, for storefront only active ones
       // In a real app we'd probably have an 'includeInactive' flag
       // query = query.eq("is_active", true);
 
-      // Filter by category slug (via join)
+      // Filter by category slug (via inner join)
       if (options.categorySlug) {
-        query = query.eq("category.slug", options.categorySlug);
+        query = query.eq("categories.slug", options.categorySlug);
       }
 
       // Full-text search
@@ -64,9 +64,15 @@ export function useProducts(options: UseProductsOptions = {}) {
       }
 
       const { data, error } = await query;
-
       if (error) throw error;
-      return (data as unknown as ProductWithCategory[]) ?? [];
+
+      // Map 'categories' to 'category' for compatibility with types and components
+      return (
+        (data as any[])?.map((p) => ({
+          ...p,
+          category: p.categories,
+        })) ?? []
+      );
     },
     staleTime: 2 * 60 * 1000,
   });

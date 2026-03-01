@@ -7,12 +7,13 @@ import { ArrowRight, ShieldCheck, Truck, Clock } from "lucide-react";
 import Link from "next/link";
 
 interface CartSummaryProps {
+  cart: { name: string; quantity: number; unitPrice: number }[];
   subtotal: number;
   delivery: number;
   total: number;
 }
 
-export function CartSummary({ subtotal, total }: CartSummaryProps) {
+export function CartSummary({ cart, subtotal, total }: CartSummaryProps) {
   return (
     <div className="space-y-6 sticky top-24">
       <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-sm relative overflow-hidden">
@@ -39,7 +40,31 @@ export function CartSummary({ subtotal, total }: CartSummaryProps) {
         </div>
 
         <div className="space-y-5 mb-10">
-          <div className="flex justify-between items-center group">
+          <div className="flex flex-col gap-3 pb-4 border-b border-border/10">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">
+              Invoice Breakdown
+            </span>
+            {cart.map((item, idx) => (
+              <div
+                key={idx}
+                className="flex justify-between items-start gap-4 p-2 rounded-lg hover:bg-muted/30 transition-colors"
+              >
+                <div className="flex flex-col flex-1 min-w-0">
+                  <span className="text-xs font-bold text-foreground truncate uppercase tracking-tight">
+                    {item.name}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
+                    Qty: {item.quantity}
+                  </span>
+                </div>
+                <span className="text-xs font-bold text-muted-foreground shrink-0 uppercase tracking-widest">
+                  <PriceDisplay amount={item.unitPrice * item.quantity} />
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-between items-center group pt-2">
             <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors">
               Subtotal
             </span>
@@ -49,11 +74,11 @@ export function CartSummary({ subtotal, total }: CartSummaryProps) {
           </div>
           <div className="flex justify-between items-center group">
             <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors">
-              Delivery
+              Logistics
             </span>
             <span className="font-bold text-foreground tracking-tight">
-              <span className="text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full text-xs uppercase font-bold tracking-wider animate-pulse">
-                Free
+              <span className="text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest animate-pulse">
+                Free Delivery
               </span>
             </span>
           </div>

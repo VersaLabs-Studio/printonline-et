@@ -149,7 +149,7 @@ export default function Header() {
       </div>
 
       {/* Bottom tier: Categories Navigation */}
-      <div className="bg-background/90 backdrop-blur-sm border-b border-border/20 py-1.5 hidden lg:block overflow-hidden">
+      <div className="bg-background/90 backdrop-blur-sm border-b border-border/20 py-1.5 hidden lg:block">
         <div className="container mx-auto px-4">
           <CategoryNav />
         </div>
