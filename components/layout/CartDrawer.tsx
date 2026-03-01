@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Sheet,
   SheetContent,
@@ -18,9 +18,23 @@ import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function CartDrawer() {
+  const [mounted, setMounted] = useState(false);
   const { cart, removeFromCart, getCartTotal } = useCart();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
   const total = getCartTotal();
+
+  if (!mounted) {
+    return (
+      <button className="relative p-2.5 rounded-2xl hover:bg-muted transition-all group">
+        <ShoppingBag className="h-5 w-5 group-hover:text-primary transition-colors" />
+      </button>
+    );
+  }
 
   return (
     <Sheet>

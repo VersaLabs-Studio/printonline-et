@@ -9,7 +9,6 @@ import {
   User,
   CheckCircle2,
   ShoppingCart,
-  ArrowRight,
   Heart,
   Share2,
   Clock,
@@ -298,7 +297,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
             value={quantity.toString()}
             onValueChange={(val) => setQuantity(parseInt(val))}
           >
-            <SelectTrigger className="h-14 w-full rounded-2xl bg-muted/5 border-2 border-border/40 font-bold focus:ring-primary/20 hover:bg-muted/50 transition-all">
+            <SelectTrigger className="h-10 w-full rounded-lg bg-background border border-border/40 focus:outline-none focus:ring-2 focus:ring-primary text-sm font-bold uppercase tracking-widest px-3">
               <SelectValue placeholder="Select Quantity" />
             </SelectTrigger>
             <SelectContent className="rounded-xl shadow-xl border-border/40">
