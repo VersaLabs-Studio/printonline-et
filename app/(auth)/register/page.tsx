@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -91,6 +92,19 @@ export default function RegisterPage() {
     >
       <Card className="border-border/50 shadow-xl backdrop-blur-sm bg-card/95">
         <CardHeader className="space-y-1">
+          <div className="flex justify-center mb-6">
+            <Link href="/">
+              <div className="relative w-48 h-10">
+                <Image
+                  src="/nav-logo.png"
+                  alt="PrintOnline.et"
+                  fill
+                  className="object-contain dark:brightness-0 dark:invert"
+                  priority
+                />
+              </div>
+            </Link>
+          </div>
           <CardTitle className="text-2xl font-bold tracking-tight text-center">
             Create account
           </CardTitle>

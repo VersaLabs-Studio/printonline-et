@@ -1,5 +1,4 @@
 // app/(auth)/layout.tsx
-import Link from "next/link";
 
 export default function AuthLayout({
   children,
@@ -16,24 +15,6 @@ export default function AuthLayout({
 
       {/* Main Content Card Wrapper */}
       <div className="w-full max-w-md">
-        <div className="flex justify-center mb-8">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
-              <span className="text-primary-foreground font-bold text-2xl italic">
-                P
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xl font-bold tracking-tight">
-                PrintOnline.et
-              </span>
-              <span className="text-xs text-muted-foreground font-bold uppercase tracking-widest leading-none">
-                Pana Promotion
-              </span>
-            </div>
-          </Link>
-        </div>
-
         <div className="space-y-6">{children}</div>
 
         <div className="mt-8 text-center text-sm text-muted-foreground">

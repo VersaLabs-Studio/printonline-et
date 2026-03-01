@@ -14,6 +14,8 @@ export const metadata: Metadata = {
   description: "Leading printing and branding solutions in Ethiopia.",
   icons: {
     icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
 };
 
