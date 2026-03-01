@@ -23,10 +23,10 @@ export function useOrders(customerId?: string) {
 
   return useQuery({
     queryKey: ["orders", customerId],
-    queryFn: async (): Promise<Order[]> => {
+    queryFn: async (): Promise<OrderWithItems[]> => {
       let query = supabase
         .from("orders")
-        .select("*")
+        .select("*, order_items(*)")
         .order("created_at", { ascending: false });
 
       if (customerId) {
@@ -36,9 +36,8 @@ export function useOrders(customerId?: string) {
       const { data, error } = await query;
 
       if (error) throw error;
-      return (data as Order[]) ?? [];
+      return (data as unknown as OrderWithItems[]) ?? [];
     },
-    enabled: !!customerId,
     staleTime: 30 * 1000, // 30 seconds — orders update frequently
   });
 }

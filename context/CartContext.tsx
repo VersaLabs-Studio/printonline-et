@@ -60,9 +60,10 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
  */
 function generateCartLineId(
   productId: string,
-  selectedOptions: Record<string, string>,
+  selectedOptions: Record<string, string> = {},
 ): string {
-  const optionStr = Object.entries(selectedOptions)
+  const options = selectedOptions || {};
+  const optionStr = Object.entries(options)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([k, v]) => `${k}:${v}`)
     .join("|");

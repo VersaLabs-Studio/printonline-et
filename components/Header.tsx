@@ -1,246 +1,236 @@
-// components/Header.tsx
 "use client";
 
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { Menu, X, User, Sun, Moon, Search } from "lucide-react";
-import { useTheme } from "next-themes";
 import Image from "next/image";
+import {
+  User,
+  Sun,
+  Moon,
+  Menu,
+  X,
+  LogIn,
+  UserPlus,
+  LogOut,
+} from "lucide-react";
+import { useTheme } from "next-themes";
+import { SearchBar } from "./layout/SearchBar";
+import { CategoryNav } from "./layout/CategoryNav";
+import { CartDrawer } from "./layout/CartDrawer";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useSession, signOut } from "@/lib/auth-client";
 
-const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+export default function Header() {
   const [mounted, setMounted] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
-  const [query, setQuery] = useState("");
+  const { data: session } = useSession();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const toggleMenu = () => setIsMenuOpen((s) => !s);
+  const isLoggedIn = !!session?.user;
 
   return (
-    <header className="sticky top-0 z-50 w-full">
-      {/* Top Bar: scrolls away */}
-      <div
-        id="header-top-bar"
-        className="bg-background/80 supports-backdrop-filter:bg-background/70 backdrop-blur-sm border-b border-border/30 transition-all duration-300"
-      >
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between py-3">
-            <Link href="/" className="flex items-center shrink-0">
-              <div className="relative w-56 h-14 shrink-0">
-                <Image
-                  src="/nav-logo.png"
-                  alt="Print Online ET Logo"
-                  fill
-                  className="object-contain object-left"
-                  priority
-                />
-              </div>
-            </Link>
-
-            <div className="hidden md:flex items-center flex-1 max-w-2xl mx-6">
-              <label htmlFor="site-search" className="sr-only">
-                Search products
-              </label>
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  id="site-search"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search for prints, banners, vinyls, t-shirt..."
-                  className="w-full rounded-full border border-border/60 bg-card py-2.5 pl-10 pr-4 placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
-                  aria-label="Search site"
-                />
-              </div>
+    <header className="sticky top-0 z-50 w-full flex flex-col">
+      {/* Top tier: Logo + Search + Actions */}
+      <div className="bg-background/80 backdrop-blur-md border-b border-border/40 py-3 shadow-sm">
+        <div className="container mx-auto px-4 flex items-center justify-between gap-8">
+          {/* Logo */}
+          <Link
+            href="/"
+            className="shrink-0 transition-transform active:scale-95"
+          >
+            <div className="relative w-48 h-10 md:w-56 md:h-12">
+              <Image
+                src="/nav-logo.png"
+                alt="PrintOnline.et"
+                fill
+                className="object-contain object-left dark:brightness-0 dark:invert"
+                priority
+              />
             </div>
+          </Link>
 
-            <div className="flex items-center gap-3 shrink-0">
+          {/* Search - Hidden on mobile */}
+          <div className="hidden lg:flex flex-1 justify-center">
+            <SearchBar />
+          </div>
+
+          {/* Right Actions */}
+          <div className="flex items-center gap-2 md:gap-4 shrink-0">
+            {mounted && (
               <button
-                aria-label="Toggle theme"
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="p-2 rounded-full hover:bg-secondary/10 transition"
+                className="p-2.5 rounded-2xl hover:bg-muted transition-all"
               >
-                {mounted &&
-                  (theme === "dark" ? (
-                    <Sun className="h-5 w-5" />
+                {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
+            )}
+
+            <CartDrawer />
+
+            {/* Account Dropdown - Desktop */}
+            <div className="hidden sm:block">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="p-2.5 rounded-2xl hover:bg-muted transition-all">
+                    <User size={20} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 rounded-xl">
+                  {isLoggedIn ? (
+                    <>
+                      <DropdownMenuItem
+                        asChild
+                        className="cursor-pointer font-semibold"
+                      >
+                        <Link href="/account">My Account</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        asChild
+                        className="cursor-pointer font-semibold"
+                      >
+                        <Link href="/account/orders">My Orders</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="cursor-pointer font-semibold text-destructive"
+                        onClick={() => signOut()}
+                      >
+                        <LogOut size={16} className="mr-2" />
+                        Sign Out
+                      </DropdownMenuItem>
+                    </>
                   ) : (
-                    <Moon className="h-5 w-5" />
-                  ))}
-                {!mounted && <Sun className="h-5 w-5 opacity-70" />}
-              </button>
-
-              <Link
-                href="/account"
-                className="p-2 rounded-full hover:bg-secondary/10 transition"
-                aria-label="Account"
-              >
-                <User className="h-5 w-5" />
-              </Link>
-
-              <button
-                className="md:hidden p-2 rounded-full hover:bg-secondary/10 transition"
-                onClick={toggleMenu}
-                aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-              >
-                {isMenuOpen ? (
-                  <X className="h-6 w-6" />
-                ) : (
-                  <Menu className="h-6 w-6" />
-                )}
-              </button>
+                    <>
+                      <DropdownMenuItem
+                        asChild
+                        className="cursor-pointer font-semibold"
+                      >
+                        <Link href="/login" className="flex items-center gap-2">
+                          <LogIn size={16} />
+                          Sign In
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        asChild
+                        className="cursor-pointer font-semibold"
+                      >
+                        <Link
+                          href="/register"
+                          className="flex items-center gap-2"
+                        >
+                          <UserPlus size={16} />
+                          Create Account
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
+
+            <button
+              className="lg:hidden p-2.5 rounded-2xl hover:bg-muted transition-all"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Navigation Bar: sticky on scroll */}
-      <div
-        id="header-nav-bar"
-        className="w-full bg-background/80 supports-backdrop-filter:bg-background/70 backdrop-blur-sm border-b border-border/30 shadow transition-shadow duration-300"
-      >
+      {/* Bottom tier: Categories Navigation */}
+      <div className="bg-background/90 backdrop-blur-sm border-b border-border/20 py-1.5 hidden lg:block overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="hidden md:flex items-center justify-between py-3">
-            <nav className="flex items-center gap-6">
-              <Link
-                href="/all-products"
-                className="text-foreground hover:text-primary transition-colors font-semibold text-sm"
-              >
-                All Products
-              </Link>
-              <Link
-                href="/digital-paper-prints"
-                className="text-foreground hover:text-primary transition-colors text-sm"
-              >
-                Digital Paper Prints
-              </Link>
-              <Link
-                href="/signage-solutions"
-                className="text-foreground hover:text-primary transition-colors text-sm"
-              >
-                Signage Solutions
-              </Link>
-              <Link
-                href="/flex-banners"
-                className="text-foreground hover:text-primary transition-colors text-sm"
-              >
-                Flex Banners
-              </Link>
-              <Link
-                href="/vinyl-prints"
-                className="text-foreground hover:text-primary transition-colors text-sm"
-              >
-                Vinyl Prints & Wraps
-              </Link>
-              <Link
-                href="/fabric-prints"
-                className="text-foreground hover:text-primary transition-colors text-sm"
-              >
-                Fabric Prints
-              </Link>
-              <Link
-                href="/promotional-items"
-                className="text-foreground hover:text-primary transition-colors text-sm"
-              >
-                Promotional Items
-              </Link>
-            </nav>
-
-            <div className="flex items-center gap-3">
-              <Link
-                href="/catalog"
-                className="btn-pana inline-flex items-center px-4 py-2"
-              >
-                Catalog
-              </Link>
-            </div>
-          </div>
+          <CategoryNav />
         </div>
       </div>
 
-      {/* Mobile navigation (collapsible) */}
-      {isMenuOpen && (
-        <nav className="md:hidden absolute top-full left-0 right-0 bg-background border-b border-border shadow-lg z-40">
-          <div className="container mx-auto px-4 py-4 flex flex-col space-y-2">
-            <div className="mb-2">
-              <label htmlFor="mobile-search" className="sr-only">
-                Search
-              </label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  id="mobile-search"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search..."
-                  className="w-full rounded-full border border-border/60 bg-card py-2 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
-                />
-              </div>
-            </div>
-
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 top-[73px] bg-background z-50 animate-in slide-in-from-top duration-300 flex flex-col p-6 space-y-8">
+          <SearchBar />
+          <div className="flex flex-col gap-4">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-2">
+              Categories
+            </span>
             <Link
-              onClick={toggleMenu}
-              href="/all-products"
-              className="py-2 px-3 rounded-md hover:bg-secondary/10 transition font-medium"
+              href="/"
+              className="px-2 py-1 text-sm font-bold uppercase tracking-wider text-foreground hover:text-primary"
+              onClick={() => setIsMobileMenuOpen(false)}
             >
-              All Products
+              Home
             </Link>
-            <Link
-              onClick={toggleMenu}
-              href="/digital-paper-prints"
-              className="py-2 px-3 rounded-md hover:bg-secondary/10 transition"
-            >
-              Digital Paper Prints
-            </Link>
-            <Link
-              onClick={toggleMenu}
-              href="/signage-solutions"
-              className="py-2 px-3 rounded-md hover:bg-secondary/10 transition"
-            >
-              Signage Solutions
-            </Link>
-            <Link
-              onClick={toggleMenu}
-              href="/flex-banners"
-              className="py-2 px-3 rounded-md hover:bg-secondary/10 transition"
-            >
-              Flex Banners
-            </Link>
-            <Link
-              onClick={toggleMenu}
-              href="/vinyl-prints"
-              className="py-2 px-3 rounded-md hover:bg-secondary/10 transition"
-            >
-              Vinyl Prints & Wraps
-            </Link>
-            <Link
-              onClick={toggleMenu}
-              href="/fabric-prints"
-              className="py-2 px-3 rounded-md hover:bg-secondary/10 transition"
-            >
-              Fabric Prints
-            </Link>
-            <Link
-              onClick={toggleMenu}
-              href="/promotional-items"
-              className="py-2 px-3 rounded-md hover:bg-secondary/10 transition"
-            >
-              Promotional Items
-            </Link>
-            <Link
-              onClick={toggleMenu}
-              href="/catalog"
-              className="mt-3 text-center w-full btn-pana inline-flex items-center justify-center px-4 py-2"
-            >
-              Catalog
-            </Link>
+            <CategoryNav />
           </div>
-        </nav>
+
+          {/* Auth Links - Mobile */}
+          <div className="flex flex-col gap-3 pt-4 border-t border-border/20">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-2">
+              Account
+            </span>
+            {isLoggedIn ? (
+              <>
+                <Link
+                  href="/account"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="px-2 py-1 text-sm font-bold uppercase tracking-wider text-foreground hover:text-primary"
+                >
+                  My Account
+                </Link>
+                <Link
+                  href="/account/orders"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="px-2 py-1 text-sm font-bold uppercase tracking-wider text-foreground hover:text-primary"
+                >
+                  My Orders
+                </Link>
+                <button
+                  onClick={() => {
+                    signOut();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="px-2 py-1 text-sm font-bold uppercase tracking-wider text-destructive hover:text-destructive/80 text-left"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="px-2 py-1 text-sm font-bold uppercase tracking-wider text-foreground hover:text-primary"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="px-2 py-1 text-sm font-bold uppercase tracking-wider text-foreground hover:text-primary"
+                >
+                  Create Account
+                </Link>
+              </>
+            )}
+          </div>
+
+          <div className="mt-auto pb-12 flex flex-col gap-4">
+            <p className="text-center text-[10px] text-muted-foreground font-bold uppercase tracking-widest opacity-40">
+              Professional Print Solutions • Addis Ababa
+            </p>
+          </div>
+        </div>
       )}
     </header>
   );
-};
-
-export default Header;
+}

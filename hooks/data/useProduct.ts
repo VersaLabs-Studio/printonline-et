@@ -1,19 +1,9 @@
-// hooks/data/useProduct.ts
-// TanStack Query hook for fetching a single product with all related data
-// Used on the product detail page
-
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import type { ProductWithDetails } from "@/types/database";
+import { ProductWithDetails } from "@/types";
 
-/**
- * Fetch a single product by slug with full details:
- * - Category info
- * - All product images (ordered)
- * - All product options with their values (ordered)
- */
 export function useProduct(slug: string) {
   const supabase = createClient();
 
@@ -42,42 +32,39 @@ export function useProduct(slug: string) {
         `,
         )
         .eq("slug", slug)
-        .eq("is_active", true)
         .single();
 
       if (error) throw error;
       if (!data) throw new Error("Product not found");
 
-      // Sort images by display_order
       const product = data as unknown as ProductWithDetails;
-      product.product_images.sort(
-        (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
-      );
 
-      // Sort options and their values by display_order
-      product.product_options.sort(
-        (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
-      );
-      product.product_options.forEach((option) => {
-        option.product_option_values.sort(
+      if (product.product_images) {
+        product.product_images.sort(
           (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
         );
-        // Filter out inactive values
-        option.product_option_values = option.product_option_values.filter(
-          (v) => v.is_active !== false,
+      }
+
+      if (product.product_options) {
+        product.product_options.sort(
+          (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
         );
-      });
+        product.product_options.forEach((option) => {
+          if (option.product_option_values) {
+            option.product_option_values.sort(
+              (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
+            );
+          }
+        });
+      }
 
       return product;
     },
     enabled: !!slug,
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 2 * 60 * 1000,
   });
 }
 
-/**
- * Fetch a product by ID (used in CMS and order detail).
- */
 export function useProductById(id: string) {
   const supabase = createClient();
 
@@ -111,7 +98,28 @@ export function useProductById(id: string) {
       if (error) throw error;
       if (!data) throw new Error("Product not found");
 
-      return data as unknown as ProductWithDetails;
+      const product = data as unknown as ProductWithDetails;
+
+      if (product.product_images) {
+        product.product_images.sort(
+          (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
+        );
+      }
+
+      if (product.product_options) {
+        product.product_options.sort(
+          (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
+        );
+        product.product_options.forEach((option) => {
+          if (option.product_option_values) {
+            option.product_option_values.sort(
+              (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
+            );
+          }
+        });
+      }
+
+      return product;
     },
     enabled: !!id,
     staleTime: 2 * 60 * 1000,

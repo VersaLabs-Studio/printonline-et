@@ -695,6 +695,7 @@ export type CustomerProfileUpdate =
 /** Product with its category info (from .select('*, category:categories(name, slug)')) */
 export type ProductWithCategory = Product & {
   category: Pick<Category, "name" | "slug"> | null;
+  product_images?: ProductImage[];
 };
 
 /** Product with all related data (detail page) */

@@ -1,395 +1,144 @@
-// app/order-confirmation/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import {
-  CheckCircle,
-  Package,
-  Truck,
-  Mail,
-  Phone,
-  MapPin,
-  ArrowRight,
-  FileText,
-} from "lucide-react";
+import React from "react";
+import { ConfirmationHeader } from "@/components/order/ConfirmationHeader";
+import { OrderStatusTracker } from "@/components/order/OrderStatusTracker";
+import { ConfirmationDetails } from "@/components/order/ConfirmationDetails";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, ShoppingBag, User } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import { motion } from "framer-motion";
+import { useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { Suspense } from "react";
 
-interface OrderConfirmation {
-  orderId: string;
-  date: string;
-  item: {
-    productId: number;
-    productName: string;
-    productImage: string;
-    category: string;
-    customOptions: Record<string, unknown>;
-    designFile?: { name: string; size: number } | null;
-  };
-  contact: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-  };
-  delivery: {
-    address: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-  };
-  specialInstructions?: string;
-}
+function OrderConfirmationContent() {
+  const searchParams = useSearchParams();
+  const orderNumber = searchParams.get("order");
 
-export default function OrderConfirmationPage() {
-  const [orderDetails, setOrderDetails] = useState<OrderConfirmation | null>(
-    null,
-  );
+  const { data: orderDetails, isLoading } = useQuery({
+    queryKey: ["order", orderNumber],
+    queryFn: async () => {
+      const res = await fetch(`/api/orders/${orderNumber}`);
+      if (!res.ok) throw new Error("Order not found");
+      const json = await res.json();
+      return json.order;
+    },
+    enabled: !!orderNumber,
+  });
 
-  useEffect(() => {
-    const savedOrder = sessionStorage.getItem("orderConfirmation");
-    if (savedOrder) {
-      try {
-        setOrderDetails(JSON.parse(savedOrder));
-        // Clear the confirmation after displaying
-        sessionStorage.removeItem("orderConfirmation");
-      } catch (error) {
-        console.error("Failed to parse order confirmation:", error);
-      }
-    }
-  }, []);
-
-  // Format option value for display
-  const formatOptionValue = (key: string, value: unknown): string => {
-    if (value === null || value === undefined) return "";
-    if (typeof value === "boolean") return value ? "Yes" : "No";
-    if (typeof value === "object") return JSON.stringify(value);
-    return String(value);
-  };
-
-  // Filter and format custom options for display
-  const getDisplayOptions = (options: Record<string, unknown>) => {
-    return Object.entries(options)
-      .filter(
-        ([key, value]) =>
-          value !== null &&
-          value !== undefined &&
-          value !== "" &&
-          key !== "quantity",
-      )
-      .map(([key, value]) => ({
-        label: key
-          .replace(/([A-Z])/g, " $1")
-          .replace(/^./, (str) => str.toUpperCase()),
-        value: formatOptionValue(key, value),
-      }));
-  };
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-8">
+        <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <p className="text-muted-foreground font-medium animate-pulse">
+          Loading order details...
+        </p>
+      </div>
+    );
+  }
 
   if (!orderDetails) {
     return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-2xl mx-auto text-center">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="h-10 w-10 text-green-600" />
-          </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Thank You for Your Order!
-          </h1>
-          <p className="text-lg text-muted-foreground mb-8">
-            Your order has been received. Our team will contact you shortly.
-          </p>
-          <Link
-            href="/all-products"
-            className="btn-pana inline-flex items-center py-3 px-6"
-          >
-            Continue Browsing
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
+      <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-8">
+        <div className="h-32 w-32 bg-primary/5 rounded-[3rem] flex items-center justify-center text-primary/30 shadow-inner">
+          <ShoppingBag size={64} />
         </div>
+        <div className="space-y-2">
+          <h1 className="text-4xl font-black tracking-tighter uppercase">
+            No Order Found
+          </h1>
+          <p className="text-muted-foreground font-medium">
+            This order could not be found. Browse our products to place a new
+            order.
+          </p>
+        </div>
+        <Button
+          asChild
+          className="h-14 px-8 rounded-2xl font-black uppercase tracking-widest text-xs"
+        >
+          <Link href="/all-products">Browse Products</Link>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Success Header */}
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="h-10 w-10 text-green-600" />
-          </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Order Confirmed!
-          </h1>
-          <p className="text-lg text-muted-foreground mb-2">
-            Thank you for your order. Our team will review your request and
-            contact you shortly.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Order ID:{" "}
-            <span className="font-mono font-semibold">
-              {orderDetails.orderId}
-            </span>
-          </p>
-        </div>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Background Ambience */}
+      <div className="absolute top-0 left-0 w-[1000px] h-[1000px] bg-emerald-500/[0.02] rounded-full blur-[150px] -translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Order Status & Items */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Order Status */}
-            <div className="bg-card rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-foreground mb-4">
-                Order Status
-              </h2>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground">Order Placed</p>
-                    <p className="text-sm text-muted-foreground">
-                      {orderDetails.date}
-                    </p>
-                  </div>
-                </div>
+      <main className="container mx-auto px-4 py-16 lg:py-24 relative z-10">
+        <div className="max-w-7xl mx-auto flex flex-col gap-16">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <ConfirmationHeader orderId={orderDetails.order_number} />
+          </motion.div>
 
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Package className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground">Under Review</p>
-                    <p className="text-sm text-muted-foreground">
-                      Our team is reviewing your specifications
-                    </p>
-                  </div>
-                </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            <OrderStatusTracker
+              date={new Date(orderDetails.created_at).toLocaleDateString()}
+            />
+          </motion.div>
 
-                <div className="flex items-center space-x-3 opacity-50">
-                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                    <Mail className="h-5 w-5 text-gray-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground">
-                      Quote Provided
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      We&apos;ll send you a detailed quote via email
-                    </p>
-                  </div>
-                </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+          >
+            <ConfirmationDetails orderDetails={orderDetails} />
+          </motion.div>
 
-                <div className="flex items-center space-x-3 opacity-50">
-                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                    <Truck className="h-5 w-5 text-gray-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground">
-                      Production & Delivery
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Once confirmed, we&apos;ll start production
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Order Items */}
-            <div className="bg-card rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-foreground mb-4">
-                Order Details
-              </h2>
-
-              {/* Product Info */}
-              <div className="flex items-start space-x-4 pb-4 border-b border-border">
-                <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-50 shrink-0">
-                  <Image
-                    src={orderDetails.item.productImage}
-                    alt={orderDetails.item.productName}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-foreground">
-                    {orderDetails.item.productName}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {orderDetails.item.category}
-                  </p>
-                </div>
-              </div>
-
-              {/* Selected Options */}
-              <div className="py-4">
-                <h3 className="font-medium text-foreground mb-3">
-                  Selected Options
-                </h3>
-                <div className="space-y-2">
-                  {getDisplayOptions(orderDetails.item.customOptions).map(
-                    (option, idx) => (
-                      <div
-                        key={idx}
-                        className="flex justify-between text-sm py-1 border-b border-border/50 last:border-0"
-                      >
-                        <span className="text-muted-foreground">
-                          {option.label}
-                        </span>
-                        <span className="text-foreground font-medium">
-                          {option.value}
-                        </span>
-                      </div>
-                    ),
-                  )}
-                </div>
-              </div>
-
-              {/* Design File */}
-              {orderDetails.item.designFile && (
-                <div className="py-4 border-t border-border">
-                  <h3 className="font-medium text-foreground mb-3">
-                    Design Artwork
-                  </h3>
-                  <div className="flex items-center p-3 bg-primary/5 rounded-lg border border-primary/10">
-                    <FileText className="h-5 w-5 text-primary mr-3" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {orderDetails.item.designFile.name}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {(orderDetails.item.designFile.size / 1024).toFixed(1)}{" "}
-                        KB
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Special Instructions */}
-              {orderDetails.specialInstructions && (
-                <div className="pt-4 border-t border-border">
-                  <h3 className="font-medium text-foreground mb-2">
-                    Special Instructions
-                  </h3>
-                  <p className="text-sm text-muted-foreground italic">
-                    {orderDetails.specialInstructions}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Contact & Delivery */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-card rounded-xl shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4">
-                  Contact Information
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <p className="text-foreground font-medium">
-                    {orderDetails.contact.firstName}{" "}
-                    {orderDetails.contact.lastName}
-                  </p>
-                  <div className="flex items-center space-x-2">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">
-                      {orderDetails.contact.email}
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">
-                      {orderDetails.contact.phone}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-card rounded-xl shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4">
-                  Delivery Address
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-start space-x-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                    <div>
-                      <p className="text-foreground">
-                        {orderDetails.delivery.address}
-                      </p>
-                      <p className="text-muted-foreground">
-                        {orderDetails.delivery.city}
-                        {orderDetails.delivery.state &&
-                          `, ${orderDetails.delivery.state}`}
-                        , {orderDetails.delivery.postalCode}
-                      </p>
-                      <p className="text-muted-foreground">
-                        {orderDetails.delivery.country}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Contact Support */}
-            <div className="bg-card rounded-xl shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">
-                Need Help?
-              </h3>
-              <div className="space-y-3">
-                <a
-                  href="tel:+251116686940"
-                  className="flex items-center space-x-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <Phone className="h-4 w-4" />
-                  <span>+251 116 68 69 40</span>
-                </a>
-                <a
-                  href="mailto:panapromotionplc@gmail.com"
-                  className="flex items-center space-x-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <Mail className="h-4 w-4" />
-                  <span>Email Support</span>
-                </a>
-              </div>
-            </div>
-
-            {/* What's Next */}
-            <div className="bg-card rounded-xl shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">
-                What&apos;s Next?
-              </h3>
-              <div className="space-y-3 text-sm text-muted-foreground">
-                <p>• You&apos;ll receive an email confirmation shortly</p>
-                <p>• Our team will review your order specifications</p>
-                <p>• We&apos;ll contact you within 24 hours with a quote</p>
-                <p>• Once confirmed, production will begin</p>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="space-y-3">
-              <Link
-                href="/account"
-                className="w-full btn-pana py-3 inline-flex items-center justify-center"
-              >
-                View Order History
+          <footer className="pt-8 flex flex-col md:flex-row items-center justify-center gap-6">
+            <Button
+              asChild
+              variant="outline"
+              className="h-14 px-8 rounded-2xl font-black uppercase tracking-widest text-xs border-border/40 hover:bg-muted group"
+            >
+              <Link href="/account" className="flex items-center gap-3">
+                <User
+                  size={18}
+                  className="opacity-40 group-hover:scale-110 transition-transform"
+                />
+                My Account
               </Link>
-              <Link
-                href="/all-products"
-                className="w-full border border-border rounded-lg py-3 inline-flex items-center justify-center hover:bg-secondary transition-colors"
-              >
-                Continue Browsing
+            </Button>
+            <Button
+              asChild
+              className="h-14 px-8 rounded-2xl font-black uppercase tracking-widest text-xs shadow-2xl shadow-primary/20 group"
+            >
+              <Link href="/all-products" className="flex items-center gap-3">
+                Continue Shopping
+                <ArrowRight
+                  size={18}
+                  className="opacity-40 group-hover:translate-x-1 transition-transform"
+                />
               </Link>
-            </div>
-          </div>
+            </Button>
+          </footer>
         </div>
-      </div>
+      </main>
     </div>
+  );
+}
+
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <OrderConfirmationContent />
+    </Suspense>
   );
 }

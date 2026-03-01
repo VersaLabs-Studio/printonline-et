@@ -16,7 +16,7 @@ import {
   Filter,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import { createClient } from "@/lib/supabase/client";
+
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -45,23 +45,18 @@ export default function OrdersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const supabase = createClient();
 
   useEffect(() => {
     async function fetchOrders() {
       if (!session?.user?.id) return;
 
       try {
-        const { data, error } = await supabase
-          .from("orders")
-          .select(
-            "id, order_number, created_at, status, total_amount, payment_status",
-          )
-          .eq("customer_id", session.user.id)
-          .order("created_at", { ascending: false });
-
-        if (error) throw error;
-        setOrders(data || []);
+        const response = await fetch("/api/orders");
+        if (!response.ok) {
+          throw new Error("Failed to fetch orders");
+        }
+        const data = await response.json();
+        setOrders(data.orders || []);
       } catch (err) {
         console.error("Error fetching orders:", err);
       } finally {
@@ -72,7 +67,7 @@ export default function OrdersPage() {
     if (!isSessionPending) {
       fetchOrders();
     }
-  }, [session, isSessionPending, supabase]);
+  }, [session, isSessionPending]);
 
   const filteredOrders = orders.filter((order) => {
     const matchesSearch = order.order_number

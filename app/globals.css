@@ -7,8 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter), sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -46,7 +45,7 @@
 
 :root {
   --radius: 0.625rem;
-  
+
   /* Pana Branding Colors - Light Theme */
   --background: oklch(1 0 0); /* Pure white */
   --foreground: oklch(0.141 0.005 285.823); /* Near-black */
@@ -54,36 +53,38 @@
   --card-foreground: oklch(0.141 0.005 285.823);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.141 0.005 285.823);
-  
+
   /* Primary - Pana Light Yellow */
   --primary: oklch(0.85 0.18 75); /* Light yellow matching logo */
-  --primary-foreground: oklch(0.09 0.01 285.823); /* Dark text on light yellow */
-  
+  --primary-foreground: oklch(
+    0.09 0.01 285.823
+  ); /* Dark text on light yellow */
+
   /* Secondary - Light gray with subtle warmth */
   --secondary: oklch(0.97 0.01 30); /* Warm light gray */
   --secondary-foreground: oklch(0.141 0.005 285.823);
-  
+
   /* Muted - Subtle gray */
   --muted: oklch(0.96 0.005 286.375);
   --muted-foreground: oklch(0.552 0.016 285.938);
-  
+
   /* Accent - Light yellow */
-  --accent: oklch(0.90 0.12 75); /* Light yellow accent */
+  --accent: oklch(0.9 0.12 75); /* Light yellow accent */
   --accent-foreground: oklch(0.141 0.005 285.823);
-  
+
   /* Destructive - Red for errors */
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
   --ring: oklch(0.85 0.18 75); /* Light yellow ring to match primary */
-  
+
   /* Chart colors - Pana themed */
   --chart-1: oklch(0.85 0.18 75); /* Light yellow matching logo */
   --chart-2: oklch(0.21 0.006 285.885); /* Dark gray */
-  --chart-3: oklch(0.90 0.12 75); /* Light yellow matching logo */
+  --chart-3: oklch(0.9 0.12 75); /* Light yellow matching logo */
   --chart-4: oklch(0.96 0.005 286.375); /* Light gray */
   --chart-5: oklch(0.552 0.016 285.938); /* Muted gray */
-  
+
   /* Sidebar colors */
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.141 0.005 285.823);
@@ -97,42 +98,46 @@
 
 .dark {
   /* Pana Branding Colors - Dark Theme */
-  --background: oklch(0.09 0.01 285.823); /* Very dark gray with hint of warmth */
+  --background: oklch(
+    0.09 0.01 285.823
+  ); /* Very dark gray with hint of warmth */
   --foreground: oklch(0.985 0 0); /* Near-white */
   --card: oklch(0.12 0.01 285.823); /* Dark cards */
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.12 0.01 285.823);
   --popover-foreground: oklch(0.985 0 0);
-  
+
   /* Primary - Light yellow for dark mode */
   --primary: oklch(0.85 0.18 75); /* Light yellow matching logo */
-  --primary-foreground: oklch(0.09 0.01 285.823); /* Dark text on light yellow */
-  
+  --primary-foreground: oklch(
+    0.09 0.01 285.823
+  ); /* Dark text on light yellow */
+
   /* Secondary - Darker gray */
   --secondary: oklch(0.16 0.01 285.823);
   --secondary-foreground: oklch(0.985 0 0);
-  
+
   /* Muted - Dark muted */
   --muted: oklch(0.18 0.01 285.823);
   --muted-foreground: oklch(0.705 0.015 286.067);
-  
+
   /* Accent - Light yellow */
   --accent: oklch(0.75 0.15 75); /* Light yellow for dark mode */
   --accent-foreground: oklch(0.985 0 0);
-  
+
   /* Destructive - Brighter red for dark mode */
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%); /* Subtle border */
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.85 0.18 75); /* Light yellow ring */
-  
+
   /* Chart colors - Dark theme */
   --chart-1: oklch(0.85 0.18 75); /* Light yellow matching logo */
   --chart-2: oklch(0.75 0.15 75); /* Light yellow matching logo */
   --chart-3: oklch(0.705 0.015 286.067); /* Gray */
   --chart-4: oklch(0.985 0 0); /* White */
   --chart-5: oklch(0.18 0.01 285.823); /* Dark muted */
-  
+
   /* Sidebar colors - Dark theme */
   --sidebar: oklch(0.12 0.01 285.823);
   --sidebar-foreground: oklch(0.985 0 0);
@@ -151,7 +156,11 @@
   body {
     @apply bg-background text-foreground;
     /* Add subtle gradient background */
-    background-image: radial-gradient(circle at 1px 1px, oklch(var(--primary) / 0.03) 1px, transparent 0);
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      oklch(var(--primary) / 0.03) 1px,
+      transparent 0
+    );
     background-size: 20px 20px;
   }
 }
@@ -161,33 +170,41 @@
   .btn-pana {
     @apply bg-primary text-primary-foreground hover:bg-primary/90 rounded-[var(--radius)] transition-all duration-200 shadow-sm hover:shadow-md;
   }
-  
+
   /* Pana card with subtle border */
   .card-pana {
     @apply border border-border/50 shadow-sm hover:shadow-md transition-all duration-200;
   }
-  
+
   /* Pana gradient background */
   .bg-pana-gradient {
-    background: linear-gradient(135deg, oklch(var(--primary) / 0.1) 0%, oklch(var(--secondary) / 0.5) 100%);
+    background: linear-gradient(
+      135deg,
+      oklch(var(--primary) / 0.1) 0%,
+      oklch(var(--secondary) / 0.5) 100%
+    );
   }
-  
+
   /* Pana text gradient for headings */
   .text-pana-gradient {
-    background: linear-gradient(135deg, oklch(var(--primary)) 0%, oklch(var(--primary) / 0.7) 100%);
+    background: linear-gradient(
+      135deg,
+      oklch(var(--primary)) 0%,
+      oklch(var(--primary) / 0.7) 100%
+    );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  
+
   /* Pana section divider */
   .divider-pana {
     @apply border-t border-border/30;
     position: relative;
   }
-  
+
   .divider-pana::after {
-    content: '';
+    content: "";
     position: absolute;
     top: -1px;
     left: 50%;

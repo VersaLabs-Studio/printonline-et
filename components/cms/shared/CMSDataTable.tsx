@@ -2,14 +2,7 @@
 
 import React from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
+  ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
@@ -17,34 +10,39 @@ import {
   getSortedRowModel,
   SortingState,
   getFilteredRowModel,
-  ColumnDef,
+  ColumnFiltersState,
 } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  Search,
-  SlidersHorizontal,
-} from "lucide-react";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { DataTablePagination } from "./DataTablePagination";
 import { cn } from "@/lib/utils";
 
 interface CMSDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   searchPlaceholder?: string;
-  searchColumn?: string;
+  className?: string;
 }
 
 export function CMSDataTable<TData, TValue>({
   columns,
   data,
-  searchPlaceholder = "Search...",
-  searchColumn,
+  searchPlaceholder = "Filter records...",
+  className,
 }: CMSDataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
   const [globalFilter, setGlobalFilter] = React.useState("");
 
   const table = useReactTable({
@@ -54,153 +52,99 @@ export function CMSDataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
     state: {
       sorting,
+      columnFilters,
       globalFilter,
     },
-    onGlobalFilterChange: setGlobalFilter,
   });
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="relative w-full sm:max-w-sm group">
+    <div className={cn("space-y-6", className)}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="relative w-full sm:w-80 group">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <Input
             placeholder={searchPlaceholder}
             value={globalFilter ?? ""}
             onChange={(event) => setGlobalFilter(event.target.value)}
-            className="pl-10 bg-card border-border/50 focus:border-primary/50 transition-all h-10 rounded-xl"
+            className="pl-10 h-10 rounded-xl border-border/50 bg-background/50 focus-visible:ring-primary shadow-sm transition-all"
           />
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-10 rounded-xl border-border/50 gap-2 flex-1 sm:flex-none"
-          >
-            <SlidersHorizontal size={16} />
-            Filters
-          </Button>
-        </div>
       </div>
 
-      <div className="rounded-xl border border-border/50 bg-card overflow-hidden shadow-sm">
-        <Table>
-          <TableHeader className="bg-muted/50">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow
-                key={headerGroup.id}
-                className="hover:bg-transparent border-border/50"
-              >
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead
-                      key={header.id}
-                      className="text-xs font-bold uppercase tracking-wider h-12"
+      <Card className="rounded-2xl border-border/40 shadow-sm overflow-hidden bg-card/30 backdrop-blur-sm">
+        <CardContent className="p-0">
+          <div className="rounded-2xl overflow-hidden">
+            <Table>
+              <TableHeader className="bg-muted/30 border-b border-border/40">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow
+                    key={headerGroup.id}
+                    className="hover:bg-transparent border-none"
+                  >
+                    {headerGroup.headers.map((header) => (
+                      <TableHead
+                        key={header.id}
+                        className="h-12 px-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground"
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                      className="border-b border-border/20 last:border-0 hover:bg-primary/5 transition-colors group"
                     >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="px-6 py-4">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
                           )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="border-border/50 hover:bg-muted/30 transition-colors"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-4">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-64 text-center"
+                    >
+                      <div className="flex flex-col items-center justify-center space-y-2 opacity-40">
+                        <Search size={40} className="mb-2" />
+                        <p className="text-sm font-black uppercase tracking-widest">
+                          No matching records
+                        </p>
+                        <p className="text-xs font-bold">
+                          Try adjusting your search criteria
+                        </p>
+                      </div>
                     </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-32 text-center text-muted-foreground"
-                >
-                  No results found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
-        <div className="text-xs text-muted-foreground">
-          Showing{" "}
-          {table.getState().pagination.pageIndex *
-            table.getState().pagination.pageSize +
-            1}{" "}
-          to{" "}
-          {Math.min(
-            (table.getState().pagination.pageIndex + 1) *
-              table.getState().pagination.pageSize,
-            data.length,
-          )}{" "}
-          of {data.length} entries
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 rounded-lg border-border/50"
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ChevronsLeft size={16} />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 rounded-lg border-border/50"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ChevronLeft size={16} />
-          </Button>
-          <div className="flex items-center px-4 h-8 rounded-lg border border-border/50 bg-muted/30 text-xs font-bold">
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 rounded-lg border-border/50"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            <ChevronRight size={16} />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 rounded-lg border-border/50"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
-          >
-            <ChevronsRight size={16} />
-          </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
+
+      <DataTablePagination table={table} totalEntries={data.length} />
     </div>
   );
 }

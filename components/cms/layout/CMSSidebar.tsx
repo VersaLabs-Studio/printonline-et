@@ -30,30 +30,34 @@ interface NavItemProps {
 
 function NavItem({ href, icon: Icon, label, active, collapsed }: NavItemProps) {
   return (
-    <Link href={href}>
+    <Link href={href} className="block">
       <span
         className={cn(
-          "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group relative",
+          "flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-300 group relative",
           active
-            ? "bg-primary text-primary-foreground shadow-sm"
+            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]"
             : "text-muted-foreground hover:bg-muted hover:text-foreground",
         )}
       >
         <Icon
-          size={20}
+          size={18}
           className={cn(
+            "transition-colors duration-300",
             active ? "text-primary-foreground" : "group-hover:text-primary",
           )}
         />
         {!collapsed && (
-          <span className="text-sm font-medium whitespace-nowrap overflow-hidden transition-all duration-300">
+          <span className="text-xs font-black uppercase tracking-widest whitespace-nowrap overflow-hidden">
             {label}
           </span>
         )}
         {collapsed && (
-          <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 shadow-md border whitespace-nowrap">
+          <div className="absolute left-full ml-4 px-3 py-1.5 bg-card text-foreground text-[10px] font-black uppercase tracking-widest rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 shadow-xl border border-border/50 whitespace-nowrap">
             {label}
           </div>
+        )}
+        {active && (
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-4 bg-primary-foreground rounded-r-full" />
         )}
       </span>
     </Link>
@@ -65,7 +69,7 @@ export function CMSSidebar() {
   const [collapsed, setCollapsed] = React.useState(false);
 
   const navigation = [
-    { href: "/cms", icon: BarChart3, label: "Dashboard" },
+    { href: "/cms", icon: BarChart3, label: "Overview" },
     { href: "/cms/orders", icon: ShoppingCart, label: "Orders" },
     { href: "/cms/products", icon: Package, label: "Products" },
     { href: "/cms/customers", icon: Users, label: "Customers" },
@@ -74,115 +78,117 @@ export function CMSSidebar() {
 
   const handleSignOut = async () => {
     try {
-      await authClient.signOut();
-      window.location.href = "/login";
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            window.location.href = "/login";
+          },
+        },
+      });
     } catch (error) {
       toast.error("Failed to sign out");
-      console.error(error);
     }
   };
 
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 bg-card border-r border-border/50 z-40 transition-all duration-300 ease-in-out flex flex-col",
-        collapsed ? "w-16" : "w-64",
+        "fixed inset-y-0 left-0 bg-card border-r border-border/40 z-40 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col shadow-sm",
+        collapsed ? "w-20" : "w-64",
       )}
     >
-      {/* Brand Logo */}
-      <div className="h-16 flex items-center px-4 border-b border-border/50">
-        <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground flex-shrink-0 shadow-lg shadow-primary/20">
-            <span className="font-bold">P</span>
+      <div className="h-20 flex items-center px-6 border-b border-border/40 bg-muted/5">
+        <div className="flex items-center gap-4 overflow-hidden">
+          <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground flex-shrink-0 shadow-xl shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform">
+            <span className="font-black text-xl italic">P</span>
           </div>
           {!collapsed && (
-            <div className="flex flex-col">
-              <span className="font-bold text-sm tracking-tight leading-tight">
-                PrintOnline CMS
+            <div className="flex flex-col animate-in fade-in slide-in-from-left duration-500">
+              <span className="font-black text-xs tracking-tight uppercase leading-none text-foreground">
+                PrintOnline
               </span>
-              <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">
-                Pana Admin
+              <span className="text-[10px] text-primary font-black uppercase tracking-[0.2em] mt-1 opacity-70">
+                PANA ADMIN
               </span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Navigation Links */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden py-6 px-3 space-y-1">
-        <div
-          className={cn(
-            "px-2 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest",
-            collapsed && "opacity-0",
-          )}
-        >
-          Main Menu
-        </div>
-        {navigation.map((item) => (
-          <NavItem
-            key={item.href}
-            href={item.href}
-            icon={item.icon}
-            label={item.label}
-            active={pathname === item.href}
-            collapsed={collapsed}
-          />
-        ))}
-
-        <div className="pt-4 mt-4 border-t border-border/50">
+      <div className="flex-1 overflow-y-auto scrollbar-hide py-8 px-4 space-y-6">
+        <div>
           <div
             className={cn(
-              "px-2 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest",
-              collapsed && "opacity-0",
+              "px-3 mb-4 text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-50",
+              collapsed && "hidden",
             )}
           >
-            System
+            Management
           </div>
-          <NavItem
-            href="/cms/settings"
-            icon={Settings}
-            label="Settings"
-            active={pathname === "/cms/settings"}
-            collapsed={collapsed}
-          />
-          <NavItem
-            href="/"
-            icon={ExternalLink}
-            label="View Storefront"
-            collapsed={collapsed}
-          />
+          <div className="space-y-1.5">
+            {navigation.map((item) => (
+              <NavItem
+                key={item.href}
+                href={item.href}
+                icon={item.icon}
+                label={item.label}
+                active={
+                  pathname === item.href ||
+                  (item.href !== "/cms" && pathname.startsWith(item.href))
+                }
+                collapsed={collapsed}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div
+            className={cn(
+              "px-3 mb-4 text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-50",
+              collapsed && "hidden",
+            )}
+          >
+            Terminal
+          </div>
+          <div className="space-y-1.5">
+            <NavItem
+              href="/cms/settings"
+              icon={Settings}
+              label="Settings"
+              active={pathname === "/cms/settings"}
+              collapsed={collapsed}
+            />
+            <NavItem
+              href="/"
+              icon={ExternalLink}
+              label="Live Site"
+              collapsed={collapsed}
+            />
+          </div>
         </div>
       </div>
 
-      {/* User / Bottom Actions */}
-      <div className="p-3 border-t border-border/50 bg-muted/20">
-        {!collapsed && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-10"
-            onClick={handleSignOut}
-          >
-            <LogOut size={18} />
-            <span className="text-sm font-medium">Log out</span>
-          </Button>
-        )}
-        {collapsed && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-10"
-            onClick={handleSignOut}
-          >
-            <LogOut size={18} />
-          </Button>
-        )}
+      <div className="p-4 border-t border-border/40 bg-muted/10">
+        <Button
+          variant="ghost"
+          size={collapsed ? "icon" : "sm"}
+          className={cn(
+            "w-full rounded-xl transition-all duration-300",
+            collapsed ? "h-12" : "h-12 justify-start px-4 gap-4",
+            "text-muted-foreground hover:text-destructive hover:bg-destructive/5 font-black uppercase tracking-widest text-[10px]",
+          )}
+          onClick={handleSignOut}
+        >
+          <LogOut size={18} />
+          {!collapsed && <span>System Logout</span>}
+        </Button>
 
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="mt-2 w-full flex items-center justify-center p-2 rounded-lg hover:bg-muted text-muted-foreground active:scale-95 transition-all"
+          className="mt-4 w-full h-8 flex items-center justify-center rounded-xl bg-muted/30 hover:bg-muted text-muted-foreground/60 hover:text-primary transition-all active:scale-95 border border-border/20"
         >
-          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
       </div>
     </aside>

@@ -4,12 +4,16 @@ import React from "react";
 import { useCustomers } from "@/hooks/data/useCustomers";
 import { CMSPageHeader } from "@/components/cms/shared/CMSPageHeader";
 import { CMSDataTable } from "@/components/cms/shared/CMSDataTable";
-import { Button } from "@/components/ui/button";
-import { Eye, Mail, Phone, MoreHorizontal } from "lucide-react";
-import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { CustomerProfile } from "@/types";
-import { Badge } from "@/components/ui/badge";
+import {
+  User,
+  Mail,
+  Phone,
+  MoreHorizontal,
+  Eye,
+  ExternalLink,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,28 +22,31 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import Link from "next/link";
+import { format } from "date-fns";
+import { Database } from "@/types/database";
+
+type Customer = Database["public"]["Tables"]["customer_profiles"]["Row"];
 
 export default function CMSCustomersPage() {
   const { data: customers, isLoading, error } = useCustomers();
 
-  const columns: ColumnDef<CustomerProfile>[] = [
+  const columns: ColumnDef<Customer>[] = [
     {
       accessorKey: "full_name",
       header: "Customer",
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
-          <Avatar className="h-8 w-8 ring-2 ring-primary/10">
-            <AvatarFallback className="bg-primary/5 text-primary text-[10px] font-bold">
-              {row.original.full_name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
+          <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-xs border border-primary/20 shadow-sm">
+            {row.original.full_name.charAt(0)}
+          </div>
           <div className="flex flex-col">
-            <span className="font-bold text-sm">{row.original.full_name}</span>
-            <span className="text-[11px] text-muted-foreground">
-              {row.original.company_name || "Individual"}
+            <span className="font-black text-sm tracking-tight">
+              {row.original.full_name}
+            </span>
+            <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest leading-none">
+              Registered Member
             </span>
           </div>
         </div>
@@ -47,75 +54,81 @@ export default function CMSCustomersPage() {
     },
     {
       accessorKey: "email",
-      header: "Contact Info",
+      header: "Contact Intelligence",
       cell: ({ row }) => (
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Mail size={12} className="text-primary/60" />
-            {row.original.email}
+          <div className="flex items-center gap-2 text-xs font-bold text-foreground/80">
+            <Mail size={12} className="text-primary/60" /> {row.original.email}
           </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Phone size={12} className="text-primary/60" />
-            {row.original.phone || "No phone"}
+          <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground tracking-tight">
+            <Phone size={10} className="text-primary/60" />{" "}
+            {row.original.phone || "No phone record"}
           </div>
         </div>
       ),
     },
     {
-      accessorKey: "tin_number",
-      header: "TIN Number",
-      cell: ({ row }) =>
-        row.original.tin_number ? (
-          <code className="text-[10px] bg-muted px-2 py-0.5 rounded font-mono font-bold tracking-widest text-foreground/80">
-            {row.original.tin_number}
-          </code>
-        ) : (
-          <span className="text-xs text-muted-foreground italic">N/A</span>
-        ),
+      accessorKey: "company_name",
+      header: "Organization",
+      cell: ({ row }) => (
+        <div className="flex flex-col">
+          <span className="text-xs font-bold">
+            {row.original.company_name || "Personal Account"}
+          </span>
+          {row.original.tin_number && (
+            <span className="text-[10px] text-muted-foreground font-mono">
+              TIN: {row.original.tin_number}
+            </span>
+          )}
+        </div>
+      ),
     },
     {
       accessorKey: "created_at",
       header: "Joined",
       cell: ({ row }) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
           {row.original.created_at
-            ? format(new Date(row.original.created_at), "MMM d, yyyy")
+            ? format(new Date(row.original.created_at), "MMM yyyy")
             : "N/A"}
         </span>
       ),
     },
     {
       id: "actions",
-      cell: ({ row }) => {
-        const customer = row.original;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="h-8 w-8 p-0 hover:bg-muted rounded-full"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 rounded-xl">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link
-                  href={`/cms/customers/${customer.id}`}
-                  className="cursor-pointer"
-                >
-                  <Eye className="mr-2 h-4 w-4" /> View Profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
-                <Mail className="mr-2 h-4 w-4" /> Email Customer
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="h-8 w-8 p-0 hover:bg-muted rounded-full transition-all"
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            className="w-52 rounded-xl shadow-xl border-border/40 p-1.5"
+          >
+            <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-muted-foreground px-2 py-1.5">
+              Customer Access
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator className="opacity-50" />
+            <DropdownMenuItem
+              asChild
+              className="rounded-lg cursor-pointer font-bold text-xs gap-3 py-2"
+            >
+              <Link href={`/cms/customers/${row.original.id}`}>
+                <Eye className="h-4 w-4 text-primary" /> Profile Overview
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="rounded-lg cursor-pointer font-bold text-xs gap-3 py-2">
+              <ExternalLink className="h-4 w-4 text-primary" /> View Order
+              History
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
     },
   ];
 
@@ -123,33 +136,42 @@ export default function CMSCustomersPage() {
     <div className="space-y-6">
       <CMSPageHeader
         title="Customers"
-        subtitle="Manage customer profiles and business details."
+        subtitle="Manage your registered customer base and their profiles."
         breadcrumbs={[{ label: "Customers" }]}
+        actions={
+          <Button
+            variant="outline"
+            className="rounded-xl gap-2 font-bold border-border/60"
+          >
+            <User size={18} className="text-primary" />
+            Export Directory
+          </Button>
+        }
       />
 
       {isLoading ? (
         <div className="space-y-4">
-          <Skeleton className="h-10 w-full rounded-xl" />
-          <Skeleton className="h-[400px] w-full rounded-xl" />
+          <Skeleton className="h-12 w-full rounded-2xl" />
+          <Skeleton className="h-[500px] w-full rounded-2xl" />
         </div>
       ) : error ? (
-        <div className="p-8 text-center bg-destructive/5 rounded-2xl border border-destructive/10">
-          <p className="text-destructive font-bold">
-            Failed to load customers.
+        <div className="p-20 text-center bg-destructive/5 rounded-3xl border border-destructive/10">
+          <p className="text-destructive font-bold text-lg">
+            Failed to sync customer directory.
           </p>
           <Button
-            variant="outline"
-            className="mt-4"
+            variant="secondary"
+            className="mt-4 rounded-xl"
             onClick={() => window.location.reload()}
           >
-            Retry
+            Re-sync Data
           </Button>
         </div>
       ) : (
         <CMSDataTable
           columns={columns}
           data={customers || []}
-          searchPlaceholder="Search customers by name or company..."
+          searchPlaceholder="Search by name, email or company..."
         />
       )}
     </div>

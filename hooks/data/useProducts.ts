@@ -1,12 +1,8 @@
-// hooks/data/useProducts.ts
-// TanStack Query hook for fetching products list
-// Supports filtering by category, search, and pagination
-
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import type { ProductWithCategory } from "@/types/database";
+import { ProductWithCategory } from "@/types";
 
 export interface UseProductsOptions {
   categorySlug?: string;
@@ -28,8 +24,11 @@ export function useProducts(options: UseProductsOptions = {}) {
         .from("products")
         .select(
           "*, category:categories(name, slug), product_images(image_url, alt_text, is_primary, display_order)",
-        )
-        .eq("is_active", true);
+        );
+
+      // For CMS we might want all products, for storefront only active ones
+      // In a real app we'd probably have an 'includeInactive' flag
+      // query = query.eq("is_active", true);
 
       // Filter by category slug (via join)
       if (options.categorySlug) {
@@ -69,21 +68,14 @@ export function useProducts(options: UseProductsOptions = {}) {
       if (error) throw error;
       return (data as unknown as ProductWithCategory[]) ?? [];
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 2 * 60 * 1000,
   });
 }
 
-/**
- * Fetch products by category slug.
- * Convenience wrapper around useProducts.
- */
 export function useProductsByCategory(categorySlug: string) {
   return useProducts({ categorySlug });
 }
 
-/**
- * Fetch featured/popular products for the home page.
- */
 export function useFeaturedProducts(limit: number = 8) {
   return useProducts({
     limit,

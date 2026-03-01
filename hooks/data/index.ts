@@ -27,3 +27,6 @@ export {
 
 // Search
 export { useSearch, useSearchSuggestions } from "./useSearch";
+
+// Customers
+export { useCustomers, useCustomer } from "./useCustomers";

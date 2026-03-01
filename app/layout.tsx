@@ -3,10 +3,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import LayoutClient from "./LayoutClient";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
-const inter = Inter({ subsets: ["latin", "latin-ext"] });
+const inter = Inter({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "Print Online Ethiopia",
@@ -22,13 +23,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <LayoutClient>
-          <Header />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
-        </LayoutClient>
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
+      <body className="font-sans antialiased">
+        <LayoutClient>{children}</LayoutClient>
       </body>
     </html>
   );
