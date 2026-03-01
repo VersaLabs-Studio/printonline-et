@@ -91,7 +91,7 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
           >
             <div>
               {product.category && (
-                <p className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wider">
+                <p className="text-xs text-muted-foreground mb-1 font-bold uppercase tracking-wider">
                   {product.category.name}
                 </p>
               )}
@@ -196,7 +196,7 @@ export default function CategoryProductsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-lg text-white/60 mb-8 max-w-2xl font-light"
+              className="text-lg text-white/60 mb-8 max-w-2xl font-bold"
             >
               {activeCategory?.description ||
                 `Explore our high-quality ${categoryName} printing solutions.`}

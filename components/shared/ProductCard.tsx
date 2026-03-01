@@ -44,7 +44,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {product.badge && (
-          <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground font-black uppercase tracking-[0.2em] text-[9px] h-6 px-3 shadow-lg border-none">
+          <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground font-bold uppercase tracking-[0.2em] text-[9px] h-6 px-3 shadow-lg border-none">
             {product.badge}
           </Badge>
         )}
@@ -53,18 +53,18 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Content */}
       <div className="p-6 flex flex-col flex-1 gap-2">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] truncate">
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] truncate">
             {product.category?.name || "Global Collection"}
           </span>
           <div className="h-1.5 w-1.5 rounded-full bg-primary/30" />
         </div>
 
-        <h3 className="text-lg font-black tracking-tighter text-foreground line-clamp-2 leading-tight flex-1">
+        <h3 className="text-lg font-bold tracking-tighter text-foreground line-clamp-2 leading-tight flex-1">
           {product.name}
         </h3>
 
         <div className="flex items-center justify-between mt-4">
-          <div className="text-xl font-black text-primary tracking-tighter">
+          <div className="text-xl font-bold text-primary tracking-tighter">
             <PriceDisplay amount={product.base_price} />
           </div>
           <button className="h-10 w-10 rounded-xl bg-muted/40 border border-border/40 flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white hover:border-primary transition-all active:scale-95 shadow-sm">

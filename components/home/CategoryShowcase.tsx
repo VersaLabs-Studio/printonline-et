@@ -106,7 +106,7 @@ const CategoryShowcase = () => {
                           {category.description}
                         </p>
 
-                        <div className="flex items-center text-white font-medium text-sm md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 transform translate-y-0 md:translate-y-4 md:group-hover:translate-y-0">
+                        <div className="flex items-center text-white font-bold text-sm md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 transform translate-y-0 md:translate-y-4 md:group-hover:translate-y-0">
                           <span className="mr-2">Explore Collection</span>
                           <div className="bg-primary rounded-full p-1">
                             <ArrowRight className="h-3 w-3 text-primary-foreground" />

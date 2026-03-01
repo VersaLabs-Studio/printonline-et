@@ -4,13 +4,15 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
-import { Package, ArrowLeft } from "lucide-react";
+import { Package, ArrowLeft, Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OrderSummaryDetails } from "@/components/order/OrderSummaryDetails";
 import { OrderReviewStep } from "@/components/order/OrderReviewStep";
 import { OrderProfileSection } from "@/components/order/OrderProfileSection";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/context/CartContext";
+import { authClient } from "@/lib/auth-client";
+import { createClient } from "@/lib/supabase/client";
 
 export default function OrderSummaryPage() {
   const router = useRouter();
@@ -18,42 +20,67 @@ export default function OrderSummaryPage() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [contactInfo, setContactInfo] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-  });
-  const [deliveryAddress, setDeliveryAddress] = useState({
-    address: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    country: "Ethiopia",
-  });
+  const { data: session, isPending: isSessionPending } =
+    authClient.useSession();
+  const supabase = createClient();
+  const [profile, setProfile] = useState<any>(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
+
+  // New state for unified checkout
+  const [deliveryMethod, setDeliveryMethod] = useState("home"); // "home" | "pickup"
   const [specialInstructions, setSpecialInstructions] = useState("");
 
   useEffect(() => {
-    // Cart context serves the items directly
-  }, []);
+    async function fetchProfile() {
+      if (session?.user?.id) {
+        setIsProfileLoading(true);
+        const { data } = await supabase
+          .from("customer_profiles")
+          .select("*")
+          .eq("auth_user_id", session.user.id)
+          .single();
+        if (data) {
+          setProfile(data);
+        } else {
+          // Fallback if no profile is completely registered
+          setProfile({
+            full_name: session.user.name,
+            email: session.user.email,
+          });
+        }
+        setIsProfileLoading(false);
+      }
+    }
+    if (!isSessionPending && session) {
+      fetchProfile();
+    }
+  }, [session, isSessionPending, supabase]);
 
   const handlePlaceOrder = async (termsAccepted: boolean) => {
     if (!termsAccepted) {
       toast.error("Please accept the terms and conditions.");
       return;
     }
+    if (!profile) return;
 
     try {
       setIsSubmitting(true);
 
+      const isHome = deliveryMethod === "home";
+      const address = isHome
+        ? profile.address_line1
+        : "PrintOnline HQ (Pickup)";
+      const city = isHome ? profile.city : "Addis Ababa";
+      const subCity = isHome ? profile.sub_city : "Bole";
+
       const orderPayload = {
-        customer_name: `${contactInfo.firstName} ${contactInfo.lastName}`,
-        customer_email: contactInfo.email,
-        customer_phone: contactInfo.phone,
-        customer_tin: "",
-        delivery_address: deliveryAddress.address,
-        delivery_city: deliveryAddress.city,
-        delivery_sub_city: deliveryAddress.state,
+        customer_name: profile.full_name || session?.user?.name,
+        customer_email: session?.user?.email,
+        customer_phone: profile.phone || "",
+        customer_tin: profile.tin_number || "",
+        delivery_address: address,
+        delivery_city: city,
+        delivery_sub_city: subCity,
         special_instructions: specialInstructions,
         subtotal: getCartTotal(),
         total_amount: getCartTotal(),
@@ -108,19 +135,70 @@ export default function OrderSummaryPage() {
           <Package size={64} />
         </div>
         <div className="space-y-2">
-          <h1 className="text-4xl font-black tracking-tighter uppercase">
+          <h1 className="text-4xl font-bold tracking-tight uppercase">
             Your Cart is Empty
           </h1>
-          <p className="text-muted-foreground font-medium">
+          <p className="text-muted-foreground font-bold">
             Add some products to your cart before checking out.
           </p>
         </div>
         <Button
           asChild
-          className="h-14 px-8 rounded-2xl font-black uppercase tracking-widest text-xs"
+          className="h-14 px-8 rounded-2xl font-bold uppercase tracking-wider text-xs"
         >
           <Link href="/all-products">Browse Products</Link>
         </Button>
+      </div>
+    );
+  }
+
+  if (isSessionPending || isProfileLoading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="font-bold text-muted-foreground animate-pulse uppercase tracking-widest text-xs">
+          Authenticating & Syncing Profile...
+        </p>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="min-h-[80vh] bg-background relative overflow-hidden flex items-center justify-center py-20 px-4">
+        <div className="max-w-md w-full text-center space-y-8 animate-in zoom-in-95 duration-500">
+          <div className="mx-auto h-24 w-24 bg-primary/10 rounded-[2rem] flex items-center justify-center text-primary mb-8 shadow-inner border border-primary/20">
+            <Lock size={40} />
+          </div>
+          <div className="space-y-3">
+            <h1 className="text-4xl font-bold tracking-tight uppercase">
+              Authentication Required
+            </h1>
+            <p className="text-muted-foreground font-medium text-sm px-4 leading-relaxed">
+              You must be logged in to securely save your order and connect it
+              to your account dashboard for priority tracking.
+            </p>
+          </div>
+          <div className="pt-4 flex flex-col gap-4">
+            <Button
+              asChild
+              className="w-full h-14 btn-pana text-sm font-bold tracking-widest uppercase shadow-xl shadow-primary/20"
+            >
+              <Link href={`/login?callbackUrl=/order-summary`}>
+                Login to Continue
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="w-full h-14 rounded-2xl font-bold uppercase tracking-widest text-xs border-border/40 hover:bg-muted transition-all"
+            >
+              <Link href={`/register?callbackUrl=/order-summary`}>
+                Create Account
+              </Link>
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -136,7 +214,7 @@ export default function OrderSummaryPage() {
           <div className="space-y-4 px-1">
             <Link
               href="/cart"
-              className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-primary transition-colors group"
+              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors group"
             >
               <ArrowLeft
                 size={14}
@@ -144,7 +222,7 @@ export default function OrderSummaryPage() {
               />{" "}
               Back to Cart
             </Link>
-            <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase">
+            <h1 className="text-5xl font-bold tracking-tight text-foreground uppercase">
               Checkout
             </h1>
           </div>
@@ -152,7 +230,7 @@ export default function OrderSummaryPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20">
             <div className="lg:col-span-7 xl:col-span-8">
               <AnimatePresence mode="wait">
-                {step <= 2 ? (
+                {step === 1 ? (
                   <motion.div
                     key="profile-sections"
                     initial={{ opacity: 0, y: 10 }}
@@ -160,15 +238,13 @@ export default function OrderSummaryPage() {
                     exit={{ opacity: 0, y: -10 }}
                   >
                     <OrderProfileSection
-                      step={step}
-                      contactInfo={contactInfo}
-                      setContactInfo={setContactInfo}
-                      deliveryAddress={deliveryAddress}
-                      setDeliveryAddress={setDeliveryAddress}
+                      profile={profile}
+                      session={session}
+                      deliveryMethod={deliveryMethod}
+                      setDeliveryMethod={setDeliveryMethod}
                       specialInstructions={specialInstructions}
                       setSpecialInstructions={setSpecialInstructions}
-                      onNext={() => setStep(step + 1)}
-                      onBack={() => setStep(step - 1)}
+                      onNext={() => setStep(2)}
                     />
                   </motion.div>
                 ) : (
@@ -179,10 +255,11 @@ export default function OrderSummaryPage() {
                     exit={{ opacity: 0, scale: 1.02 }}
                   >
                     <OrderReviewStep
-                      contactInfo={contactInfo}
-                      deliveryAddress={deliveryAddress}
+                      profile={profile}
+                      session={session}
+                      deliveryMethod={deliveryMethod}
                       specialInstructions={specialInstructions}
-                      onBack={() => setStep(2)}
+                      onBack={() => setStep(1)}
                       onSubmit={handlePlaceOrder}
                       isSubmitting={isSubmitting}
                     />

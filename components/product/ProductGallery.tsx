@@ -17,8 +17,8 @@ export function ProductGallery({ product }: ProductGalleryProps) {
 
   if (images.length === 0) {
     return (
-      <div className="aspect-square w-full rounded-3xl bg-muted/30 border border-border/40 flex items-center justify-center">
-        <span className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">
+      <div className="aspect-square w-full rounded-2xl bg-muted/30 border border-border/40 flex items-center justify-center">
+        <span className="text-muted-foreground font-bold uppercase tracking-wider text-xs">
           No Asset Bound
         </span>
       </div>
@@ -29,7 +29,7 @@ export function ProductGallery({ product }: ProductGalleryProps) {
     <div className="space-y-4">
       <motion.div
         layoutId={`product-image-${product.id}`}
-        className="relative aspect-square w-full rounded-[2rem] bg-muted/10 border border-border/40 overflow-hidden shadow-2xl shadow-primary/5 group"
+        className="relative aspect-square w-full rounded-2xl bg-muted/10 border border-border/40 overflow-hidden shadow-sm group"
       >
         <AnimatePresence mode="wait">
           <motion.div
@@ -51,7 +51,7 @@ export function ProductGallery({ product }: ProductGalleryProps) {
         </AnimatePresence>
 
         {product.badge && (
-          <Badge className="absolute top-6 left-6 bg-primary text-primary-foreground font-black uppercase tracking-[0.2em] text-[10px] h-7 px-4 shadow-xl border-none">
+          <Badge className="absolute top-6 left-6 bg-primary text-primary-foreground font-bold uppercase tracking-wider text-xs h-7 px-4 shadow-xl border-none">
             {product.badge}
           </Badge>
         )}

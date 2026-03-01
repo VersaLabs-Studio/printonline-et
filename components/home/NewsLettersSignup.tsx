@@ -114,7 +114,7 @@ const NewsletterSignup = () => {
                 </motion.div>
               )}
 
-              <div className="flex flex-wrap items-center justify-center gap-6 mt-10 text-white/80 text-sm font-medium">
+              <div className="flex flex-wrap items-center justify-center gap-6 mt-10 text-white/80 text-sm font-bold">
                 <div className="flex items-center space-x-2 bg-white/10 px-3 py-1.5 rounded-full">
                   <Gift className="h-4 w-4" />
                   <span>Welcome discount</span>

@@ -117,7 +117,7 @@ const Testimonials = () => {
                       <p className="text-muted-foreground">
                         {testimonials[activeTestimonial].company}
                       </p>
-                      <div className="inline-flex items-center mt-3 px-3 py-1 rounded-full bg-secondary text-xs font-medium text-secondary-foreground border border-border">
+                      <div className="inline-flex items-center mt-3 px-3 py-1 rounded-full bg-secondary text-xs font-bold text-secondary-foreground border border-border">
                         Project: {testimonials[activeTestimonial].project}
                       </div>
                     </div>
@@ -156,7 +156,7 @@ const Testimonials = () => {
             <p className="text-4xl md:text-5xl font-extrabold text-foreground mb-2 group-hover:text-primary transition-colors">
               98%
             </p>
-            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
               Customer Satisfaction
             </p>
           </div>
@@ -164,7 +164,7 @@ const Testimonials = () => {
             <p className="text-4xl md:text-5xl font-extrabold text-foreground mb-2 group-hover:text-primary transition-colors">
               4.9/5
             </p>
-            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
               Average Rating
             </p>
           </div>
@@ -172,7 +172,7 @@ const Testimonials = () => {
             <p className="text-4xl md:text-5xl font-extrabold text-foreground mb-2 group-hover:text-primary transition-colors">
               2K+
             </p>
-            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
               Reviews
             </p>
           </div>
@@ -180,7 +180,7 @@ const Testimonials = () => {
             <p className="text-4xl md:text-5xl font-extrabold text-foreground mb-2 group-hover:text-primary transition-colors">
               85%
             </p>
-            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
               Return Customers
             </p>
           </div>

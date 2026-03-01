@@ -27,7 +27,7 @@ export default function AuthLayout({
               <span className="text-xl font-bold tracking-tight">
                 PrintOnline.et
               </span>
-              <span className="text-xs text-muted-foreground font-medium uppercase tracking-widest leading-none">
+              <span className="text-xs text-muted-foreground font-bold uppercase tracking-widest leading-none">
                 Pana Promotion
               </span>
             </div>

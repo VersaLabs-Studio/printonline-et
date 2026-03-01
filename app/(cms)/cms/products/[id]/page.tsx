@@ -39,16 +39,16 @@ export default function CMSProductDetailPage() {
     return (
       <div className="p-20 text-center space-y-4 bg-muted/20 rounded-3xl border-2 border-dashed border-border/40">
         <div className="text-4xl text-muted-foreground/40">🔍</div>
-        <h2 className="text-xl font-black uppercase tracking-tight">
+        <h2 className="text-xl font-bold uppercase tracking-tight">
           Access Token Revoked or Invalid
         </h2>
-        <p className="text-muted-foreground text-sm max-w-xs mx-auto font-medium">
+        <p className="text-muted-foreground text-sm max-w-xs mx-auto font-bold">
           This product record is currently unreachable or has been archived from
           the master catalog.
         </p>
         <Button
           variant="outline"
-          className="rounded-xl font-black uppercase tracking-widest text-[10px] h-10 px-8 border-border/60 hover:bg-muted/50"
+          className="rounded-xl font-bold uppercase tracking-widest text-[10px] h-10 px-8 border-border/60 hover:bg-muted/50"
           asChild
         >
           <Link href="/cms/products">Return to Directory</Link>
@@ -72,7 +72,7 @@ export default function CMSProductDetailPage() {
             <Button
               variant="outline"
               size="sm"
-              className="h-10 rounded-xl gap-2 font-black uppercase tracking-widest text-[10px] px-5 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all border-border/60"
+              className="h-10 rounded-xl gap-2 font-bold uppercase tracking-widest text-[10px] px-5 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all border-border/60"
               onClick={() => setIsDeleteDialogOpen(true)}
             >
               <Trash2 size={16} />
@@ -81,7 +81,7 @@ export default function CMSProductDetailPage() {
             <Button
               variant="outline"
               size="sm"
-              className="h-10 rounded-xl gap-2 font-black uppercase tracking-widest text-[10px] px-5 hover:bg-muted/50 transition-all border-border/60"
+              className="h-10 rounded-xl gap-2 font-bold uppercase tracking-widest text-[10px] px-5 hover:bg-muted/50 transition-all border-border/60"
               asChild
             >
               <Link href={`/products/${product.slug}`} target="_blank">
@@ -90,7 +90,7 @@ export default function CMSProductDetailPage() {
               </Link>
             </Button>
             <Button
-              className="h-10 rounded-xl gap-2 shadow-lg shadow-primary/20 font-black uppercase tracking-widest text-[11px] px-6"
+              className="h-10 rounded-xl gap-2 shadow-lg shadow-primary/20 font-bold uppercase tracking-widest text-[11px] px-6"
               asChild
             >
               <Link href={`/cms/products/${product.id}/edit`}>

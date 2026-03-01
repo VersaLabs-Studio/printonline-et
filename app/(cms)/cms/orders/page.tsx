@@ -53,17 +53,17 @@ export default function CMSOrdersPage() {
             <RefreshCcw size={32} className="text-destructive" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-xl font-black uppercase tracking-tight text-destructive">
+            <h3 className="text-xl font-bold uppercase tracking-tight text-destructive">
               Data Sync Failed
             </h3>
-            <p className="text-muted-foreground text-sm max-w-sm mx-auto font-medium">
+            <p className="text-muted-foreground text-sm max-w-sm mx-auto font-bold">
               We couldn't retrieve the latest orders from the server. Check your
               internet connection or Supabase status.
             </p>
           </div>
           <Button
             variant="outline"
-            className="rounded-xl border-destructive/30 hover:bg-destructive/10 font-black uppercase tracking-widest text-[11px] px-6 h-10 transition-all"
+            className="rounded-xl border-destructive/30 hover:bg-destructive/10 font-bold uppercase tracking-widest text-[11px] px-6 h-10 transition-all"
             onClick={() => refetch()}
           >
             Retry Sync

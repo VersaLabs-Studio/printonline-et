@@ -17,22 +17,22 @@ export function ProductInfo({ product }: ProductInfoProps) {
     { label: string; icon: any; class: string }
   > = {
     in_stock: {
-      label: "Fully Available",
+      label: "In Stock",
       icon: CheckCircle2,
       class: "text-emerald-500 bg-emerald-50 border-emerald-100",
     },
     low_stock: {
-      label: "Limited Reservation",
+      label: "Low Stock",
       icon: AlertCircle,
       class: "text-amber-500 bg-amber-50 border-amber-100",
     },
     out_of_stock: {
-      label: "Archives Only",
+      label: "Out of Stock",
       icon: AlertCircle,
       class: "text-rose-500 bg-rose-50 border-rose-100",
     },
     made_to_order: {
-      label: "Precision Crafting",
+      label: "Made to Order",
       icon: Clock,
       class: "text-primary bg-primary/5 border-primary/10",
     },
@@ -48,7 +48,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
           <Badge
             variant="outline"
             className={cn(
-              "h-6 rounded-lg text-[9px] font-black uppercase tracking-widest gap-1.5 px-3 border-2 shadow-sm",
+              "h-6 rounded-lg text-xs font-bold uppercase tracking-wider gap-1.5 px-3 border-2 shadow-sm",
               status.class,
             )}
           >
@@ -56,27 +56,27 @@ export function ProductInfo({ product }: ProductInfoProps) {
             {status.label}
           </Badge>
           {product.category && (
-            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-40">
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider opacity-40">
               {product.category.name}
             </span>
           )}
         </div>
-        <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-foreground drop-shadow-sm leading-tight">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-foreground leading-tight">
           {product.name}
         </h1>
       </div>
 
       <div className="flex items-baseline gap-3">
-        <span className="text-3xl font-black text-primary tracking-tighter">
+        <span className="text-3xl font-bold text-primary tracking-tight">
           <PriceDisplay amount={product.base_price} />
         </span>
-        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest leading-none">
+        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider leading-none">
           Starting Unit Price
         </span>
       </div>
 
       {product.short_description && (
-        <p className="text-sm font-medium text-muted-foreground leading-relaxed max-w-xl">
+        <p className="text-sm font-bold text-muted-foreground leading-relaxed max-w-xl">
           {product.short_description}
         </p>
       )}

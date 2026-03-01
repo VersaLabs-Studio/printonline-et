@@ -25,7 +25,7 @@ export function CMSPageHeader({
     <div className="space-y-4 mb-10">
       {/* Breadcrumbs */}
       {breadcrumbs && (
-        <nav className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 transition-all">
+        <nav className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 transition-all">
           <Link
             href="/cms"
             className="hover:text-primary hover:tracking-[0.15em] transition-all duration-300"
@@ -65,12 +65,12 @@ export function CMSPageHeader({
                 </Link>
               </Button>
             )}
-            <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-foreground drop-shadow-sm">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tighter text-foreground drop-shadow-sm">
               {title}
             </h1>
           </div>
           {subtitle && (
-            <p className="text-muted-foreground text-sm font-medium pl-1 max-w-2xl leading-relaxed">
+            <p className="text-muted-foreground text-sm font-bold pl-1 max-w-2xl leading-relaxed">
               {subtitle}
             </p>
           )}

@@ -32,25 +32,25 @@ export function ProductTabs({ product }: ProductTabsProps) {
         <TabsList className="w-full h-14 bg-muted/20 p-1.5 rounded-2xl border border-border/40 mb-8 flex justify-start overflow-x-auto scrollbar-hide">
           <TabsTrigger
             value="overview"
-            className="rounded-xl font-black uppercase tracking-widest text-[10px] gap-2 px-6 data-[state=active]:bg-background data-[state=active]:shadow-lg h-full"
+            className="rounded-xl font-bold uppercase tracking-wider text-xs gap-2 px-6 data-[state=active]:bg-background data-[state=active]:shadow-lg h-full"
           >
             <Info size={14} /> Overview
           </TabsTrigger>
           <TabsTrigger
             value="specs"
-            className="rounded-xl font-black uppercase tracking-widest text-[10px] gap-2 px-6 data-[state=active]:bg-background data-[state=active]:shadow-lg h-full"
+            className="rounded-xl font-bold uppercase tracking-wider text-xs gap-2 px-6 data-[state=active]:bg-background data-[state=active]:shadow-lg h-full"
           >
             <Settings size={14} /> Specifications
           </TabsTrigger>
           <TabsTrigger
             value="delivery"
-            className="rounded-xl font-black uppercase tracking-widest text-[10px] gap-2 px-6 data-[state=active]:bg-background data-[state=active]:shadow-lg h-full"
+            className="rounded-xl font-bold uppercase tracking-wider text-xs gap-2 px-6 data-[state=active]:bg-background data-[state=active]:shadow-lg h-full"
           >
             <Truck size={14} /> Production & Delivery
           </TabsTrigger>
         </TabsList>
 
-        <div className="min-h-[300px] border border-border/40 rounded-4xl p-10 bg-card/30 backdrop-blur-sm shadow-inner relative overflow-hidden">
+        <div className="min-h-[300px] border border-border/40 rounded-2xl p-10 bg-card border border-border/50 shadow-inner relative overflow-hidden">
           {/* Decorative element */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32" />
 
@@ -61,10 +61,10 @@ export function ProductTabs({ product }: ProductTabsProps) {
               className="space-y-8"
             >
               <div className="space-y-4">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-                  Comprehensive Product Intelligence
+                <h3 className="text-xs font-bold uppercase tracking-wider text-primary">
+                  Product Description
                 </h3>
-                <p className="text-lg font-medium text-foreground/80 leading-relaxed max-w-3xl">
+                <p className="text-lg font-bold text-foreground/80 leading-relaxed max-w-3xl">
                   {product.description ||
                     "Unlocking new possibilities in professional printing. This solution is engineered for high-impact results and long-lasting durability."}
                 </p>
@@ -72,7 +72,7 @@ export function ProductTabs({ product }: ProductTabsProps) {
 
               {features.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {features.map((feature: any, idx: number) => (
+                  {features.map((feature: unknown, idx: number) => (
                     <div
                       key={idx}
                       className="flex items-start gap-3 p-4 rounded-2xl bg-muted/10 border border-border/20"
@@ -82,7 +82,7 @@ export function ProductTabs({ product }: ProductTabsProps) {
                         className="text-primary shrink-0 mt-0.5"
                       />
                       <span className="text-sm font-bold text-foreground/80">
-                        {feature}
+                        {String(feature)}
                       </span>
                     </div>
                   ))}
@@ -97,26 +97,37 @@ export function ProductTabs({ product }: ProductTabsProps) {
               animate={{ opacity: 1, y: 0 }}
               className="space-y-6"
             >
-              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-                Technical Parameters
+              <h3 className="text-xs font-bold uppercase tracking-wider text-primary">
+                Specifications
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
                 {specifications.length > 0 ? (
-                  specifications.map(([key, value], idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between py-3 border-b border-border/40 group hover:border-primary/40 transition-colors"
-                    >
-                      <span className="text-xs font-black uppercase tracking-widest text-muted-foreground group-hover:text-primary transition-colors">
-                        {key}
-                      </span>
-                      <span className="text-sm font-bold text-foreground">
-                        {value}
-                      </span>
-                    </div>
-                  ))
+                  specifications.map(([key, value], idx) => {
+                    // Safe value extraction if it's an object from DB
+                    let displayValue: unknown = value;
+                    if (typeof value === "object" && value !== null) {
+                      displayValue =
+                        (value as Record<string, unknown>).value ||
+                        (value as Record<string, unknown>).label ||
+                        JSON.stringify(value);
+                    }
+
+                    return (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between py-3 border-b border-border/40 group hover:border-primary/40 transition-colors"
+                      >
+                        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground group-hover:text-primary transition-colors">
+                          {key}
+                        </span>
+                        <span className="text-sm font-bold text-foreground">
+                          {String(displayValue)}
+                        </span>
+                      </div>
+                    );
+                  })
                 ) : (
-                  <div className="col-span-2 py-12 text-center text-muted-foreground italic font-medium">
+                  <div className="col-span-2 py-12 text-center text-muted-foreground italic font-bold">
                     Standard specifications apply. Detailed technical sheet
                     available upon request.
                   </div>
@@ -141,7 +152,7 @@ export function ProductTabs({ product }: ProductTabsProps) {
                 icon={Truck}
                 title="Fulfillment"
                 value="City-Wide Delivery"
-                desc="Rapid dispatch across all sub-cities via our logistics network."
+                desc="Rapid dispatch across all sub-cities via our delivery network."
               />
               <DeliveryCard
                 icon={ShieldCheck}
@@ -163,22 +174,22 @@ function DeliveryCard({
   value,
   desc,
 }: {
-  icon: any;
+  icon: React.ElementType;
   title: string;
   value: string;
   desc: string;
 }) {
   return (
-    <div className="space-y-4 p-6 rounded-4xl bg-muted/5 border border-border/40 hover:border-primary/20 transition-all hover:shadow-xl hover:shadow-primary/5 group">
+    <div className="space-y-4 p-6 rounded-2xl bg-muted/5 border border-border/40 hover:border-primary/20 transition-all hover:shadow-xl hover:shadow-primary/5 group">
       <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all shadow-lg shadow-primary/10">
         <Icon size={24} />
       </div>
       <div className="space-y-2">
-        <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
           {title}
         </h4>
-        <p className="text-xl font-black tracking-tight">{value}</p>
-        <p className="text-xs font-medium text-muted-foreground leading-relaxed italic">
+        <p className="text-xl font-bold tracking-tight">{value}</p>
+        <p className="text-xs font-bold text-muted-foreground leading-relaxed italic">
           {desc}
         </p>
       </div>

@@ -160,7 +160,7 @@ export default function Header() {
         <div className="lg:hidden fixed inset-0 top-[73px] bg-background z-50 animate-in slide-in-from-top duration-300 flex flex-col p-6 space-y-8">
           <SearchBar />
           <div className="flex flex-col gap-4">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-2">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-2">
               Categories
             </span>
             <Link
@@ -175,7 +175,7 @@ export default function Header() {
 
           {/* Auth Links - Mobile */}
           <div className="flex flex-col gap-3 pt-4 border-t border-border/20">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-2">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-2">
               Account
             </span>
             {isLoggedIn ? (

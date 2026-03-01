@@ -32,7 +32,7 @@ export default function CartPage() {
   };
 
   const subtotal = getCartTotal();
-  const shipping = subtotal > 5000 ? 0 : 250;
+  const shipping = 0; // Forced free promotional delivery
   const total = subtotal + shipping;
 
   if (cart.length === 0) {
@@ -53,7 +53,7 @@ export default function CartPage() {
             <div className="space-y-4">
               <Link
                 href="/all-products"
-                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors mb-4 group"
+                className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors mb-4 group"
               >
                 <ArrowLeft
                   size={14}
@@ -61,11 +61,11 @@ export default function CartPage() {
                 />
                 Continue Shopping
               </Link>
-              <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-foreground drop-shadow-sm uppercase">
+              <h1 className="text-4xl md:text-5xl font-extrabold text-foreground uppercase">
                 Shopping Cart
               </h1>
               <div className="flex items-center gap-3">
-                <span className="px-3 py-1 rounded-full bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/10">
+                <span className="px-3 py-1 rounded-full bg-primary/5 text-primary text-xs font-bold uppercase tracking-wider border border-primary/10">
                   {cart.length} {cart.length === 1 ? "item" : "items"}
                 </span>
               </div>
@@ -76,7 +76,7 @@ export default function CartPage() {
                 clearCart();
                 toast.success("Cart cleared");
               }}
-              className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 hover:text-rose-500 transition-colors pb-1 border-b border-transparent hover:border-rose-500/30"
+              className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground/60 hover:text-rose-500 transition-colors pb-1 border-b border-transparent hover:border-rose-500/30"
             >
               <Trash2 size={12} /> Clear Cart
             </button>

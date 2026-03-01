@@ -36,10 +36,10 @@ export function CMSEmptyState({
         <Icon size={32} className="text-muted-foreground/50" />
       </div>
       <div className="space-y-1.5 max-w-sm">
-        <h3 className="text-lg font-black uppercase tracking-tight text-foreground">
+        <h3 className="text-lg font-bold uppercase tracking-tight text-foreground">
           {title}
         </h3>
-        <p className="text-sm font-medium text-muted-foreground leading-relaxed">
+        <p className="text-sm font-bold text-muted-foreground leading-relaxed">
           {description}
         </p>
       </div>
@@ -47,7 +47,7 @@ export function CMSEmptyState({
         <Button
           asChild={!!actionHref}
           onClick={onClick}
-          className="rounded-xl shadow-lg shadow-primary/20 font-black uppercase tracking-widest text-[10px] h-10 px-8 mt-4 animate-in fade-in zoom-in duration-500"
+          className="rounded-xl shadow-lg shadow-primary/20 font-bold uppercase tracking-widest text-[10px] h-10 px-8 mt-4 animate-in fade-in zoom-in duration-500"
         >
           {actionHref ? (
             <Link href={actionHref} className="gap-2">

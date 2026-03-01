@@ -96,7 +96,7 @@ export default function ForgotPasswordPage() {
                     />
                   </div>
                   {errors.email && (
-                    <p className="text-xs font-medium text-destructive">
+                    <p className="text-xs font-bold text-destructive">
                       {errors.email.message}
                     </p>
                   )}
@@ -121,7 +121,7 @@ export default function ForgotPasswordPage() {
             <CardFooter className="flex justify-center border-t border-border/50 bg-muted/20 py-4 px-6 rounded-b-[var(--radius)]">
               <Link
                 href="/login"
-                className="flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                className="flex items-center text-sm font-bold text-muted-foreground hover:text-primary transition-colors"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to login

@@ -94,7 +94,7 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
           >
             <div>
               {product.category && (
-                <p className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wider">
+                <p className="text-xs text-muted-foreground mb-1 font-bold uppercase tracking-wider">
                   {product.category.name}
                 </p>
               )}
@@ -233,7 +233,7 @@ function AllProductsContent() {
               className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/10 text-white/90 px-5 py-2 rounded-full mb-6 shadow-2xl"
             >
               <Sparkles className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium tracking-wide">
+              <span className="text-sm font-bold tracking-wide">
                 {totalProducts} Premium Products Available
               </span>
             </motion.div>
@@ -251,7 +251,7 @@ function AllProductsContent() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-lg md:text-xl text-white/60 mb-10 max-w-2xl font-light"
+              className="text-lg md:text-xl text-white/60 mb-10 max-w-2xl font-bold"
             >
               Explore our complete range of premium printing solutions.{" "}
               <br className="hidden md:block" /> All prices in Ethiopian Birr

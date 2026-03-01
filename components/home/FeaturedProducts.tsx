@@ -93,7 +93,7 @@ const FeaturedProducts = () => {
                             {features.map((feature, fIdx) => (
                               <span
                                 key={fIdx}
-                                className="bg-white/20 backdrop-blur-md text-white text-[10px] font-medium px-2.5 py-1 rounded-full border border-white/10"
+                                className="bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/10"
                               >
                                 {feature as string}
                               </span>

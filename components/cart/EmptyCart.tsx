@@ -15,10 +15,10 @@ export function EmptyCart() {
         </div>
 
         <div className="space-y-3">
-          <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground uppercase">
             Your Cart is Empty
           </h1>
-          <p className="text-muted-foreground font-medium leading-relaxed">
+          <p className="text-muted-foreground font-bold leading-relaxed">
             You haven&apos;t added any items yet. Browse our print solutions to
             find what you need.
           </p>
@@ -26,7 +26,7 @@ export function EmptyCart() {
 
         <Button
           asChild
-          className="h-14 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-primary/20 group"
+          className="h-14 px-8 rounded-2xl font-bold uppercase tracking-wider text-xs shadow-sm hover:shadow-xl hover:shadow-primary/20 group"
         >
           <Link href="/all-products">
             Browse Products

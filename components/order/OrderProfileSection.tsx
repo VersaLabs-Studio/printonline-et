@@ -3,249 +3,195 @@
 import React from "react";
 import {
   User,
-  Truck,
+  ShieldCheck,
   MapPin,
-  Mail,
-  Phone,
+  Truck,
+  Pencil,
   ArrowRight,
-  ArrowLeft,
+  Store,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import Link from "next/link";
 
 interface OrderProfileSectionProps {
-  step: number;
-  contactInfo: any;
-  setContactInfo: (data: any) => void;
-  deliveryAddress: any;
-  setDeliveryAddress: (data: any) => void;
+  profile: any;
+  session: any;
+  deliveryMethod: string;
+  setDeliveryMethod: (val: string) => void;
   specialInstructions: string;
   setSpecialInstructions: (val: string) => void;
   onNext: () => void;
-  onBack: () => void;
 }
 
 export function OrderProfileSection({
-  step,
-  contactInfo,
-  setContactInfo,
-  deliveryAddress,
-  setDeliveryAddress,
+  profile,
+  session,
+  deliveryMethod,
+  setDeliveryMethod,
   specialInstructions,
   setSpecialInstructions,
   onNext,
-  onBack,
 }: OrderProfileSectionProps) {
-  if (step === 1) {
-    return (
-      <div className="bg-card/30 backdrop-blur-sm rounded-[2.5rem] border border-border/40 p-10 space-y-8 animate-in fade-in slide-in-from-left-4 duration-500">
-        <div className="space-y-1">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-            Step 1 of 3
-          </h3>
-          <h2 className="text-3xl font-black tracking-tighter uppercase flex items-center gap-3">
-            <User className="text-primary" size={28} /> Contact Details
-          </h2>
-        </div>
+  return (
+    <div className="bg-card border border-border/50 rounded-2xl p-10 space-y-10 animate-in fade-in slide-in-from-left-4 duration-500 shadow-sm relative overflow-hidden">
+      <div className="space-y-1 relative z-10">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-primary">
+          Step 1 of 2
+        </h3>
+        <h2 className="text-3xl font-bold tracking-tight uppercase flex items-center gap-3">
+          <ShieldCheck className="text-primary" size={28} /> Account & Delivery
+        </h2>
+      </div>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onNext();
-          }}
-          className="space-y-6"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-                First Name
-              </Label>
-              <Input
-                value={contactInfo.firstName}
-                onChange={(e) =>
-                  setContactInfo({ ...contactInfo, firstName: e.target.value })
-                }
-                className="h-12 rounded-xl bg-muted/5 border-border/40 font-bold"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-                Last Name
-              </Label>
-              <Input
-                value={contactInfo.lastName}
-                onChange={(e) =>
-                  setContactInfo({ ...contactInfo, lastName: e.target.value })
-                }
-                className="h-12 rounded-xl bg-muted/5 border-border/40 font-bold"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-              Email Address
-            </Label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-40" />
-              <Input
-                type="email"
-                value={contactInfo.email}
-                onChange={(e) =>
-                  setContactInfo({ ...contactInfo, email: e.target.value })
-                }
-                className="h-14 pl-12 rounded-xl bg-muted/5 border-border/40 font-bold text-lg"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-              Phone Number
-            </Label>
-            <div className="relative">
-              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-40" />
-              <Input
-                type="tel"
-                value={contactInfo.phone}
-                onChange={(e) =>
-                  setContactInfo({ ...contactInfo, phone: e.target.value })
-                }
-                className="h-14 pl-12 rounded-xl bg-muted/5 border-border/40 font-bold text-lg"
-                required
-              />
-            </div>
-          </div>
-
+      <div className="space-y-6 relative z-10">
+        <div className="flex items-center justify-between pb-2">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-60 flex items-center gap-2">
+            <User size={14} /> Contact Details (Synced)
+          </h4>
           <Button
-            type="submit"
-            className="w-full h-16 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20 gap-4 group"
+            asChild
+            variant="ghost"
+            size="sm"
+            className="h-8 text-[10px] font-bold uppercase tracking-widest text-primary hover:bg-primary/5"
           >
-            Continue to Delivery
-            <ArrowRight
-              size={18}
-              className="ml-auto opacity-40 group-hover:translate-x-1 transition-transform"
-            />
+            <Link href="/account">
+              <Pencil size={12} className="mr-1.5" /> Edit Profile
+            </Link>
           </Button>
-        </form>
-      </div>
-    );
-  }
-
-  if (step === 2) {
-    return (
-      <div className="bg-card/30 backdrop-blur-sm rounded-[2.5rem] border border-border/40 p-10 space-y-8 animate-in fade-in slide-in-from-left-4 duration-500">
-        <div className="space-y-1">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-            Step 2 of 3
-          </h3>
-          <h2 className="text-3xl font-black tracking-tighter uppercase flex items-center gap-3">
-            <Truck className="text-primary" size={28} /> Delivery Address
-          </h2>
         </div>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onNext();
-          }}
-          className="space-y-6"
-        >
-          <div className="space-y-2">
-            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-              Street Address
-            </Label>
-            <div className="relative">
-              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-40" />
-              <Input
-                value={deliveryAddress.address}
-                onChange={(e) =>
-                  setDeliveryAddress({
-                    ...deliveryAddress,
-                    address: e.target.value,
-                  })
-                }
-                className="h-14 pl-12 rounded-xl bg-muted/5 border-border/40 font-bold"
-                required
-              />
-            </div>
+        <div className="p-6 rounded-2xl bg-muted/5 border border-border/40 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <p className="text-xs font-bold text-muted-foreground uppercase opacity-50">
+              Full Name
+            </p>
+            <p className="font-bold tracking-tight">
+              {profile?.full_name || session?.user?.name}
+            </p>
           </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-                City
-              </Label>
-              <Input
-                value={deliveryAddress.city}
-                onChange={(e) =>
-                  setDeliveryAddress({
-                    ...deliveryAddress,
-                    city: e.target.value,
-                  })
-                }
-                className="h-12 rounded-xl bg-muted/5 border-border/40 font-bold"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-                Sub-City / Area
-              </Label>
-              <Input
-                value={deliveryAddress.postalCode}
-                onChange={(e) =>
-                  setDeliveryAddress({
-                    ...deliveryAddress,
-                    postalCode: e.target.value,
-                  })
-                }
-                className="h-12 rounded-xl bg-muted/5 border-border/40 font-bold"
-                required
-              />
-            </div>
+          <div className="space-y-1">
+            <p className="text-xs font-bold text-muted-foreground uppercase opacity-50">
+              Email Address
+            </p>
+            <p className="font-bold tracking-tight">{session?.user?.email}</p>
           </div>
-
-          <div className="space-y-2">
-            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-              Special Instructions
-            </Label>
-            <Textarea
-              value={specialInstructions}
-              onChange={(e) => setSpecialInstructions(e.target.value)}
-              className="min-h-[100px] rounded-xl bg-muted/5 border-border/40 font-bold resize-none"
-              placeholder="Any special requirements for production or delivery..."
-            />
+          <div className="space-y-1">
+            <p className="text-xs font-bold text-muted-foreground uppercase opacity-50">
+              Phone Number
+            </p>
+            <p className="font-bold tracking-tight">
+              {profile?.phone || "Not provided"}
+            </p>
           </div>
-
-          <div className="pt-2 flex gap-4">
-            <Button
-              variant="outline"
-              onClick={onBack}
-              className="h-14 w-20 rounded-2xl border-border/40 hover:bg-muted transition-all shrink-0"
-            >
-              <ArrowLeft size={18} />
-            </Button>
-            <Button
-              type="submit"
-              className="flex-1 h-16 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20 gap-4 group"
-            >
-              Review Order
-              <ArrowRight
-                size={18}
-                className="ml-auto opacity-40 group-hover:translate-x-1 transition-transform"
-              />
-            </Button>
+          <div className="space-y-1">
+            <p className="text-xs font-bold text-muted-foreground uppercase opacity-50">
+              TIN Number
+            </p>
+            <p className="font-bold tracking-tight">
+              {profile?.tin_number || "Not provided"}
+            </p>
           </div>
-        </form>
+        </div>
       </div>
-    );
-  }
 
-  return null;
+      <div className="space-y-4 pt-4 border-t border-border/40 relative z-10">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-60 flex items-center gap-2 mb-2">
+          <Truck size={14} /> Delivery Preferences
+        </h4>
+
+        <RadioGroup
+          value={deliveryMethod}
+          onValueChange={setDeliveryMethod}
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+        >
+          <div className="relative">
+            <RadioGroupItem value="home" id="home" className="peer sr-only" />
+            <Label
+              htmlFor="home"
+              className="flex flex-col p-5 rounded-2xl border-2 border-border/40 bg-muted/5 hover:bg-muted/30 transition-all cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 gap-2 h-full"
+            >
+              <div className="flex items-center gap-2 pb-2">
+                <Truck className="text-emerald-500" size={18} />
+                <span className="font-bold tracking-tight uppercase">
+                  Home Delivery
+                </span>
+              </div>
+              <p className="text-xs font-medium text-muted-foreground leading-relaxed line-clamp-2">
+                {profile?.address_line1
+                  ? profile.address_line1
+                  : "No address set. Click 'Edit Profile' to add shipping details."}
+              </p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground opacity-60 mt-auto pt-2">
+                {profile?.city
+                  ? `${profile.city}, ${profile.sub_city || ""}`
+                  : ""}
+              </p>
+            </Label>
+          </div>
+          <div className="relative">
+            <RadioGroupItem
+              value="pickup"
+              id="pickup"
+              className="peer sr-only"
+            />
+            <Label
+              htmlFor="pickup"
+              className="flex flex-col p-5 rounded-2xl border-2 border-border/40 bg-muted/5 hover:bg-muted/30 transition-all cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 gap-2 h-full"
+            >
+              <div className="flex items-center gap-2 pb-2">
+                <Store className="text-amber-500" size={18} />
+                <span className="font-bold tracking-tight uppercase">
+                  Manual Collection
+                </span>
+              </div>
+              <p className="text-xs font-medium text-muted-foreground leading-relaxed">
+                Pickup from our local studio directly when your order is ready.
+              </p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground opacity-60 mt-auto pt-2">
+                PrintOnline HQ, Addis Ababa
+              </p>
+            </Label>
+          </div>
+        </RadioGroup>
+      </div>
+
+      <div className="space-y-3 pt-4 border-t border-border/40 relative z-10">
+        <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
+          Special Instructions
+        </Label>
+        <Textarea
+          value={specialInstructions}
+          onChange={(e) => setSpecialInstructions(e.target.value)}
+          className="min-h-[80px] rounded-2xl bg-muted/5 border-border/40 font-bold resize-none p-4"
+          placeholder="Any special requirements for production or delivery..."
+        />
+      </div>
+
+      <div className="pt-2 flex gap-4 relative z-10">
+        <Button
+          onClick={() => {
+            if (deliveryMethod === "home" && !profile?.address_line1) {
+              // Optionally block proceeding if home delivery without address
+              toast.error(
+                "Please add a shipping address in your profile, or select pickup.",
+              );
+            } else {
+              onNext();
+            }
+          }}
+          className="flex-1 btn-pana py-4 text-sm font-semibold uppercase tracking-wider w-full gap-3 active:scale-[0.98]"
+        >
+          Review Order
+          <ArrowRight
+            size={18}
+            className="ml-auto opacity-40 group-hover:translate-x-1 transition-transform"
+          />
+        </Button>
+      </div>
+    </div>
+  );
 }

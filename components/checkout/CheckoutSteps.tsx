@@ -22,7 +22,7 @@ export function CheckoutSteps({ currentStep }: CheckoutStepsProps) {
           <div className="flex flex-col items-center gap-3 group relative">
             <div
               className={cn(
-                "w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm transition-all duration-500 shadow-xl",
+                "w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-sm transition-all duration-500 shadow-xl",
                 currentStep >= step.id
                   ? "bg-primary text-primary-foreground shadow-primary/20 scale-110"
                   : "bg-muted text-muted-foreground/40",
@@ -36,7 +36,7 @@ export function CheckoutSteps({ currentStep }: CheckoutStepsProps) {
             </div>
             <span
               className={cn(
-                "text-[9px] font-black uppercase tracking-[0.2em] transition-colors duration-500",
+                "text-xs font-bold uppercase tracking-wider transition-colors duration-500",
                 currentStep >= step.id
                   ? "text-primary"
                   : "text-muted-foreground/40",

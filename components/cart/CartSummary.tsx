@@ -12,38 +12,49 @@ interface CartSummaryProps {
   total: number;
 }
 
-export function CartSummary({ subtotal, delivery, total }: CartSummaryProps) {
+export function CartSummary({ subtotal, total }: CartSummaryProps) {
   return (
     <div className="space-y-6 sticky top-24">
-      <div className="bg-card/40 backdrop-blur-md rounded-[2.5rem] border border-border/40 p-8 shadow-2xl shadow-primary/5 relative overflow-hidden">
+      <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-sm relative overflow-hidden">
         {/* Decorative corner glow */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16" />
 
-        <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-8 flex items-center gap-2">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
           <ShieldCheck size={14} className="text-primary" /> Order Summary
         </h2>
 
+        {/* Promotional Banner */}
+        <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 mb-6 flex items-center gap-3 animate-in fade-in">
+          <div className="flex-1">
+            <p className="text-xs font-bold text-foreground flex items-center gap-2">
+              🔥 Free Standard Delivery
+            </p>
+            <p className="text-[10px] text-muted-foreground font-medium uppercase mt-0.5 tracking-wider">
+              Automatic promotional override applied
+            </p>
+          </div>
+          <span className="bg-foreground text-background text-[10px] uppercase font-bold px-2 py-1 rounded-md tracking-wider">
+            Active
+          </span>
+        </div>
+
         <div className="space-y-5 mb-10">
           <div className="flex justify-between items-center group">
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest group-hover:text-foreground transition-colors">
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors">
               Subtotal
             </span>
-            <span className="font-black text-foreground tracking-tighter">
+            <span className="font-bold text-foreground tracking-tight">
               <PriceDisplay amount={subtotal} />
             </span>
           </div>
           <div className="flex justify-between items-center group">
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest group-hover:text-foreground transition-colors">
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors">
               Delivery
             </span>
-            <span className="font-black text-foreground tracking-tighter">
-              {delivery === 0 ? (
-                <span className="text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full text-[10px] uppercase tracking-widest">
-                  Free
-                </span>
-              ) : (
-                <PriceDisplay amount={delivery} />
-              )}
+            <span className="font-bold text-foreground tracking-tight">
+              <span className="text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full text-xs uppercase font-bold tracking-wider animate-pulse">
+                Free
+              </span>
             </span>
           </div>
 
@@ -51,14 +62,14 @@ export function CartSummary({ subtotal, delivery, total }: CartSummaryProps) {
 
           <div className="flex justify-between items-end">
             <div className="space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+              <span className="text-xs font-bold uppercase tracking-wider text-primary">
                 Total
               </span>
-              <p className="text-[9px] font-bold text-muted-foreground uppercase leading-none italic">
+              <p className="text-xs font-bold text-muted-foreground uppercase leading-none italic">
                 VAT Inclusive (15%)
               </p>
             </div>
-            <span className="text-4xl font-black text-primary tracking-tighter drop-shadow-sm">
+            <span className="text-4xl font-bold text-primary tracking-tight drop-shadow-sm">
               <PriceDisplay amount={total} />
             </span>
           </div>
@@ -66,7 +77,7 @@ export function CartSummary({ subtotal, delivery, total }: CartSummaryProps) {
 
         <Button
           asChild
-          className="w-full h-16 rounded-3xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20 gap-4 group active:scale-[0.98] transition-all"
+          className="w-full btn-pana py-4 text-sm font-semibold uppercase tracking-wider gap-3 active:scale-[0.98] transition-all"
         >
           <Link href="/order-summary">
             Proceed to Checkout
@@ -82,13 +93,13 @@ export function CartSummary({ subtotal, delivery, total }: CartSummaryProps) {
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-muted/10 border border-border/20 rounded-2xl p-4 flex flex-col items-center text-center gap-2">
           <Truck size={18} className="text-primary opacity-60" />
-          <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">
+          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
             Free Delivery over 5,000 ETB
           </p>
         </div>
         <div className="bg-muted/10 border border-border/20 rounded-2xl p-4 flex flex-col items-center text-center gap-2">
           <Clock size={18} className="text-primary opacity-60" />
-          <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">
+          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
             2-Day Production
           </p>
         </div>

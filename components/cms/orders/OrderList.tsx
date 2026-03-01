@@ -69,7 +69,7 @@ export const columns: ColumnDef<OrderWithItems>[] = [
     accessorKey: "order_number",
     header: "Order #",
     cell: ({ row }) => (
-      <span className="font-black text-sm font-mono tracking-tighter bg-muted/40 px-2 py-1 rounded-lg border border-border/20">
+      <span className="font-bold text-sm font-mono tracking-tighter bg-muted/40 px-2 py-1 rounded-lg border border-border/20">
         {row.original.order_number}
       </span>
     ),
@@ -80,7 +80,7 @@ export const columns: ColumnDef<OrderWithItems>[] = [
     header: "Customer",
     cell: ({ row }) => (
       <div className="flex flex-col">
-        <span className="font-black text-sm tracking-tight text-foreground">
+        <span className="font-bold text-sm tracking-tight text-foreground">
           {row.original.customer_name}
         </span>
         <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
@@ -100,7 +100,7 @@ export const columns: ColumnDef<OrderWithItems>[] = [
             ? format(new Date(row.original.created_at), "MMM d, yyyy")
             : "N/A"}
         </span>
-        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">
+        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-tighter">
           {row.original.created_at
             ? format(new Date(row.original.created_at), "hh:mm a")
             : ""}
@@ -115,7 +115,7 @@ export const columns: ColumnDef<OrderWithItems>[] = [
     cell: ({ row }) => (
       <PriceDisplay
         amount={row.original.total_amount}
-        className="text-sm font-black text-primary bg-primary/5 px-2 py-1 rounded-lg"
+        className="text-sm font-bold text-primary bg-primary/5 px-2 py-1 rounded-lg"
       />
     ),
   },
@@ -135,7 +135,7 @@ export const columns: ColumnDef<OrderWithItems>[] = [
         <Badge
           variant="outline"
           className={cn(
-            "text-[9px] font-black uppercase tracking-widest gap-1.5 px-2.5 py-1 rounded-lg shadow-sm",
+            "text-[9px] font-bold uppercase tracking-widest gap-1.5 px-2.5 py-1 rounded-lg shadow-sm",
             config.className,
           )}
         >
@@ -163,7 +163,7 @@ export const columns: ColumnDef<OrderWithItems>[] = [
             align="end"
             className="w-52 rounded-xl shadow-xl border-border/40 p-1.5"
           >
-            <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-muted-foreground px-2 py-1.5">
+            <DropdownMenuLabel className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground px-2 py-1.5">
               Order Management
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="opacity-50" />

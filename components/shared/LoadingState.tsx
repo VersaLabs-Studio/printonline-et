@@ -20,7 +20,7 @@ export function LoadingState({
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-10 w-10 animate-spin text-primary" />
-          <p className="text-sm font-medium text-muted-foreground animate-pulse">
+          <p className="text-sm font-bold text-muted-foreground animate-pulse">
             {message}
           </p>
         </div>
@@ -48,7 +48,7 @@ export function LoadingState({
       </div>
       <p
         className={cn(
-          "text-sm font-medium animate-pulse",
+          "text-sm font-bold animate-pulse",
           variant === "admin" ? "text-foreground" : "text-muted-foreground",
         )}
       >

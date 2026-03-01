@@ -34,7 +34,7 @@ export function TermsAndConditions({
       <div className="grid gap-1.5 leading-none">
         <label
           htmlFor="terms"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+          className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
         >
           I accept the terms and conditions
         </label>
@@ -51,7 +51,7 @@ export function TermsAndConditions({
             </DialogTrigger>
             <DialogContent className="max-w-md sm:max-w-2xl h-[80vh] flex flex-col p-0">
               <DialogHeader className="px-6 py-4 border-b border-border/40">
-                <DialogTitle className="font-black uppercase tracking-widest">
+                <DialogTitle className="font-bold uppercase tracking-wider">
                   Terms & Conditions
                 </DialogTitle>
               </DialogHeader>

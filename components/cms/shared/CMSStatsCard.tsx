@@ -37,9 +37,9 @@ export function CMSStatsCard({
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
               {title}
             </p>
-            <h2 className="text-2xl font-black tracking-tight">{value}</h2>
+            <h2 className="text-2xl font-bold tracking-tight">{value}</h2>
             {delta && (
-              <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-tighter">
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold uppercase tracking-tighter">
                 {delta}
               </p>
             )}

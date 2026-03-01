@@ -31,7 +31,7 @@ function OrderConfirmationContent() {
     return (
       <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-8">
         <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-muted-foreground font-medium animate-pulse">
+        <p className="text-muted-foreground font-bold animate-pulse">
           Loading order details...
         </p>
       </div>
@@ -45,17 +45,17 @@ function OrderConfirmationContent() {
           <ShoppingBag size={64} />
         </div>
         <div className="space-y-2">
-          <h1 className="text-4xl font-black tracking-tighter uppercase">
+          <h1 className="text-4xl font-bold tracking-tight uppercase">
             No Order Found
           </h1>
-          <p className="text-muted-foreground font-medium">
+          <p className="text-muted-foreground font-bold">
             This order could not be found. Browse our products to place a new
             order.
           </p>
         </div>
         <Button
           asChild
-          className="h-14 px-8 rounded-2xl font-black uppercase tracking-widest text-xs"
+          className="h-14 px-8 rounded-2xl font-bold uppercase tracking-wider text-xs"
         >
           <Link href="/all-products">Browse Products</Link>
         </Button>
@@ -100,7 +100,7 @@ function OrderConfirmationContent() {
             <Button
               asChild
               variant="outline"
-              className="h-14 px-8 rounded-2xl font-black uppercase tracking-widest text-xs border-border/40 hover:bg-muted group"
+              className="h-14 px-8 rounded-2xl font-bold uppercase tracking-wider text-xs border-border/40 hover:bg-muted group"
             >
               <Link href="/account" className="flex items-center gap-3">
                 <User
@@ -112,7 +112,7 @@ function OrderConfirmationContent() {
             </Button>
             <Button
               asChild
-              className="h-14 px-8 rounded-2xl font-black uppercase tracking-widest text-xs shadow-2xl shadow-primary/20 group"
+              className="h-14 px-8 rounded-2xl font-bold uppercase tracking-wider text-xs shadow-sm hover:shadow-xl hover:shadow-primary/20 group"
             >
               <Link href="/all-products" className="flex items-center gap-3">
                 Continue Shopping

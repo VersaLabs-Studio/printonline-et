@@ -111,7 +111,7 @@ const OtherCategories = ({ currentCategory }: OtherCategoriesProps) => {
                 </h3>
                 <p className="text-muted-foreground mb-4">{category.description}</p>
                 
-                <div className="flex items-center text-primary font-medium">
+                <div className="flex items-center text-primary font-bold">
                   <span>Shop Now</span>
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </div>

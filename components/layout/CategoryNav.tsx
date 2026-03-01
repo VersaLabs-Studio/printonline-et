@@ -58,7 +58,7 @@ function NavLink({
     <Link
       href={href}
       className={cn(
-        "px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
+        "px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap",
         active
           ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
           : "text-muted-foreground hover:text-primary hover:bg-primary/5",

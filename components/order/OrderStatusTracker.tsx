@@ -45,8 +45,8 @@ export function OrderStatusTracker({ date }: OrderStatusTrackerProps) {
   ];
 
   return (
-    <div className="bg-card/30 backdrop-blur-sm rounded-[2.5rem] border border-border/40 p-8 space-y-8">
-      <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-2">
+    <div className="bg-card border border-border/50 rounded-2xl border border-border/40 p-8 space-y-8">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-2">
         Order Status
       </h3>
 
@@ -72,13 +72,13 @@ export function OrderStatusTracker({ date }: OrderStatusTrackerProps) {
               <step.icon size={24} />
             </div>
             <div className="space-y-1">
-              <p className="text-xs font-black uppercase tracking-tight">
+              <p className="text-xs font-bold uppercase tracking-tight">
                 {step.label}
               </p>
-              <p className="text-[9px] font-bold text-muted-foreground uppercase leading-none">
+              <p className="text-xs font-bold text-muted-foreground uppercase leading-none">
                 {step.desc}
               </p>
-              <p className="text-[8px] font-black text-primary/60 uppercase tracking-widest mt-2">
+              <p className="text-[8px] font-bold text-primary/60 uppercase tracking-wider mt-2">
                 {step.date}
               </p>
             </div>

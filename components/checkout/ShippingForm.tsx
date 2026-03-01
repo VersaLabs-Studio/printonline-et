@@ -27,12 +27,12 @@ export function ShippingForm({
   onBack,
 }: ShippingFormProps) {
   return (
-    <div className="bg-card/30 backdrop-blur-sm rounded-[2.5rem] border border-border/40 p-10 space-y-8 animate-in fade-in slide-in-from-left-4 duration-500">
+    <div className="bg-card border border-border/50 rounded-2xl border border-border/40 p-10 space-y-8 animate-in fade-in slide-in-from-left-4 duration-500">
       <div className="space-y-1">
-        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-primary">
           Step 2 of 3
         </h3>
-        <h2 className="text-3xl font-black tracking-tighter uppercase flex items-center gap-3">
+        <h2 className="text-3xl font-bold tracking-tight uppercase flex items-center gap-3">
           <Truck className="text-primary" size={28} /> Delivery Address
         </h2>
       </div>
@@ -41,7 +41,7 @@ export function ShippingForm({
         <div className="space-y-2">
           <Label
             htmlFor="address"
-            className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1"
+            className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1"
           >
             Street Address
           </Label>
@@ -60,7 +60,7 @@ export function ShippingForm({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
               City
             </Label>
             <Select
@@ -92,7 +92,7 @@ export function ShippingForm({
           <div className="space-y-2">
             <Label
               htmlFor="postalCode"
-              className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1"
+              className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1"
             >
               Sub-City / Area
             </Label>
@@ -119,7 +119,7 @@ export function ShippingForm({
           </Button>
           <Button
             onClick={onNext}
-            className="flex-1 h-14 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20 gap-4 group"
+            className="flex-1 h-14 rounded-2xl font-bold uppercase tracking-wider text-sm shadow-sm hover:shadow-xl hover:shadow-primary/20 gap-4 group"
           >
             Continue to Payment
             <ArrowRight

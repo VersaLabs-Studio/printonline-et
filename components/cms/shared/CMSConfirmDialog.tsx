@@ -42,10 +42,10 @@ export function CMSConfirmDialog({
           <div className="mx-auto w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
             <AlertTriangle className="text-destructive" size={24} />
           </div>
-          <AlertDialogTitle className="text-center font-black uppercase tracking-tight text-xl">
+          <AlertDialogTitle className="text-center font-bold uppercase tracking-tight text-xl">
             {title}
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-center font-medium leading-relaxed">
+          <AlertDialogDescription className="text-center font-bold leading-relaxed">
             {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -61,7 +61,7 @@ export function CMSConfirmDialog({
           <AlertDialogAction asChild>
             <Button
               variant={variant === "destructive" ? "destructive" : "default"}
-              className="rounded-xl font-black uppercase tracking-widest text-[10px] h-10 px-6 shadow-lg shadow-destructive/20"
+              className="rounded-xl font-bold uppercase tracking-widest text-[10px] h-10 px-6 shadow-lg shadow-destructive/20"
               onClick={(e) => {
                 e.preventDefault();
                 onConfirm();

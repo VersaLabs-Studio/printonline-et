@@ -38,11 +38,11 @@ export default function CMSCustomersPage() {
       header: "Customer",
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-xs border border-primary/20 shadow-sm">
+          <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs border border-primary/20 shadow-sm">
             {row.original.full_name.charAt(0)}
           </div>
           <div className="flex flex-col">
-            <span className="font-black text-sm tracking-tight">
+            <span className="font-bold text-sm tracking-tight">
               {row.original.full_name}
             </span>
             <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest leading-none">
@@ -110,7 +110,7 @@ export default function CMSCustomersPage() {
             align="end"
             className="w-52 rounded-xl shadow-xl border-border/40 p-1.5"
           >
-            <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-muted-foreground px-2 py-1.5">
+            <DropdownMenuLabel className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground px-2 py-1.5">
               Customer Access
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="opacity-50" />

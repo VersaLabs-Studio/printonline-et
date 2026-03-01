@@ -54,12 +54,12 @@ export function PaymentForm({
   ];
 
   return (
-    <div className="bg-card/30 backdrop-blur-sm rounded-[2.5rem] border border-border/40 p-10 space-y-8 animate-in fade-in slide-in-from-left-4 duration-500">
+    <div className="bg-card border border-border/50 rounded-2xl border border-border/40 p-10 space-y-8 animate-in fade-in slide-in-from-left-4 duration-500">
       <div className="space-y-1">
-        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-primary">
           Step 3 of 3
         </h3>
-        <h2 className="text-3xl font-black tracking-tighter uppercase flex items-center gap-3">
+        <h2 className="text-3xl font-bold tracking-tight uppercase flex items-center gap-3">
           <ShieldCheck className="text-primary" size={28} /> Payment Method
         </h2>
       </div>
@@ -83,10 +83,10 @@ export function PaymentForm({
                   <m.icon size={24} />
                 </div>
                 <div className="flex-1 space-y-0.5">
-                  <p className="text-sm font-black uppercase tracking-tight">
+                  <p className="text-sm font-bold uppercase tracking-tight">
                     {m.label}
                   </p>
-                  <p className="text-[10px] font-bold text-muted-foreground opacity-60 uppercase tracking-widest leading-none">
+                  <p className="text-xs font-bold text-muted-foreground opacity-60 uppercase tracking-wider leading-none">
                     {m.desc}
                   </p>
                 </div>
@@ -100,14 +100,14 @@ export function PaymentForm({
 
         <div className="p-6 rounded-2xl bg-primary/5 border border-primary/10 space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">
+            <span className="text-xs font-bold uppercase tracking-wider text-primary/60">
               Order Total
             </span>
-            <span className="text-2xl font-black text-primary tracking-tighter">
+            <span className="text-2xl font-bold text-primary tracking-tight">
               ETB {total.toLocaleString()}
             </span>
           </div>
-          <p className="text-[9px] font-bold text-muted-foreground uppercase text-center opacity-60">
+          <p className="text-xs font-bold text-muted-foreground uppercase text-center opacity-60">
             Your payment is securely processed via local Ethiopian payment
             gateways.
           </p>
@@ -125,7 +125,7 @@ export function PaymentForm({
           <Button
             onClick={onSubmit}
             disabled={isProcessing}
-            className="flex-1 h-14 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20 gap-4 group active:scale-95 transition-all overflow-hidden relative"
+            className="flex-1 h-14 rounded-2xl font-bold uppercase tracking-wider text-sm shadow-sm hover:shadow-xl hover:shadow-primary/20 gap-4 group active:scale-95 transition-all overflow-hidden relative"
           >
             {isProcessing ? (
               <div className="absolute inset-0 bg-primary flex items-center justify-center gap-3">

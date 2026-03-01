@@ -113,7 +113,7 @@ export default function RegisterPage() {
                   />
                 </div>
                 {errors.name && (
-                  <p className="text-xs font-medium text-destructive">
+                  <p className="text-xs font-bold text-destructive">
                     {errors.name.message}
                   </p>
                 )}
@@ -131,7 +131,7 @@ export default function RegisterPage() {
                   />
                 </div>
                 {errors.phone && (
-                  <p className="text-xs font-medium text-destructive">
+                  <p className="text-xs font-bold text-destructive">
                     {errors.phone.message}
                   </p>
                 )}
@@ -151,7 +151,7 @@ export default function RegisterPage() {
                 />
               </div>
               {errors.email && (
-                <p className="text-xs font-medium text-destructive">
+                <p className="text-xs font-bold text-destructive">
                   {errors.email.message}
                 </p>
               )}
@@ -180,7 +180,7 @@ export default function RegisterPage() {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-xs font-medium text-destructive">
+                <p className="text-xs font-bold text-destructive">
                   {errors.password.message}
                 </p>
               )}
@@ -205,7 +205,7 @@ export default function RegisterPage() {
                   />
                 </div>
                 {errors.companyName && (
-                  <p className="text-xs font-medium text-destructive">
+                  <p className="text-xs font-bold text-destructive">
                     {errors.companyName.message}
                   </p>
                 )}
@@ -223,7 +223,7 @@ export default function RegisterPage() {
                   />
                 </div>
                 {errors.tinNumber && (
-                  <p className="text-xs font-medium text-destructive">
+                  <p className="text-xs font-bold text-destructive">
                     {errors.tinNumber.message}
                   </p>
                 )}

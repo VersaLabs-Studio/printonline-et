@@ -20,11 +20,11 @@ export function CheckoutSummary({
   total,
 }: CheckoutSummaryProps) {
   return (
-    <div className="bg-card/40 backdrop-blur-md rounded-[2.5rem] border border-border/40 p-8 shadow-2xl shadow-primary/5 sticky top-24 overflow-hidden">
+    <div className="bg-card border border-border/50 rounded-2xl border border-border/40 p-8 shadow-sm sticky top-24 overflow-hidden">
       {/* Ambience */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16" />
 
-      <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-8 flex items-center gap-2">
+      <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-8 flex items-center gap-2">
         <Package size={14} className="text-primary" /> Order Summary
       </h2>
 
@@ -41,18 +41,18 @@ export function CheckoutSummary({
                 />
               </div>
               <div className="flex-1 min-w-0 py-0.5">
-                <p className="text-xs font-black text-foreground uppercase tracking-tight truncate">
+                <p className="text-xs font-bold text-foreground uppercase tracking-tight truncate">
                   {item.name}
                 </p>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase opacity-60">
+                <p className="text-xs font-bold text-muted-foreground uppercase opacity-60">
                   {item.quantity} Unit{item.quantity > 1 ? "s" : ""} •{" "}
                   <PriceDisplay amount={item.unitPrice} />
                 </p>
-                <p className="text-[9px] font-bold text-primary truncate mt-1">
+                <p className="text-xs font-bold text-primary truncate mt-1">
                   {Object.values(item.selectedOptions).join(" / ")}
                 </p>
               </div>
-              <div className="text-xs font-black text-foreground py-0.5">
+              <div className="text-xs font-bold text-foreground py-0.5">
                 <PriceDisplay amount={item.unitPrice * item.quantity} />
               </div>
             </div>
@@ -62,18 +62,18 @@ export function CheckoutSummary({
 
       <div className="space-y-4 pt-6 border-t border-border/20">
         <div className="flex justify-between items-center">
-          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
+          <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/60">
             Subtotal
           </span>
-          <span className="text-sm font-black text-foreground">
+          <span className="text-sm font-bold text-foreground">
             <PriceDisplay amount={subtotal} />
           </span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
+          <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/60">
             Delivery
           </span>
-          <span className="text-sm font-black text-foreground">
+          <span className="text-sm font-bold text-foreground">
             {delivery === 0 ? "Free" : <PriceDisplay amount={delivery} />}
           </span>
         </div>
@@ -82,14 +82,14 @@ export function CheckoutSummary({
 
         <div className="flex justify-between items-end">
           <div className="space-y-1">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+            <span className="text-xs font-bold uppercase tracking-wider text-primary">
               Total
             </span>
-            <p className="text-[9px] font-bold text-muted-foreground uppercase italic">
+            <p className="text-xs font-bold text-muted-foreground uppercase italic">
               VAT Inclusive (15%)
             </p>
           </div>
-          <span className="text-3xl font-black text-primary tracking-tighter">
+          <span className="text-3xl font-bold text-primary tracking-tight">
             <PriceDisplay amount={total} />
           </span>
         </div>
@@ -97,7 +97,7 @@ export function CheckoutSummary({
 
       <div className="mt-8 pt-6 border-t border-border/10 flex items-start gap-3">
         <Info size={14} className="text-primary shrink-0 mt-0.5" />
-        <p className="text-[9px] font-bold text-muted-foreground/60 uppercase leading-relaxed">
+        <p className="text-xs font-bold text-muted-foreground/60 uppercase leading-relaxed">
           Final pricing confirmed at checkout. Production begins after order
           confirmation.
         </p>

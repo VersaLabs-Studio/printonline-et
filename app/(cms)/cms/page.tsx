@@ -10,8 +10,8 @@ export default function CMSDashboardPage() {
   return (
     <div className="space-y-8 pb-10">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-black tracking-tight">System Overview</h1>
-        <p className="text-muted-foreground font-medium">
+        <h1 className="text-3xl font-bold tracking-tight">System Overview</h1>
+        <p className="text-muted-foreground font-bold">
           Welcome back, Admin. Here's what's happening today at{" "}
           <span className="text-primary font-bold">PrintOnline.et</span>.
         </p>

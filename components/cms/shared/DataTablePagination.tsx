@@ -55,7 +55,7 @@ export function DataTablePagination<TData>({
         >
           <ChevronLeft size={14} />
         </Button>
-        <div className="flex items-center px-4 h-8 rounded-lg border border-border/50 bg-muted/20 text-[10px] font-black uppercase tracking-tighter">
+        <div className="flex items-center px-4 h-8 rounded-lg border border-border/50 bg-muted/20 text-[10px] font-bold uppercase tracking-tighter">
           Page {table.getState().pagination.pageIndex + 1} /{" "}
           {table.getPageCount()}
         </div>

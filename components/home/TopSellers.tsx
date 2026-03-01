@@ -112,7 +112,7 @@ const TopSellers = () => {
 
                       {/* Info */}
                       <div className="p-5 flex flex-col grow">
-                        <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wider">
+                        <p className="text-xs text-muted-foreground mb-2 font-bold uppercase tracking-wider">
                           {categoryName}
                         </p>
                         <h3 className="font-bold text-lg text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">

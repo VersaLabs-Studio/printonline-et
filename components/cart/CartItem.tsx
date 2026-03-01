@@ -23,13 +23,13 @@ export function CartItem({
   return (
     <div
       className={cn(
-        "group relative bg-card/40 backdrop-blur-sm rounded-[2rem] border border-border/40 p-6 transition-all hover:bg-card/60 hover:shadow-xl hover:shadow-primary/5",
+        "group relative bg-card/40 backdrop-blur-sm rounded-2xl border border-border/40 p-6 transition-all hover:bg-card/60 hover:shadow-xl hover:shadow-primary/5",
         isUpdating && "opacity-50 pointer-events-none",
       )}
     >
       <div className="flex flex-col sm:flex-row gap-8">
         {/* Visual Asset */}
-        <div className="relative h-40 w-full sm:w-40 rounded-3xl overflow-hidden bg-muted/20 border border-border/20 shrink-0">
+        <div className="relative h-40 w-full sm:w-40 rounded-2xl overflow-hidden bg-muted/20 border border-border/20 shrink-0">
           <Image
             src={item.image}
             alt={item.name}
@@ -43,13 +43,13 @@ export function CartItem({
           <div className="flex justify-between items-start gap-4 mb-3">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] opacity-60 flex items-center gap-1.5">
+                <span className="text-xs font-bold text-primary uppercase tracking-wider opacity-60 flex items-center gap-1.5">
                   <Layers size={12} /> {item.category}
                 </span>
               </div>
               <Link
                 href={`/products/${item.productSlug}`}
-                className="text-xl font-black text-foreground tracking-tighter hover:text-primary transition-colors block leading-tight truncate max-w-md"
+                className="text-xl font-bold text-foreground tracking-tight hover:text-primary transition-colors block leading-tight truncate max-w-md"
               >
                 {item.name}
               </Link>
@@ -69,14 +69,14 @@ export function CartItem({
                 {Object.entries(item.selectedOptions).map(([key, value]) => (
                   <div
                     key={key}
-                    className="px-3 py-1.5 rounded-lg bg-muted text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 border border-border/10"
+                    className="px-3 py-1.5 rounded-lg bg-muted text-xs font-bold uppercase tracking-wider text-muted-foreground/80 border border-border/10"
                   >
                     <span className="opacity-40 mr-1.5">{key}:</span>
                     {String(value)}
                   </div>
                 ))}
                 {item.designFileName && (
-                  <div className="px-3 py-1.5 rounded-lg bg-primary/5 text-[10px] font-black uppercase tracking-widest text-primary border border-primary/10">
+                  <div className="px-3 py-1.5 rounded-lg bg-primary/5 text-xs font-bold uppercase tracking-wider text-primary border border-primary/10">
                     Linked Asset: {item.designFileName}
                   </div>
                 )}
@@ -94,7 +94,7 @@ export function CartItem({
               >
                 <Minus size={14} />
               </button>
-              <span className="w-10 text-center font-black text-xs uppercase tracking-widest">
+              <span className="w-10 text-center font-bold text-xs uppercase tracking-wider">
                 {item.quantity}
               </span>
               <button
@@ -106,7 +106,7 @@ export function CartItem({
                 <Plus size={14} />
               </button>
             </div>
-            <div className="text-2xl font-black text-primary tracking-tighter">
+            <div className="text-2xl font-bold text-primary tracking-tight">
               <PriceDisplay amount={item.unitPrice * item.quantity} />
             </div>
           </div>

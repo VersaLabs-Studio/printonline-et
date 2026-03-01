@@ -94,7 +94,7 @@ const SpecialOffers = () => {
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg">
                       <div className="flex items-center space-x-1">
                         <Clock className="h-4 w-4 text-orange-500" />
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-bold">
                           {offer.expires}
                         </span>
                       </div>
@@ -128,7 +128,7 @@ const SpecialOffers = () => {
         <div className="text-center mt-12">
           <div className="inline-flex items-center space-x-2 bg-primary/10 px-6 py-3 rounded-full">
             <TrendingUp className="h-5 w-5 text-primary" />
-            <span className="text-sm font-medium text-primary">
+            <span className="text-sm font-bold text-primary">
               Join thousands of customers with our deals
             </span>
           </div>

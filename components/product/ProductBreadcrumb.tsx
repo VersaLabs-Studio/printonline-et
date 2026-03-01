@@ -11,7 +11,7 @@ interface ProductBreadcrumbProps {
 
 export function ProductBreadcrumb({ product }: ProductBreadcrumbProps) {
   return (
-    <nav className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mb-6 px-1 overflow-hidden whitespace-nowrap">
+    <nav className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground/60 mb-6 px-1 overflow-hidden whitespace-nowrap">
       <Link
         href="/"
         className="hover:text-primary transition-colors flex items-center gap-1"

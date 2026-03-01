@@ -101,7 +101,7 @@ function LoginFormContent() {
                 />
               </div>
               {errors.email && (
-                <p className="text-xs font-medium text-destructive">
+                <p className="text-xs font-bold text-destructive">
                   {errors.email.message}
                 </p>
               )}
@@ -112,7 +112,7 @@ function LoginFormContent() {
                 <Label htmlFor="password">Password</Label>
                 <Link
                   href="/forgot-password"
-                  className="text-xs font-medium text-primary hover:underline hover:text-primary/80 transition-colors"
+                  className="text-xs font-bold text-primary hover:underline hover:text-primary/80 transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -139,7 +139,7 @@ function LoginFormContent() {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-xs font-medium text-destructive">
+                <p className="text-xs font-bold text-destructive">
                   {errors.password.message}
                 </p>
               )}

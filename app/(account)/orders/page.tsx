@@ -152,7 +152,7 @@ export default function OrdersPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-sm font-medium text-muted-foreground">
+        <p className="text-sm font-bold text-muted-foreground">
           Fetching your orders...
         </p>
       </div>
@@ -248,7 +248,7 @@ export default function OrdersPage() {
                             : "N/A"}
                         </span>
                         <span className="w-1 h-1 rounded-full bg-border" />
-                        <span className="font-medium text-foreground">
+                        <span className="font-bold text-foreground">
                           ETB {order.total_amount.toLocaleString()}
                         </span>
                       </div>
@@ -260,7 +260,7 @@ export default function OrdersPage() {
                       {getStatusIcon(order.status)}
                       <span>{order.status}</span>
                     </div>
-                    <Link href={`/order-confirmation?id=${order.id}`}>
+                    <Link href={`/orders/${order.order_number}`}>
                       <Button variant="ghost" size="sm" className="gap-2 h-9">
                         Details
                         <ExternalLink size={14} />

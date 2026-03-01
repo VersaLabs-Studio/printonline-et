@@ -14,7 +14,7 @@ interface ProductDetailGalleryProps {
 export function ProductDetailGallery({ product }: ProductDetailGalleryProps) {
   return (
     <Card className="border-border/40 shadow-sm rounded-2xl p-6 bg-muted/5">
-      <h5 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-5 flex items-center gap-2">
+      <h5 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-5 flex items-center gap-2">
         <ImageIcon size={14} className="text-primary" /> Visual Assets
       </h5>
       <div className="grid grid-cols-2 gap-4">
@@ -32,7 +32,7 @@ export function ProductDetailGallery({ product }: ProductDetailGalleryProps) {
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                 {img.is_primary && (
-                  <Badge className="absolute top-2.5 left-2.5 text-[8px] bg-primary h-4.5 px-2 rounded hover:bg-primary shadow-lg border-none uppercase font-black tracking-widest z-10">
+                  <Badge className="absolute top-2.5 left-2.5 text-[8px] bg-primary h-4.5 px-2 rounded hover:bg-primary shadow-lg border-none uppercase font-bold tracking-widest z-10">
                     Primary
                   </Badge>
                 )}
@@ -53,7 +53,7 @@ export function ProductDetailGallery({ product }: ProductDetailGalleryProps) {
               className="group-hover:scale-110 transition-transform duration-300"
             />
           </div>
-          <span className="text-[10px] font-black uppercase tracking-widest">
+          <span className="text-[10px] font-bold uppercase tracking-widest">
             Add Image
           </span>
           <span className="text-[8px] text-muted-foreground/60 mt-1 uppercase tracking-tighter">

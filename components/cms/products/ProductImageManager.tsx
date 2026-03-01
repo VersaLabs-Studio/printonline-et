@@ -24,12 +24,12 @@ export function ProductImageManager({ product }: ProductImageManagerProps) {
   return (
     <Card className="rounded-2xl border-border/40 shadow-sm overflow-hidden bg-card/50 backdrop-blur-sm">
       <CardHeader className="bg-muted/10 border-b border-border/40 py-4 flex flex-row items-center justify-between">
-        <CardTitle className="text-sm font-black uppercase tracking-[0.1em] flex items-center gap-2">
+        <CardTitle className="text-sm font-bold uppercase tracking-[0.1em] flex items-center gap-2">
           <ImageIcon size={16} className="text-primary" /> Visual Assets
         </CardTitle>
         <Button
           size="sm"
-          className="h-9 rounded-xl font-black uppercase tracking-widest text-[10px] gap-2 px-4 shadow-lg shadow-primary/20"
+          className="h-9 rounded-xl font-bold uppercase tracking-widest text-[10px] gap-2 px-4 shadow-lg shadow-primary/20"
         >
           <CloudUpload size={14} /> Batch Upload
         </Button>
@@ -48,7 +48,7 @@ export function ProductImageManager({ product }: ProductImageManagerProps) {
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
               {img.is_primary && (
-                <Badge className="absolute top-2 left-2 text-[8px] bg-primary h-4.5 px-2 rounded-lg border-none uppercase font-black tracking-widest z-10 shadow-lg">
+                <Badge className="absolute top-2 left-2 text-[8px] bg-primary h-4.5 px-2 rounded-lg border-none uppercase font-bold tracking-widest z-10 shadow-lg">
                   Primary
                 </Badge>
               )}
@@ -83,7 +83,7 @@ export function ProductImageManager({ product }: ProductImageManagerProps) {
                 className="group-hover:scale-125 transition-transform"
               />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-widest">
+            <span className="text-[10px] font-bold uppercase tracking-widest">
               Add Media
             </span>
             <span className="text-[8px] font-bold mt-1 opacity-50 uppercase tracking-tighter">

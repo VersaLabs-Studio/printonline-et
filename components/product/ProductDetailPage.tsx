@@ -27,22 +27,27 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
         <ProductBreadcrumb product={product} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 xl:gap-12 mb-16">
-          {/* Left Column: Visuals */}
+          {/* Left Column: Visuals & Details */}
           <motion.section
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="space-y-8"
+            className="space-y-8 lg:space-y-12 flex flex-col"
           >
             <ProductGallery product={product} />
+
+            {/* Moved Product Tabs Below Gallery (Mobile First Order) */}
+            <div className="pt-4 lg:pt-8 w-full">
+              <ProductTabs product={product} />
+            </div>
           </motion.section>
 
-          {/* Right Column: Interaction */}
+          {/* Right Column: Interaction & Specs */}
           <motion.section
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
-            className="flex flex-col gap-6"
+            className="flex flex-col gap-6 lg:pl-4 xl:pl-8"
           >
             <ProductInfo product={product} />
             <ProductOrderForm product={product} />
@@ -51,7 +56,6 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
 
         {/* Full Width Sections */}
         <section className="space-y-16">
-          <ProductTabs product={product} />
           <RelatedProducts currentProduct={product} />
         </section>
       </main>

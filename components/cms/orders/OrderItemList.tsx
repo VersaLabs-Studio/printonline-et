@@ -15,7 +15,7 @@ export function OrderItemList({ order }: OrderItemListProps) {
   return (
     <Card className="border-border/40 shadow-sm rounded-2xl overflow-hidden">
       <CardHeader className="bg-muted/10 border-b border-border/40 py-4">
-        <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
+        <CardTitle className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
           <ShoppingCart size={16} className="text-primary" /> Order Items (
           {order.order_items?.length})
         </CardTitle>
@@ -41,12 +41,12 @@ export function OrderItemList({ order }: OrderItemListProps) {
               </div>
               <div className="flex-1 space-y-1">
                 <div className="flex justify-between">
-                  <h4 className="font-black text-sm tracking-tight">
+                  <h4 className="font-bold text-sm tracking-tight">
                     {item.product_name}
                   </h4>
                   <PriceDisplay
                     amount={item.line_total}
-                    className="text-sm font-black text-primary"
+                    className="text-sm font-bold text-primary"
                   />
                 </div>
                 <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
@@ -60,7 +60,7 @@ export function OrderItemList({ order }: OrderItemListProps) {
                       <Badge
                         key={key}
                         variant="secondary"
-                        className="text-[9px] font-black uppercase px-2 py-0.5 bg-muted/60 border-border/20 shadow-sm"
+                        className="text-[9px] font-bold uppercase px-2 py-0.5 bg-muted/60 border-border/20 shadow-sm"
                       >
                         {key}: {val}
                       </Badge>
@@ -88,12 +88,12 @@ export function OrderItemList({ order }: OrderItemListProps) {
             />
           </div>
           <div className="flex justify-between text-lg pt-3 border-t-2 border-dashed border-border/40">
-            <span className="font-black uppercase tracking-widest text-xs">
+            <span className="font-bold uppercase tracking-widest text-xs">
               Total Amount
             </span>
             <PriceDisplay
               amount={order.total_amount}
-              className="font-black text-primary text-xl"
+              className="font-bold text-primary text-xl"
             />
           </div>
         </div>

@@ -75,7 +75,7 @@ export default function AccountLayout({
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "flex items-center justify-between group px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+                        "flex items-center justify-between group px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200",
                         isActive
                           ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
                           : "text-muted-foreground hover:bg-secondary hover:text-foreground",
@@ -108,7 +108,7 @@ export default function AccountLayout({
                 <div className="pt-4 mt-4 border-t border-border/50">
                   <button
                     onClick={handleSignOut}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-all duration-200"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-destructive hover:bg-destructive/10 transition-all duration-200"
                   >
                     <LogOut size={18} />
                     <span>Sign Out</span>

@@ -47,12 +47,12 @@ function NavItem({ href, icon: Icon, label, active, collapsed }: NavItemProps) {
           )}
         />
         {!collapsed && (
-          <span className="text-xs font-black uppercase tracking-widest whitespace-nowrap overflow-hidden">
+          <span className="text-xs font-bold uppercase tracking-widest whitespace-nowrap overflow-hidden">
             {label}
           </span>
         )}
         {collapsed && (
-          <div className="absolute left-full ml-4 px-3 py-1.5 bg-card text-foreground text-[10px] font-black uppercase tracking-widest rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 shadow-xl border border-border/50 whitespace-nowrap">
+          <div className="absolute left-full ml-4 px-3 py-1.5 bg-card text-foreground text-[10px] font-bold uppercase tracking-widest rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 shadow-xl border border-border/50 whitespace-nowrap">
             {label}
           </div>
         )}
@@ -100,14 +100,14 @@ export function CMSSidebar() {
       <div className="h-20 flex items-center px-6 border-b border-border/40 bg-muted/5">
         <div className="flex items-center gap-4 overflow-hidden">
           <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground flex-shrink-0 shadow-xl shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform">
-            <span className="font-black text-xl italic">P</span>
+            <span className="font-bold text-xl italic">P</span>
           </div>
           {!collapsed && (
             <div className="flex flex-col animate-in fade-in slide-in-from-left duration-500">
-              <span className="font-black text-xs tracking-tight uppercase leading-none text-foreground">
+              <span className="font-bold text-xs tracking-tight uppercase leading-none text-foreground">
                 PrintOnline
               </span>
-              <span className="text-[10px] text-primary font-black uppercase tracking-[0.2em] mt-1 opacity-70">
+              <span className="text-[10px] text-primary font-bold uppercase tracking-[0.2em] mt-1 opacity-70">
                 PANA ADMIN
               </span>
             </div>
@@ -119,7 +119,7 @@ export function CMSSidebar() {
         <div>
           <div
             className={cn(
-              "px-3 mb-4 text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-50",
+              "px-3 mb-4 text-[9px] font-bold text-muted-foreground uppercase tracking-[0.3em] opacity-50",
               collapsed && "hidden",
             )}
           >
@@ -145,7 +145,7 @@ export function CMSSidebar() {
         <div>
           <div
             className={cn(
-              "px-3 mb-4 text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-50",
+              "px-3 mb-4 text-[9px] font-bold text-muted-foreground uppercase tracking-[0.3em] opacity-50",
               collapsed && "hidden",
             )}
           >
@@ -176,7 +176,7 @@ export function CMSSidebar() {
           className={cn(
             "w-full rounded-xl transition-all duration-300",
             collapsed ? "h-12" : "h-12 justify-start px-4 gap-4",
-            "text-muted-foreground hover:text-destructive hover:bg-destructive/5 font-black uppercase tracking-widest text-[10px]",
+            "text-muted-foreground hover:text-destructive hover:bg-destructive/5 font-bold uppercase tracking-widest text-[10px]",
           )}
           onClick={handleSignOut}
         >

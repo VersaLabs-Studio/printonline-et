@@ -87,7 +87,7 @@ export const columns: ColumnDef<ProductWithCategory>[] = [
         <Badge
           variant="outline"
           className={cn(
-            "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md shadow-sm",
+            "text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md shadow-sm",
             variants[status] || "bg-muted text-muted-foreground",
           )}
         >
@@ -114,7 +114,7 @@ export const columns: ColumnDef<ProductWithCategory>[] = [
             align="end"
             className="w-48 rounded-xl shadow-xl border-border/40 p-1.5"
           >
-            <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-muted-foreground px-2 py-1.5">
+            <DropdownMenuLabel className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground px-2 py-1.5">
               Actions
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="opacity-50" />

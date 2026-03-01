@@ -78,7 +78,7 @@ export default function CMSOrderDetailPage() {
 
   if (!order)
     return (
-      <div className="p-20 text-center font-black uppercase text-muted-foreground">
+      <div className="p-20 text-center font-bold uppercase text-muted-foreground">
         Master record not found.
       </div>
     );
@@ -101,7 +101,7 @@ export default function CMSOrderDetailPage() {
           <Badge
             variant="outline"
             className={cn(
-              "text-[10px] font-black uppercase tracking-widest gap-2 px-5 py-2.5 rounded-xl shadow-lg border-2",
+              "text-[10px] font-bold uppercase tracking-widest gap-2 px-5 py-2.5 rounded-xl shadow-lg border-2",
               currentStatus.className,
             )}
           >
@@ -117,7 +117,7 @@ export default function CMSOrderDetailPage() {
 
           {order.special_instructions && (
             <Card className="border-border/40 shadow-sm rounded-2xl bg-muted/10 p-6 border-l-4 border-l-primary/40">
-              <h5 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2">
+              <h5 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2">
                 <FileText size={14} className="text-primary" /> Customer
                 Instructions
               </h5>
@@ -133,12 +133,12 @@ export default function CMSOrderDetailPage() {
           <OrderFulfillmentInfo order={order} />
 
           <div className="space-y-3 pt-2">
-            <Button className="w-full h-12 rounded-xl shadow-xl shadow-primary/20 font-black uppercase tracking-widest text-[11px] gap-2 active:scale-95 transition-all">
+            <Button className="w-full h-12 rounded-xl shadow-xl shadow-primary/20 font-bold uppercase tracking-widest text-[11px] gap-2 active:scale-95 transition-all">
               <CheckCircle2 size={18} /> Update Fulfillment Status
             </Button>
             <Button
               variant="outline"
-              className="w-full h-12 rounded-xl border-border/50 font-black uppercase tracking-widest text-[11px] gap-2 hover:bg-muted/50 transition-all"
+              className="w-full h-12 rounded-xl border-border/50 font-bold uppercase tracking-widest text-[11px] gap-2 hover:bg-muted/50 transition-all"
             >
               <Calendar size={18} className="text-primary" /> Logistics
               Scheduler

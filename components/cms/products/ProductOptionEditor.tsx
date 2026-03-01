@@ -33,12 +33,12 @@ export function ProductOptionEditor({ product }: ProductOptionEditorProps) {
   return (
     <Card className="rounded-2xl border-border/40 shadow-sm overflow-hidden bg-card/50 backdrop-blur-sm">
       <CardHeader className="bg-muted/10 border-b border-border/40 py-4 flex flex-row items-center justify-between">
-        <CardTitle className="text-sm font-black uppercase tracking-[0.1em] flex items-center gap-2">
+        <CardTitle className="text-sm font-bold uppercase tracking-[0.1em] flex items-center gap-2">
           <Settings size={16} className="text-primary" /> Configuration Engine
         </CardTitle>
         <Button
           size="sm"
-          className="h-9 rounded-xl font-black uppercase tracking-widest text-[10px] gap-2 px-4 shadow-lg shadow-primary/20"
+          className="h-9 rounded-xl font-bold uppercase tracking-widest text-[10px] gap-2 px-4 shadow-lg shadow-primary/20"
           onClick={() => setIsAdding(true)}
         >
           <Plus size={14} /> New Option Group
@@ -50,7 +50,7 @@ export function ProductOptionEditor({ product }: ProductOptionEditorProps) {
             <div className="p-6 bg-primary/5 animate-in slide-in-from-top duration-300">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">
                     Group Label
                   </label>
                   <Input
@@ -59,7 +59,7 @@ export function ProductOptionEditor({ product }: ProductOptionEditorProps) {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">
                     Input Interface
                   </label>
                   <Select>
@@ -84,14 +84,14 @@ export function ProductOptionEditor({ product }: ProductOptionEditorProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="rounded-lg text-[10px] font-black uppercase"
+                  className="rounded-lg text-[10px] font-bold uppercase"
                   onClick={() => setIsAdding(false)}
                 >
                   Cancel
                 </Button>
                 <Button
                   size="sm"
-                  className="rounded-lg text-[10px] font-black uppercase px-6"
+                  className="rounded-lg text-[10px] font-bold uppercase px-6"
                   onClick={() => {
                     toast.success("Option group initialized");
                     setIsAdding(false);
@@ -115,11 +115,11 @@ export function ProductOptionEditor({ product }: ProductOptionEditorProps) {
                   </div>
                   <Badge
                     variant="outline"
-                    className="text-[9px] font-black uppercase tracking-widest bg-primary/5 border-primary/20 text-primary px-2"
+                    className="text-[9px] font-bold uppercase tracking-widest bg-primary/5 border-primary/20 text-primary px-2"
                   >
                     {option.field_type}
                   </Badge>
-                  <h4 className="font-black text-sm tracking-tight">
+                  <h4 className="font-bold text-sm tracking-tight">
                     {option.option_label}
                   </h4>
                 </div>
@@ -149,7 +149,7 @@ export function ProductOptionEditor({ product }: ProductOptionEditorProps) {
                   >
                     {val.label}
                     {val.price_amount && (
-                      <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-lg border border-emerald-100">
+                      <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-lg border border-emerald-100">
                         +ETB {val.price_amount}
                       </span>
                     )}
@@ -161,7 +161,7 @@ export function ProductOptionEditor({ product }: ProductOptionEditorProps) {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="rounded-xl h-8 border-dashed border-border/60 hover:border-primary/40 hover:bg-primary/5 text-[10px] font-black uppercase tracking-widest gap-1.5 px-3"
+                  className="rounded-xl h-8 border-dashed border-border/60 hover:border-primary/40 hover:bg-primary/5 text-[10px] font-bold uppercase tracking-widest gap-1.5 px-3"
                 >
                   <Plus size={12} /> Add Value
                 </Button>
@@ -172,7 +172,7 @@ export function ProductOptionEditor({ product }: ProductOptionEditorProps) {
           {!product.product_options?.length && !isAdding && (
             <div className="p-12 text-center text-muted-foreground/40 flex flex-col items-center">
               <Settings size={32} className="mb-2" />
-              <p className="text-xs font-black uppercase tracking-widest">
+              <p className="text-xs font-bold uppercase tracking-widest">
                 No options configured
               </p>
             </div>

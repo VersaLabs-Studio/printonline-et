@@ -54,7 +54,7 @@ export default function CMSCategoriesPage() {
             )}
           </div>
           <div className="flex flex-col">
-            <span className="font-black text-sm tracking-tight">
+            <span className="font-bold text-sm tracking-tight">
               {row.original.name}
             </span>
             <span className="text-[10px] text-muted-foreground font-mono font-bold tracking-widest uppercase">
@@ -70,7 +70,7 @@ export default function CMSCategoriesPage() {
       cell: ({ row }) => (
         <Badge
           variant="outline"
-          className="font-black text-xs h-7 w-7 rounded-lg bg-muted/30 border-border/50 flex items-center justify-center p-0"
+          className="font-bold text-xs h-7 w-7 rounded-lg bg-muted/30 border-border/50 flex items-center justify-center p-0"
         >
           {row.original.display_order}
         </Badge>
@@ -83,7 +83,7 @@ export default function CMSCategoriesPage() {
         <Badge
           variant="outline"
           className={cn(
-            "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md shadow-sm border-2",
+            "text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md shadow-sm border-2",
             row.original.is_active
               ? "bg-emerald-50 text-emerald-700 border-emerald-200"
               : "bg-red-50 text-red-700 border-red-200",
@@ -109,7 +109,7 @@ export default function CMSCategoriesPage() {
             align="end"
             className="w-48 rounded-xl shadow-xl border-border/40 p-1.5"
           >
-            <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-muted-foreground px-2 py-1.5">
+            <DropdownMenuLabel className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground px-2 py-1.5">
               Category Actions
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="opacity-50" />
@@ -136,7 +136,7 @@ export default function CMSCategoriesPage() {
         subtitle="Organize your product catalog into public collections."
         breadcrumbs={[{ label: "Categories" }]}
         actions={
-          <Button className="rounded-xl gap-2 font-black uppercase tracking-widest text-[11px] shadow-lg shadow-primary/20 h-10 px-5">
+          <Button className="rounded-xl gap-2 font-bold uppercase tracking-widest text-[11px] shadow-lg shadow-primary/20 h-10 px-5">
             <Plus size={18} />
             Create Category
           </Button>

@@ -28,7 +28,7 @@ export function RelatedProducts({ currentProduct }: RelatedProductsProps) {
         <Skeleton className="h-8 w-48 rounded-lg" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="aspect-4/5 rounded-3xl" />
+            <Skeleton key={i} className="aspect-4/5 rounded-2xl" />
           ))}
         </div>
       </div>
@@ -41,16 +41,16 @@ export function RelatedProducts({ currentProduct }: RelatedProductsProps) {
     <div className="space-y-10 py-12 border-t border-border/40">
       <div className="flex items-end justify-between px-2">
         <div className="space-y-2">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-primary">
             Explore More
           </h3>
-          <h2 className="text-3xl font-black tracking-tighter">
+          <h2 className="text-3xl font-bold tracking-tight">
             You might also like
           </h2>
         </div>
         <Link
           href="/all-products"
-          className="group flex items-center gap-2 text-xs font-black uppercase tracking-widest hover:text-primary transition-colors pb-1"
+          className="group flex items-center gap-2 text-xs font-bold uppercase tracking-wider hover:text-primary transition-colors pb-1"
         >
           View Full Catalog
           <ArrowRight

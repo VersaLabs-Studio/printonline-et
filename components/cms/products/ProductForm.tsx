@@ -102,7 +102,7 @@ export function ProductForm({
           <div className="lg:col-span-2 space-y-6">
             <Card className="rounded-2xl border-border/40 shadow-sm">
               <CardContent className="p-6 space-y-4">
-                <div className="flex items-center gap-2 text-primary font-black uppercase text-[10px] tracking-widest mb-2">
+                <div className="flex items-center gap-2 text-primary font-bold uppercase text-[10px] tracking-widest mb-2">
                   <Package size={14} /> Global Identifiers
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -190,7 +190,7 @@ export function ProductForm({
 
             <Card className="rounded-2xl border-border/40 shadow-sm">
               <CardContent className="p-6 space-y-4">
-                <div className="flex items-center gap-2 text-primary font-black uppercase text-[10px] tracking-widest mb-2">
+                <div className="flex items-center gap-2 text-primary font-bold uppercase text-[10px] tracking-widest mb-2">
                   <Layers size={14} /> Catalog Taxonomy & Logic
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -254,7 +254,7 @@ export function ProductForm({
           <div className="space-y-6">
             <Card className="rounded-2xl border-border/40 shadow-sm bg-muted/5">
               <CardContent className="p-6 space-y-4">
-                <div className="flex items-center gap-2 text-primary font-black uppercase text-[10px] tracking-widest mb-2">
+                <div className="flex items-center gap-2 text-primary font-bold uppercase text-[10px] tracking-widest mb-2">
                   <Info size={14} /> Pricing & Stock
                 </div>
                 <FormField
@@ -267,13 +267,13 @@ export function ProductForm({
                       </FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-muted-foreground">
                             ETB
                           </span>
                           <Input
                             type="number"
                             step="0.01"
-                            className="rounded-xl pl-12 font-black text-primary"
+                            className="rounded-xl pl-12 font-bold text-primary"
                             {...field}
                           />
                         </div>
@@ -351,7 +351,7 @@ export function ProductForm({
             <div className="flex flex-col gap-3">
               <Button
                 type="submit"
-                className="w-full h-12 rounded-xl shadow-lg shadow-primary/20 font-black uppercase tracking-widest text-xs gap-2"
+                className="w-full h-12 rounded-xl shadow-lg shadow-primary/20 font-bold uppercase tracking-widest text-xs gap-2"
               >
                 <Save size={18} />
                 {isEditing ? "Save Changes" : "Create Product"}

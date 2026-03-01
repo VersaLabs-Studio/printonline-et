@@ -25,7 +25,7 @@ export function SelectField({
 
   return (
     <div className="space-y-1">
-      <label className="block text-xs font-medium text-foreground">
+      <label className="block text-xs font-bold text-foreground">
         {field.label}
         {field.required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
@@ -83,7 +83,7 @@ export function RadioField({
 }: FormFieldProps) {
   return (
     <div className="space-y-1">
-      <label className="block text-xs font-medium text-foreground">
+      <label className="block text-xs font-bold text-foreground">
         {field.label}
         {field.required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
@@ -94,7 +94,7 @@ export function RadioField({
             whileTap={{ scale: 0.98 }}
             onClick={() => onChange(option.value)}
             disabled={disabled || option.disabled}
-            className={`px-2 py-1.5 rounded-md border text-xs font-medium text-center transition-all ${
+            className={`px-2 py-1.5 rounded-md border text-xs font-bold text-center transition-all ${
               value === option.value
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-border hover:border-primary/50"
@@ -116,7 +116,7 @@ export function RadioVisualField({
 }: FormFieldProps) {
   return (
     <div className="space-y-1">
-      <label className="block text-xs font-medium text-foreground">
+      <label className="block text-xs font-bold text-foreground">
         {field.label}
         {field.required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
@@ -138,7 +138,7 @@ export function RadioVisualField({
               className="w-full h-6 rounded"
               style={{ backgroundColor: option.hexColor || "#ccc" }}
             />
-            <div className="text-[10px] font-medium text-center mt-0.5 truncate">
+            <div className="text-xs font-bold text-center mt-0.5 truncate">
               {option.label}
             </div>
             {value === option.value && (
@@ -169,7 +169,7 @@ export function CheckboxField({
 
   return (
     <div className="space-y-1">
-      <label className="block text-xs font-medium text-foreground">
+      <label className="block text-xs font-bold text-foreground">
         {field.label}
         {field.required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
@@ -192,7 +192,7 @@ export function CheckboxField({
                 disabled={disabled || option.disabled}
                 className="w-3.5 h-3.5 text-primary rounded border-border focus:ring-primary"
               />
-              <span className="font-medium truncate">{option.label}</span>
+              <span className="font-bold truncate">{option.label}</span>
             </label>
           );
         })}
@@ -225,7 +225,7 @@ export function MultiSelectField({
 
   return (
     <div className="space-y-1">
-      <label className="block text-xs font-medium text-foreground">
+      <label className="block text-xs font-bold text-foreground">
         {field.label}
         {field.required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
@@ -238,7 +238,7 @@ export function MultiSelectField({
               key={`${field.key}-${option.value}-${index}`}
               className="flex items-center justify-between px-2 py-1.5 rounded-md border border-border bg-card text-xs"
             >
-              <span className="font-medium truncate mr-2">{option.label}</span>
+              <span className="font-bold truncate mr-2">{option.label}</span>
               <div className="flex items-center space-x-1">
                 <button
                   onClick={() =>
@@ -252,7 +252,7 @@ export function MultiSelectField({
                 >
                   -
                 </button>
-                <span className="w-6 text-center font-medium">{quantity}</span>
+                <span className="w-6 text-center font-bold">{quantity}</span>
                 <button
                   onClick={() =>
                     handleSizeQuantityChange(option.value, quantity + 1)

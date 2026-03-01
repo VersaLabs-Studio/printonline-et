@@ -19,12 +19,12 @@ export function ContactForm({ data, onChange, onNext }: ContactFormProps) {
   };
 
   return (
-    <div className="bg-card/30 backdrop-blur-sm rounded-[2.5rem] border border-border/40 p-10 space-y-8 animate-in fade-in slide-in-from-left-4 duration-500">
+    <div className="bg-card border border-border/50 rounded-2xl border border-border/40 p-10 space-y-8 animate-in fade-in slide-in-from-left-4 duration-500">
       <div className="space-y-1">
-        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-primary">
           Step 1 of 3
         </h3>
-        <h2 className="text-3xl font-black tracking-tighter uppercase flex items-center gap-3">
+        <h2 className="text-3xl font-bold tracking-tight uppercase flex items-center gap-3">
           <User className="text-primary" size={28} /> Contact Information
         </h2>
       </div>
@@ -34,7 +34,7 @@ export function ContactForm({ data, onChange, onNext }: ContactFormProps) {
           <div className="space-y-2">
             <Label
               htmlFor="firstName"
-              className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1"
+              className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1"
             >
               First Name
             </Label>
@@ -50,7 +50,7 @@ export function ContactForm({ data, onChange, onNext }: ContactFormProps) {
           <div className="space-y-2">
             <Label
               htmlFor="lastName"
-              className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1"
+              className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1"
             >
               Last Name
             </Label>
@@ -68,7 +68,7 @@ export function ContactForm({ data, onChange, onNext }: ContactFormProps) {
         <div className="space-y-2">
           <Label
             htmlFor="email"
-            className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1"
+            className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1"
           >
             Email Address
           </Label>
@@ -89,7 +89,7 @@ export function ContactForm({ data, onChange, onNext }: ContactFormProps) {
         <div className="space-y-2">
           <Label
             htmlFor="phone"
-            className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1"
+            className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1"
           >
             Phone Number
           </Label>
@@ -109,7 +109,7 @@ export function ContactForm({ data, onChange, onNext }: ContactFormProps) {
 
         <Button
           type="submit"
-          className="w-full h-16 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20 gap-4 group"
+          className="w-full btn-pana py-4 text-sm font-semibold uppercase tracking-wider w-full gap-3"
         >
           Continue to Delivery
           <ArrowRight

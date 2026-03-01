@@ -46,7 +46,7 @@ export default function ContactPage() {
                     <Phone className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">
+                    <p className="text-sm font-bold text-muted-foreground">
                       Call Us
                     </p>
                     <p className="text-base font-bold text-foreground">
@@ -60,7 +60,7 @@ export default function ContactPage() {
                     <Mail className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">
+                    <p className="text-sm font-bold text-muted-foreground">
                       Email
                     </p>
                     <p className="text-base font-bold text-foreground">
@@ -74,7 +74,7 @@ export default function ContactPage() {
                     <MapPin className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">
+                    <p className="text-sm font-bold text-muted-foreground">
                       Visit Us
                     </p>
                     <p className="text-base font-bold text-foreground">
@@ -101,7 +101,7 @@ export default function ContactPage() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Your Name</label>
+                      <label className="text-sm font-bold">Your Name</label>
                       <input
                         required
                         className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
@@ -109,7 +109,7 @@ export default function ContactPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">
+                      <label className="text-sm font-bold">
                         Email Address
                       </label>
                       <input
@@ -121,7 +121,7 @@ export default function ContactPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Subject</label>
+                    <label className="text-sm font-bold">Subject</label>
                     <input
                       required
                       className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
@@ -130,7 +130,7 @@ export default function ContactPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Message</label>
+                    <label className="text-sm font-bold">Message</label>
                     <textarea
                       required
                       rows={5}

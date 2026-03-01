@@ -12,122 +12,162 @@ interface ConfirmationDetailsProps {
 export function ConfirmationDetails({
   orderDetails,
 }: ConfirmationDetailsProps) {
-  const firstItem = orderDetails.order_items?.[0];
+  const items = orderDetails.order_items || [];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20">
       {/* Order Details */}
       <div className="lg:col-span-8 space-y-6">
-        <div className="bg-card/30 backdrop-blur-sm rounded-[2.5rem] border border-border/40 p-8">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-8">
-            Order Details
+        <div className="bg-card border border-border/50 rounded-2xl border border-border/40 p-8 shadow-sm">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-8">
+            Order Items
           </h3>
-          <div className="flex flex-col md:flex-row gap-8">
-            <div className="relative h-40 w-full md:w-40 rounded-3xl overflow-hidden bg-muted/20 border border-border/20 shadow-inner">
-              <Image
-                src={firstItem?.product_image || "/placeholder.jpg"}
-                alt={firstItem?.product_name || "Product"}
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="flex-1 space-y-6">
-              <div>
-                <h4 className="text-2xl font-black tracking-tighter text-foreground uppercase">
-                  {firstItem?.product_name}
-                </h4>
-                <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] opacity-60">
-                  {firstItem?.category}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-x-8 gap-y-4 pt-4 border-t border-border/10">
-                {Object.entries(firstItem?.selected_options || {}).map(
-                  ([key, value], idx) => (
-                    <div key={idx} className="space-y-1">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
-                        {key}
-                      </p>
-                      <p className="text-xs font-black uppercase tracking-tight text-foreground">
-                        {String(value)}
+          <div className="space-y-8">
+            {items.map((item: any, i: number) => (
+              <div
+                key={i}
+                className="flex flex-col md:flex-row gap-8 pb-8 border-b border-border/10 last:border-0 last:pb-0"
+              >
+                <div className="relative h-40 w-full md:w-32 rounded-2xl overflow-hidden bg-muted/20 border border-border/20 shadow-inner shrink-0">
+                  <Image
+                    src={item.product_image || "/placeholder.jpg"}
+                    alt={item.product_name || "Product"}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="flex-1 space-y-6">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="text-xl font-bold tracking-tight text-foreground uppercase">
+                        {item.product_name}
+                      </h4>
+                      <p className="text-xs font-bold text-primary uppercase tracking-wider opacity-60">
+                        Qty: {item.quantity}
                       </p>
                     </div>
-                  ),
-                )}
+                    <PriceDisplay
+                      amount={item.line_total || 0}
+                      className="font-bold text-lg"
+                    />
+                  </div>
+
+                  {item.selected_options &&
+                    Object.keys(item.selected_options).length > 0 && (
+                      <div className="grid grid-cols-2 gap-x-8 gap-y-4 pt-4 border-t border-border/10">
+                        {Object.entries(item.selected_options).map(
+                          ([key, value], idx) => (
+                            <div key={idx} className="space-y-1">
+                              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground/40 line-clamp-1">
+                                {key}
+                              </p>
+                              <p className="text-xs font-bold uppercase tracking-tight text-foreground line-clamp-1">
+                                {String(value)}
+                              </p>
+                            </div>
+                          ),
+                        )}
+                      </div>
+                    )}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-muted/10 border border-border/10 rounded-[2rem] p-8 space-y-4">
-            <h4 className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
-              <User size={14} /> Customer
+          <div className="bg-muted/5 border border-border/20 rounded-2xl p-8 space-y-4 shadow-sm">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-2">
+              <User size={14} /> Account Holder
             </h4>
             <div className="space-y-1">
-              <p className="text-sm font-black uppercase tracking-tight text-foreground">
+              <p className="text-sm font-bold uppercase tracking-tight text-foreground">
                 {orderDetails.customer_name}
               </p>
-              <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase">
+              <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase">
                 <Mail size={12} className="opacity-40" />{" "}
                 {orderDetails.customer_email}
               </div>
-              <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase">
+              <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase">
                 <Phone size={12} className="opacity-40" />{" "}
-                {orderDetails.customer_phone || "N/A"}
+                {orderDetails.customer_phone || "Not Provided"}
               </div>
+              <p className="text-[10px] font-bold text-primary uppercase opacity-60 mt-2 block">
+                TIN: {orderDetails.customer_tin || "Not Provided"}
+              </p>
             </div>
           </div>
 
-          <div className="bg-muted/10 border border-border/10 rounded-[2rem] p-8 space-y-4">
-            <h4 className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
-              <MapPin size={14} /> Delivery Address
+          <div className="bg-muted/5 border border-border/20 rounded-2xl p-8 space-y-4 shadow-sm">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-2">
+              <MapPin size={14} /> Logistics Information
             </h4>
             <div className="space-y-1">
-              <p className="text-sm font-black uppercase tracking-tight text-foreground">
+              <p className="text-sm font-bold uppercase tracking-tight text-foreground">
                 {orderDetails.delivery_address}
               </p>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase opacity-80">
+              <p className="text-xs font-bold text-muted-foreground uppercase opacity-80">
                 {orderDetails.delivery_city}, {orderDetails.delivery_sub_city}
               </p>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase opacity-80">
-                Ethiopia
+              <p className="text-xs font-bold text-emerald-500 uppercase opacity-80 mt-1 block">
+                Delivery / Collection Included
               </p>
             </div>
           </div>
         </div>
+
+        {orderDetails.special_instructions && (
+          <div className="bg-muted/5 border border-border/20 rounded-2xl p-6 shadow-sm">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/50 flex items-center gap-2 mb-2">
+              Special Instructions Note
+            </h4>
+            <p className="text-sm font-bold text-muted-foreground italic leading-relaxed">
+              "{orderDetails.special_instructions}"
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Payment Summary */}
       <div className="lg:col-span-4">
-        <div className="bg-card/40 backdrop-blur-md rounded-[2.5rem] border border-border/40 p-8 shadow-2xl shadow-primary/5 sticky top-24">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-8">
+        <div className="bg-card border border-border/50 rounded-2xl border border-border/40 p-8 shadow-sm lg:sticky lg:top-24">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-8">
             Payment Summary
           </h3>
           <div className="space-y-6 pt-6 border-t border-border/20">
             <div className="flex items-end justify-between">
               <div className="space-y-1">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-                  Total Paid
+                <span className="text-xs font-bold uppercase tracking-wider text-primary">
+                  Total Processing
                 </span>
-                <p className="text-[9px] font-bold text-muted-foreground uppercase italic leading-none">
+                <p className="text-xs font-bold text-muted-foreground uppercase italic leading-none">
                   VAT Inclusive (15%)
                 </p>
               </div>
               <PriceDisplay
                 amount={orderDetails.total_amount || 0}
-                className="text-4xl font-black text-primary tracking-tighter"
+                className="text-4xl font-bold text-primary tracking-tight"
               />
             </div>
+            {orderDetails.status && (
+              <div className="flex justify-between items-center py-4 border-t border-border/10">
+                <p className="text-xs font-bold uppercase text-muted-foreground">
+                  Finance Status
+                </p>
+                <p className="text-xs font-bold uppercase tracking-wider text-primary">
+                  Pending Payment Link
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="mt-8 pt-6 border-t border-border/10 flex items-start gap-4">
             <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0 transition-transform hover:rotate-12">
               <Info size={14} />
             </div>
-            <p className="text-[9px] font-bold text-muted-foreground uppercase leading-relaxed opacity-60">
-              A confirmation receipt has been sent to your email address. Our
-              team will contact you within 24 hours.
+            <p className="text-xs font-bold text-muted-foreground uppercase leading-relaxed opacity-60">
+              Orders enter active production once accounting confirms successful
+              deposit/transfer.
             </p>
           </div>
         </div>

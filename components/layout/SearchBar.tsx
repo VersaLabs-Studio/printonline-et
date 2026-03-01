@@ -36,7 +36,7 @@ export function SearchBar() {
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder="Search professional print solutions..."
-          className="w-full h-12 pl-11 pr-12 rounded-2xl bg-muted/30 border border-border/40 focus:border-primary/40 focus:bg-background focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium placeholder:text-muted-foreground/40"
+          className="w-full h-12 pl-11 pr-12 rounded-2xl bg-muted/30 border border-border/40 focus:border-primary/40 focus:bg-background focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold placeholder:text-muted-foreground/40"
         />
         <AnimatePresence>
           {query && (
