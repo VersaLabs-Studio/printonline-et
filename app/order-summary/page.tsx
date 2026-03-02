@@ -184,7 +184,7 @@ export default function OrderSummaryPage() {
               asChild
               className="w-full h-14 btn-pana text-sm font-semibold tracking-widest uppercase shadow-xl shadow-primary/20"
             >
-              <Link href={`/login?callbackUrl=/order-summary`}>
+              <Link href={`/login?redirect=/order-summary`}>
                 Login to Continue
               </Link>
             </Button>
@@ -193,7 +193,7 @@ export default function OrderSummaryPage() {
               variant="outline"
               className="w-full h-14 rounded-2xl font-semibold uppercase tracking-widest text-xs border-border/40 hover:bg-muted transition-all"
             >
-              <Link href={`/register?callbackUrl=/order-summary`}>
+              <Link href={`/register?redirect=/order-summary`}>
                 Create Account
               </Link>
             </Button>

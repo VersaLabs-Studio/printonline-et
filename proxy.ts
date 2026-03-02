@@ -3,6 +3,7 @@
 // Protects: /account/* (requires auth), /cms/* (requires admin role)
 
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 
 // ── Protected Route Patterns ────────────────────────────────────
 const PROTECTED_ROUTES = ["/account", "/checkout"];
@@ -20,9 +21,10 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // ── Get session from better-auth ──────────────────────────────
-  // better-auth stores session in cookies. We call the session endpoint
-  // to validate it server-side.
-  const sessionCookie = request.cookies.get("better-auth.session_token");
+  // We use auth.api.getSession which automatically handles cookie prefixes and validation
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
 
   // Quick check: if no session cookie and route is protected, redirect
   const isProtectedRoute = PROTECTED_ROUTES.some((route) =>
@@ -36,32 +38,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // ── Fetch session from better-auth API ────────────────────────
-  let session: { user: { email: string; role?: string } } | null = null;
-
-  if (sessionCookie?.value) {
-    try {
-      const sessionResponse = await fetch(
-        new URL("/api/auth/get-session", request.url),
-        {
-          headers: {
-            cookie: request.headers.get("cookie") || "",
-          },
-        },
-      );
-
-      if (sessionResponse.ok) {
-        session = await sessionResponse.json();
-      }
-    } catch {
-      // Session check failed — treat as unauthenticated
-      console.error("[proxy] Session check failed");
-    }
-  }
-
-  // ── Auth Pages: redirect to account if already logged in ──────
+  // ── Auth Pages: redirect to callback or account if already logged in ──────
   if (isAuthPage && session) {
-    return NextResponse.redirect(new URL("/account", request.url));
+    const redirectParams =
+      request.nextUrl.searchParams.get("redirect") || "/account";
+    return NextResponse.redirect(new URL(redirectParams, request.url));
   }
 
   // ── Protected Routes: redirect to login if not authenticated ──
@@ -99,6 +80,7 @@ export async function proxy(request: NextRequest) {
 // Only run on routes that need auth checks.
 // Excludes static files, images, and API routes (except auth).
 export const config = {
+  runtime: "nodejs",
   matcher: [
     "/account/:path*",
     "/checkout/:path*",
