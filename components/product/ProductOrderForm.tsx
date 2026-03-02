@@ -160,7 +160,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
                 <Select
                   onValueChange={(val) => handleOptionChange(option.id, val)}
                 >
-                  <SelectTrigger className="h-12 rounded-xl border-border/40 bg-muted/5 focus:ring-primary/20 transition-all font-bold">
+                  <SelectTrigger className="h-11 rounded-xl border-border/40 bg-muted/5 focus:ring-primary/20 transition-all font-semibold text-sm">
                     <SelectValue
                       placeholder={`Choose ${option.option_label}`}
                     />
@@ -202,7 +202,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
                         htmlFor={val.id}
                         className="flex flex-col items-center justify-center p-2.5 rounded-xl border-2 border-border/40 bg-card hover:bg-muted/50 transition-all cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 text-center gap-1 group"
                       >
-                        <span className="text-sm font-bold uppercase tracking-tight group-hover:tracking-wider transition-all line-clamp-1">
+                        <span className="text-xs font-semibold uppercase tracking-tight group-hover:tracking-wider transition-all line-clamp-1">
                           {val.label}
                         </span>
                         {val.price_amount && (
@@ -297,7 +297,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
             value={quantity.toString()}
             onValueChange={(val) => setQuantity(parseInt(val))}
           >
-            <SelectTrigger className="h-10 w-full rounded-lg bg-background border border-border/40 focus:outline-none focus:ring-2 focus:ring-primary text-sm font-bold uppercase tracking-widest px-3">
+            <SelectTrigger className="h-10 w-full rounded-lg bg-background border border-border/40 focus:outline-none focus:ring-2 focus:ring-primary text-xs font-semibold uppercase tracking-widest px-3">
               <SelectValue placeholder="Select Quantity" />
             </SelectTrigger>
             <SelectContent className="rounded-xl shadow-xl border-border/40">
@@ -367,15 +367,15 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
         <div className="flex gap-2">
           <Button
             onClick={handleProceed}
-            className="flex-1 h-16 rounded-3xl font-bold uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20 gap-4 group active:scale-95 transition-all btn-pana overflow-hidden relative"
+            className="flex-1 h-14 rounded-2xl font-bold uppercase tracking-[0.15em] text-[10px] shadow-xl shadow-primary/10 gap-3 group active:scale-95 transition-all btn-pana overflow-hidden relative"
           >
             <div className="absolute inset-0 bg-linear-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <ShoppingCart
-              size={18}
+              size={16}
               className="group-hover:scale-110 transition-transform"
             />
             <span className="flex-1 text-left">Add to Cart</span>
-            <span className="bg-white/20 px-4 py-2 rounded-2xl border border-white/10">
+            <span className="bg-white/10 px-3 py-1.5 rounded-xl border border-white/5 text-[9px]">
               ETB {totalPrice.toLocaleString()}
             </span>
           </Button>

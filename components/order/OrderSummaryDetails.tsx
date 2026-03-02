@@ -6,9 +6,11 @@ import { PriceDisplay } from "@/components/shared/PriceDisplay";
 import { FileText, Package } from "lucide-react";
 
 interface OrderSummaryDetailsProps {
-  cartItems?: Record<string, any>[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  cartItems?: any[];
   total?: number;
-  orderItem?: Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  orderItem?: any;
 }
 
 export function OrderSummaryDetails({
@@ -35,10 +37,10 @@ export function OrderSummaryDetails({
   };
 
   return (
-    <div className="bg-card border border-border/50 rounded-2xl border border-border/40 p-8 shadow-sm sticky top-24 overflow-hidden">
+    <div className="bg-card border border-border/40 rounded-2xl p-8 shadow-sm sticky top-24 overflow-hidden">
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16" />
 
-      <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-8 flex items-center gap-2">
+      <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-8 flex items-center gap-2">
         <Package size={14} className="text-primary" /> Your Items
       </h2>
 
@@ -55,9 +57,9 @@ export function OrderSummaryDetails({
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold tracking-tight text-foreground uppercase truncate">
+                <h3 className="text-xs font-semibold tracking-tight text-foreground uppercase truncate">
                   {item.name}{" "}
-                  <span className="text-muted-foreground ml-2">
+                  <span className="text-muted-foreground ml-1">
                     x{item.quantity}
                   </span>
                 </h3>
@@ -81,17 +83,17 @@ export function OrderSummaryDetails({
             <div className="flex gap-6 mb-8">
               <div className="relative h-24 w-24 rounded-2xl overflow-hidden bg-muted/20 border border-border/20 shrink-0 shadow-inner">
                 <Image
-                  src={orderItem.productImage}
-                  alt={orderItem.productName}
+                  src={orderItem.productImage as string}
+                  alt={orderItem.productName as string}
                   fill
                   className="object-cover"
                 />
               </div>
               <div className="space-y-1 py-1">
-                <h3 className="text-lg font-bold tracking-tight text-foreground uppercase">
+                <h3 className="text-lg font-semibold tracking-tight text-foreground uppercase">
                   {orderItem.productName}
                 </h3>
-                <p className="text-xs font-bold text-primary uppercase tracking-wider opacity-60">
+                <p className="text-xs font-semibold text-primary uppercase tracking-wider opacity-60">
                   {orderItem.category}
                 </p>
               </div>
@@ -102,10 +104,10 @@ export function OrderSummaryDetails({
                   key={idx}
                   className="flex justify-between items-center group py-1 border-b border-border/10 last:border-0 pb-3"
                 >
-                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors">
                     {option.label}
                   </span>
-                  <span className="text-xs font-bold text-foreground uppercase tracking-tight">
+                  <span className="text-xs font-semibold text-foreground uppercase tracking-tight">
                     {option.value}
                   </span>
                 </div>
@@ -121,10 +123,10 @@ export function OrderSummaryDetails({
             <FileText size={18} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold text-foreground uppercase truncate">
+            <p className="text-xs font-semibold text-foreground uppercase truncate">
               {orderItem.designFile.name}
             </p>
-            <p className="text-xs font-bold text-muted-foreground uppercase">
+            <p className="text-xs font-semibold text-muted-foreground uppercase">
               Attached File • {(orderItem.designFile.size / 1024).toFixed(1)} KB
             </p>
           </div>
@@ -134,16 +136,16 @@ export function OrderSummaryDetails({
       <div className="pt-6 border-t border-border/20">
         <div className="flex items-end justify-between">
           <div className="space-y-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-primary">
+            <span className="text-xs font-semibold uppercase tracking-wider text-primary">
               Order Total
             </span>
-            <p className="text-xs font-bold text-muted-foreground uppercase italic leading-none">
+            <p className="text-xs font-medium text-muted-foreground uppercase italic leading-none">
               VAT Inclusive (15%)
             </p>
           </div>
           <PriceDisplay
             amount={total !== undefined ? total : orderItem?.totalPrice || 0}
-            className="text-4xl font-bold text-primary tracking-tight drop-shadow-sm"
+            className="text-2xl font-semibold text-primary tracking-tight drop-shadow-sm"
           />
         </div>
       </div>

@@ -131,20 +131,20 @@ export default function OrderSummaryPage() {
   if (cart.length === 0) {
     return (
       <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-8">
-        <div className="h-32 w-32 bg-muted/20 rounded-[3rem] flex items-center justify-center text-muted-foreground/30 shadow-inner">
+        <div className="h-32 w-32 bg-muted/20 rounded-4xl flex items-center justify-center text-muted-foreground/30 shadow-inner">
           <Package size={64} />
         </div>
         <div className="space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight uppercase">
+          <h1 className="text-4xl font-semibold tracking-tight uppercase">
             Your Cart is Empty
           </h1>
-          <p className="text-muted-foreground font-bold">
+          <p className="text-muted-foreground font-semibold">
             Add some products to your cart before checking out.
           </p>
         </div>
         <Button
           asChild
-          className="h-14 px-8 rounded-2xl font-bold uppercase tracking-wider text-xs"
+          className="h-14 px-8 rounded-2xl font-semibold uppercase tracking-wider text-xs"
         >
           <Link href="/all-products">Browse Products</Link>
         </Button>
@@ -156,7 +156,7 @@ export default function OrderSummaryPage() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="font-bold text-muted-foreground animate-pulse uppercase tracking-widest text-xs">
+        <p className="font-semibold text-muted-foreground animate-pulse uppercase tracking-widest text-xs">
           Authenticating & Syncing Profile...
         </p>
       </div>
@@ -167,11 +167,11 @@ export default function OrderSummaryPage() {
     return (
       <div className="min-h-[80vh] bg-background relative overflow-hidden flex items-center justify-center py-20 px-4">
         <div className="max-w-md w-full text-center space-y-8 animate-in zoom-in-95 duration-500">
-          <div className="mx-auto h-24 w-24 bg-primary/10 rounded-[2rem] flex items-center justify-center text-primary mb-8 shadow-inner border border-primary/20">
+          <div className="mx-auto h-24 w-24 bg-primary/10 rounded-4xl flex items-center justify-center text-primary mb-8 shadow-inner border border-primary/20">
             <Lock size={40} />
           </div>
           <div className="space-y-3">
-            <h1 className="text-4xl font-bold tracking-tight uppercase">
+            <h1 className="text-4xl font-semibold tracking-tight uppercase">
               Authentication Required
             </h1>
             <p className="text-muted-foreground font-medium text-sm px-4 leading-relaxed">
@@ -182,7 +182,7 @@ export default function OrderSummaryPage() {
           <div className="pt-4 flex flex-col gap-4">
             <Button
               asChild
-              className="w-full h-14 btn-pana text-sm font-bold tracking-widest uppercase shadow-xl shadow-primary/20"
+              className="w-full h-14 btn-pana text-sm font-semibold tracking-widest uppercase shadow-xl shadow-primary/20"
             >
               <Link href={`/login?callbackUrl=/order-summary`}>
                 Login to Continue
@@ -191,7 +191,7 @@ export default function OrderSummaryPage() {
             <Button
               asChild
               variant="outline"
-              className="w-full h-14 rounded-2xl font-bold uppercase tracking-widest text-xs border-border/40 hover:bg-muted transition-all"
+              className="w-full h-14 rounded-2xl font-semibold uppercase tracking-widest text-xs border-border/40 hover:bg-muted transition-all"
             >
               <Link href={`/register?callbackUrl=/order-summary`}>
                 Create Account
@@ -214,7 +214,7 @@ export default function OrderSummaryPage() {
           <div className="space-y-4 px-1">
             <Link
               href="/cart"
-              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors group"
+              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors group"
             >
               <ArrowLeft
                 size={14}
@@ -222,7 +222,7 @@ export default function OrderSummaryPage() {
               />{" "}
               Back to Cart
             </Link>
-            <h1 className="text-5xl font-bold tracking-tight text-foreground uppercase">
+            <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground uppercase">
               Checkout
             </h1>
           </div>

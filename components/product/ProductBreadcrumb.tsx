@@ -11,7 +11,7 @@ interface ProductBreadcrumbProps {
 
 export function ProductBreadcrumb({ product }: ProductBreadcrumbProps) {
   return (
-    <nav className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground/60 mb-6 px-1 overflow-hidden whitespace-nowrap">
+    <nav className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 mb-6 px-1 overflow-hidden whitespace-nowrap">
       <Link
         href="/"
         className="hover:text-primary transition-colors flex items-center gap-1"
@@ -38,7 +38,7 @@ export function ProductBreadcrumb({ product }: ProductBreadcrumbProps) {
         </>
       )}
       <ChevronRight size={10} className="opacity-40" />
-      <span className="text-foreground/80 font-bold truncate">
+      <span className="text-foreground/80 font-semibold truncate">
         {product.name}
       </span>
     </nav>

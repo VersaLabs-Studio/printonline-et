@@ -174,10 +174,10 @@ function AllProductsContent() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-[400px] md:h-[500px] overflow-hidden bg-slate-950 flex items-center">
+      <section className="relative h-[300px] md:h-[400px] overflow-hidden bg-slate-50 flex items-center border-b border-border/40">
         {/* Animated Background Figures */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-50"></div>
           <motion.div
             animate={{
               scale: [1, 1.2, 1],
@@ -189,7 +189,7 @@ function AllProductsContent() {
               repeat: Infinity,
               ease: "linear",
             }}
-            className="absolute -top-[20%] -left-[10%] w-[50%] h-[70%] rounded-full bg-primary/20 blur-[120px]"
+            className="absolute -top-[20%] -left-[10%] w-[50%] h-[70%] rounded-full bg-primary/10 blur-[100px]"
           />
           <motion.div
             animate={{
@@ -202,78 +202,65 @@ function AllProductsContent() {
               repeat: Infinity,
               ease: "linear",
             }}
-            className="absolute top-[20%] -right-[10%] w-[40%] h-[60%] rounded-full bg-blue-500/20 blur-[120px]"
-          />
-          <motion.div
-            animate={{
-              scale: [1, 1.3, 1],
-              x: [0, 30, 0],
-              y: [0, -40, 0],
-            }}
-            transition={{
-              duration: 15,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-            className="absolute -bottom-[20%] left-[20%] w-[60%] h-[50%] rounded-full bg-purple-500/20 blur-[120px]"
+            className="absolute top-[20%] -right-[10%] w-[40%] h-[60%] rounded-full bg-blue-400/10 blur-[100px]"
           />
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.6 }}
           className="relative container mx-auto px-4 z-10"
         >
           <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-              className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/10 text-white/90 px-5 py-2 rounded-full mb-6 shadow-2xl"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-border/50 text-slate-600 px-4 py-1.5 rounded-full mb-6 shadow-sm"
             >
-              <Sparkles className="h-4 w-4 text-primary" />
-              <span className="text-sm font-bold tracking-wide">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              <span className="text-[10px] font-bold uppercase tracking-widest">
                 {totalProducts} Premium Products Available
               </span>
             </motion.div>
 
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-white/90 to-white/70 mb-6 tracking-tight"
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight"
             >
               Our Collection
             </motion.h1>
 
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-lg md:text-xl text-white/60 mb-10 max-w-2xl font-bold"
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="text-sm md:text-base text-slate-500 mb-8 max-w-xl font-medium leading-relaxed"
             >
-              Explore our complete range of premium printing solutions.{" "}
-              <br className="hidden md:block" /> All prices in Ethiopian Birr
-              (ETB).
+              Explore our complete range of premium printing solutions.
+              <br className="hidden md:block" /> Engineered for quality, scaled
+              for your business success.
             </motion.p>
 
             {/* Search Bar */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="relative w-full max-w-2xl group"
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="relative w-full max-w-xl group"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-2xl blur-xl transition-opacity opacity-0 group-hover:opacity-100 duration-500"></div>
+              <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-xl transition-opacity opacity-0 group-hover:opacity-100 duration-500"></div>
               <div className="relative flex items-center">
-                <Search className="absolute left-5 h-5 w-5 text-white/40 group-focus-within:text-primary transition-colors duration-300 pointer-events-none" />
+                <Search className="absolute left-5 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors duration-300 pointer-events-none" />
                 <input
                   type="text"
                   placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-14 pr-6 py-5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 text-lg transition-all duration-300 shadow-2xl"
+                  className="w-full pl-12 pr-6 py-4 bg-white border border-border/60 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-sm transition-all duration-300 shadow-sm"
                 />
               </div>
             </motion.div>

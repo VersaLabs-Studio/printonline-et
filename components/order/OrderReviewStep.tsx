@@ -7,7 +7,9 @@ import { TermsAndConditions } from "@/components/checkout/TermsAndConditions";
 import { TERMS_AND_CONDITIONS_CONTENT } from "@/content/terms";
 
 interface OrderReviewStepProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   profile: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   session: any;
   deliveryMethod: string;
   specialInstructions: string;
@@ -30,35 +32,35 @@ export function OrderReviewStep({
   const isHome = deliveryMethod === "home";
 
   return (
-    <div className="bg-card border border-border/50 rounded-2xl p-10 space-y-10 animate-in fade-in slide-in-from-right-4 duration-500 shadow-sm relative overflow-hidden">
+    <div className="bg-card border border-border/50 rounded-2xl p-8 space-y-8 animate-in fade-in slide-in-from-right-4 duration-500 shadow-sm relative overflow-hidden">
       <div className="space-y-1 relative z-10">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-primary">
+        <h3 className="text-[10px] font-semibold uppercase tracking-widest text-primary">
           Step 2 of 2
         </h3>
-        <h2 className="text-3xl font-bold tracking-tight uppercase flex items-center gap-3">
-          <FileText className="text-primary" size={28} /> Final Review
+        <h2 className="text-xl md:text-2xl font-semibold tracking-tight uppercase flex items-center gap-3">
+          <FileText className="text-primary" size={24} /> Final Review
         </h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
         <div className="space-y-4">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-60">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground opacity-60">
             Account Sync
           </h4>
           <div className="p-5 rounded-2xl bg-muted/10 border border-border/20 space-y-1 h-full">
-            <p className="text-sm font-bold text-foreground uppercase tracking-tight">
+            <p className="text-sm font-semibold text-foreground uppercase tracking-tight">
               {profile?.full_name || session?.user?.name}
             </p>
-            <p className="text-[11px] font-bold text-muted-foreground uppercase opacity-80 mt-1">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase opacity-80 mt-1">
               Email: {session?.user?.email}
             </p>
             {profile?.phone && (
-              <p className="text-[11px] font-bold text-muted-foreground uppercase opacity-80">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase opacity-80">
                 Contact: {profile?.phone}
               </p>
             )}
             {profile?.tin_number && (
-              <p className="text-[11px] font-bold text-primary uppercase opacity-60 mt-2">
+              <p className="text-[10px] font-semibold text-primary uppercase opacity-60 mt-2 tracking-wider">
                 TIN: {profile?.tin_number}
               </p>
             )}
@@ -66,31 +68,31 @@ export function OrderReviewStep({
         </div>
 
         <div className="space-y-4">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-60">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground opacity-60">
             Fulfillment Network
           </h4>
           <div className="p-5 rounded-2xl bg-muted/10 border border-border/20 space-y-2 h-full">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-sm">
+            <span className="text-[9px] font-semibold uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-sm">
               {isHome ? "Standard Delivery" : "Manual Collection"}
             </span>
             {isHome ? (
               <>
-                <p className="text-sm font-bold text-foreground tracking-tight mt-2 line-clamp-1">
+                <p className="text-sm font-semibold text-foreground tracking-tight mt-2 line-clamp-1">
                   {profile?.address_line1}
                 </p>
-                <p className="text-xs font-bold text-muted-foreground uppercase opacity-80">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase opacity-80">
                   {profile?.city}, {profile?.sub_city}
                 </p>
-                <p className="text-xs font-bold text-emerald-500 uppercase opacity-80">
+                <p className="text-[10px] font-semibold text-emerald-500 uppercase opacity-80 tracking-widest">
                   Free / Included
                 </p>
               </>
             ) : (
               <>
-                <p className="text-sm font-bold text-foreground tracking-tight mt-2">
+                <p className="text-sm font-semibold text-foreground tracking-tight mt-2">
                   PrintOnline HQ
                 </p>
-                <p className="text-xs font-bold text-muted-foreground uppercase opacity-80">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase opacity-80">
                   Ready for pickup after confirmation
                 </p>
               </>
@@ -101,11 +103,11 @@ export function OrderReviewStep({
 
       {specialInstructions && (
         <div className="space-y-4 relative z-10">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-60">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground opacity-60">
             Special Instructions Note
           </h4>
           <div className="p-5 rounded-2xl bg-muted/10 border border-border/20">
-            <p className="text-xs font-bold text-muted-foreground uppercase leading-relaxed text-center">
+            <p className="text-xs font-semibold text-muted-foreground uppercase leading-relaxed text-center">
               &quot;{specialInstructions}&quot;
             </p>
           </div>
@@ -113,7 +115,7 @@ export function OrderReviewStep({
       )}
 
       <div className="p-6 rounded-2xl bg-primary/5 border border-primary/10 relative z-10">
-        <p className="text-xs font-bold text-foreground uppercase leading-relaxed text-center">
+        <p className="text-xs font-semibold text-foreground uppercase leading-relaxed text-center">
           <strong className="text-primary tracking-wider block mb-1">
             Data Guarantee
           </strong>
@@ -142,7 +144,7 @@ export function OrderReviewStep({
         <Button
           onClick={() => onSubmit(termsAccepted)}
           disabled={isSubmitting || !termsAccepted}
-          className="flex-1 h-14 rounded-2xl font-bold uppercase tracking-wider text-sm shadow-sm hover:shadow-xl hover:shadow-primary/20 gap-4 group active:scale-95 transition-all overflow-hidden relative btn-pana"
+          className="flex-1 h-14 rounded-2xl font-semibold uppercase tracking-wider text-sm shadow-sm hover:shadow-xl hover:shadow-primary/20 gap-4 group active:scale-95 transition-all overflow-hidden relative btn-pana"
         >
           {isSubmitting ? (
             <div className="absolute inset-0 flex items-center justify-center gap-3">

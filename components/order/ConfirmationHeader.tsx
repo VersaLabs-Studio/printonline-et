@@ -18,21 +18,21 @@ export function ConfirmationHeader({ orderId }: ConfirmationHeaderProps) {
         <div className="absolute inset-0 bg-emerald-500/5 blur-2xl rounded-full animate-pulse" />
       </div>
 
-      <div className="space-y-2">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight uppercase text-foreground">
+      <div className="space-y-1">
+        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight uppercase text-foreground">
           Order Confirmed!
         </h1>
-        <p className="text-muted-foreground font-bold text-lg max-w-xl mx-auto">
+        <p className="text-muted-foreground font-medium text-sm max-w-lg mx-auto leading-relaxed">
           Your order has been placed successfully and is now being processed.
           We&apos;ll send you updates via email.
         </p>
       </div>
 
       <div className="inline-flex flex-col items-center gap-1 group">
-        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/40">
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/40">
           Order Number
         </span>
-        <span className="text-2xl font-bold tracking-tight text-primary group-hover:drop-shadow-sm transition-all">
+        <span className="text-2xl font-semibold tracking-tight text-primary group-hover:drop-shadow-sm transition-all">
           {orderId}
         </span>
       </div>

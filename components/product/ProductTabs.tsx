@@ -32,19 +32,19 @@ export function ProductTabs({ product }: ProductTabsProps) {
         <TabsList className="w-full h-14 bg-muted/20 p-1.5 rounded-2xl border border-border/40 mb-8 flex justify-start overflow-x-auto scrollbar-hide">
           <TabsTrigger
             value="overview"
-            className="rounded-xl font-bold uppercase tracking-wider text-xs gap-2 px-6 data-[state=active]:bg-background data-[state=active]:shadow-lg h-full"
+            className="rounded-xl font-semibold uppercase tracking-wider text-xs gap-2 px-6 data-[state=active]:bg-background data-[state=active]:shadow-lg h-full"
           >
             <Info size={14} /> Overview
           </TabsTrigger>
           <TabsTrigger
             value="specs"
-            className="rounded-xl font-bold uppercase tracking-wider text-xs gap-2 px-6 data-[state=active]:bg-background data-[state=active]:shadow-lg h-full"
+            className="rounded-xl font-semibold uppercase tracking-wider text-xs gap-2 px-6 data-[state=active]:bg-background data-[state=active]:shadow-lg h-full"
           >
             <Settings size={14} /> Specifications
           </TabsTrigger>
           <TabsTrigger
             value="delivery"
-            className="rounded-xl font-bold uppercase tracking-wider text-xs gap-2 px-6 data-[state=active]:bg-background data-[state=active]:shadow-lg h-full"
+            className="rounded-xl font-semibold uppercase tracking-wider text-xs gap-2 px-6 data-[state=active]:bg-background data-[state=active]:shadow-lg h-full"
           >
             <Truck size={14} /> Production & Delivery
           </TabsTrigger>
@@ -61,10 +61,10 @@ export function ProductTabs({ product }: ProductTabsProps) {
               className="space-y-8"
             >
               <div className="space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-primary">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-primary">
                   Product Description
                 </h3>
-                <p className="text-lg font-bold text-foreground/80 leading-relaxed max-w-3xl">
+                <p className="text-lg font-semibold text-foreground/80 leading-relaxed max-w-3xl">
                   {product.description ||
                     "Unlocking new possibilities in professional printing. This solution is engineered for high-impact results and long-lasting durability."}
                 </p>
@@ -81,7 +81,7 @@ export function ProductTabs({ product }: ProductTabsProps) {
                         size={18}
                         className="text-primary shrink-0 mt-0.5"
                       />
-                      <span className="text-sm font-bold text-foreground/80">
+                      <span className="text-sm font-semibold text-foreground/80">
                         {String(feature)}
                       </span>
                     </div>
@@ -97,7 +97,7 @@ export function ProductTabs({ product }: ProductTabsProps) {
               animate={{ opacity: 1, y: 0 }}
               className="space-y-6"
             >
-              <h3 className="text-xs font-bold uppercase tracking-wider text-primary">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-primary">
                 Specifications
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
@@ -117,17 +117,17 @@ export function ProductTabs({ product }: ProductTabsProps) {
                         key={idx}
                         className="flex items-center justify-between py-3 border-b border-border/40 group hover:border-primary/40 transition-colors"
                       >
-                        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground group-hover:text-primary transition-colors">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground group-hover:text-primary transition-colors">
                           {key}
                         </span>
-                        <span className="text-sm font-bold text-foreground">
+                        <span className="text-sm font-semibold text-foreground">
                           {String(displayValue)}
                         </span>
                       </div>
                     );
                   })
                 ) : (
-                  <div className="col-span-2 py-12 text-center text-muted-foreground italic font-bold">
+                  <div className="col-span-2 py-12 text-center text-muted-foreground italic font-semibold">
                     Standard specifications apply. Detailed technical sheet
                     available upon request.
                   </div>
@@ -185,11 +185,11 @@ function DeliveryCard({
         <Icon size={24} />
       </div>
       <div className="space-y-2">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           {title}
         </h4>
-        <p className="text-xl font-bold tracking-tight">{value}</p>
-        <p className="text-xs font-bold text-muted-foreground leading-relaxed italic">
+        <p className="text-xl font-semibold tracking-tight">{value}</p>
+        <p className="text-xs font-semibold text-muted-foreground leading-relaxed italic">
           {desc}
         </p>
       </div>

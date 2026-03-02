@@ -18,7 +18,7 @@ export function ProductGallery({ product }: ProductGalleryProps) {
   if (images.length === 0) {
     return (
       <div className="aspect-square w-full rounded-2xl bg-muted/30 border border-border/40 flex items-center justify-center">
-        <span className="text-muted-foreground font-bold uppercase tracking-wider text-xs">
+        <span className="text-muted-foreground font-semibold uppercase tracking-wider text-xs">
           No Asset Bound
         </span>
       </div>
@@ -51,7 +51,7 @@ export function ProductGallery({ product }: ProductGalleryProps) {
         </AnimatePresence>
 
         {product.badge && (
-          <Badge className="absolute top-6 left-6 bg-primary text-primary-foreground font-bold uppercase tracking-wider text-xs h-7 px-4 shadow-xl border-none">
+          <Badge className="absolute top-6 left-6 bg-primary text-primary-foreground font-semibold uppercase tracking-wider text-xs h-7 px-4 shadow-xl border-none">
             {product.badge}
           </Badge>
         )}

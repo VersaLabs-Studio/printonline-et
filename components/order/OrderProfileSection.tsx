@@ -18,8 +18,8 @@ import { toast } from "sonner";
 import Link from "next/link";
 
 interface OrderProfileSectionProps {
-  profile: any;
-  session: any;
+  profile: Record<string, any> | null;
+  session: Record<string, any> | null;
   deliveryMethod: string;
   setDeliveryMethod: (val: string) => void;
   specialInstructions: string;
@@ -37,26 +37,26 @@ export function OrderProfileSection({
   onNext,
 }: OrderProfileSectionProps) {
   return (
-    <div className="bg-card border border-border/50 rounded-2xl p-10 space-y-10 animate-in fade-in slide-in-from-left-4 duration-500 shadow-sm relative overflow-hidden">
+    <div className="bg-card border border-border/50 rounded-2xl p-8 space-y-8 animate-in fade-in slide-in-from-left-4 duration-500 shadow-sm relative overflow-hidden">
       <div className="space-y-1 relative z-10">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-primary">
+        <h3 className="text-[10px] font-semibold uppercase tracking-widest text-primary">
           Step 1 of 2
         </h3>
-        <h2 className="text-3xl font-bold tracking-tight uppercase flex items-center gap-3">
-          <ShieldCheck className="text-primary" size={28} /> Account & Delivery
+        <h2 className="text-xl md:text-2xl font-semibold tracking-tight uppercase flex items-center gap-3">
+          <ShieldCheck className="text-primary" size={24} /> Account & Delivery
         </h2>
       </div>
 
       <div className="space-y-6 relative z-10">
         <div className="flex items-center justify-between pb-2">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-60 flex items-center gap-2">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground opacity-60 flex items-center gap-2">
             <User size={14} /> Contact Details (Synced)
           </h4>
           <Button
             asChild
             variant="ghost"
             size="sm"
-            className="h-8 text-[10px] font-bold uppercase tracking-widest text-primary hover:bg-primary/5"
+            className="h-8 text-[10px] font-semibold uppercase tracking-widest text-primary hover:bg-primary/5"
           >
             <Link href="/account">
               <Pencil size={12} className="mr-1.5" /> Edit Profile
@@ -66,32 +66,34 @@ export function OrderProfileSection({
 
         <div className="p-6 rounded-2xl bg-muted/5 border border-border/40 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <p className="text-xs font-bold text-muted-foreground uppercase opacity-50">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase opacity-50 tracking-wider">
               Full Name
             </p>
-            <p className="font-bold tracking-tight">
+            <p className="text-sm font-semibold tracking-tight">
               {profile?.full_name || session?.user?.name}
             </p>
           </div>
           <div className="space-y-1">
-            <p className="text-xs font-bold text-muted-foreground uppercase opacity-50">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase opacity-50 tracking-wider">
               Email Address
             </p>
-            <p className="font-bold tracking-tight">{session?.user?.email}</p>
+            <p className="text-sm font-semibold tracking-tight">
+              {session?.user?.email}
+            </p>
           </div>
           <div className="space-y-1">
-            <p className="text-xs font-bold text-muted-foreground uppercase opacity-50">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase opacity-50 tracking-wider">
               Phone Number
             </p>
-            <p className="font-bold tracking-tight">
+            <p className="text-sm font-semibold tracking-tight">
               {profile?.phone || "Not provided"}
             </p>
           </div>
           <div className="space-y-1">
-            <p className="text-xs font-bold text-muted-foreground uppercase opacity-50">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase opacity-50 tracking-wider">
               TIN Number
             </p>
-            <p className="font-bold tracking-tight">
+            <p className="text-sm font-semibold tracking-tight">
               {profile?.tin_number || "Not provided"}
             </p>
           </div>
@@ -99,7 +101,7 @@ export function OrderProfileSection({
       </div>
 
       <div className="space-y-4 pt-4 border-t border-border/40 relative z-10">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground opacity-60 flex items-center gap-2 mb-2">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground opacity-60 flex items-center gap-2 mb-2">
           <Truck size={14} /> Delivery Preferences
         </h4>
 
@@ -116,7 +118,7 @@ export function OrderProfileSection({
             >
               <div className="flex items-center gap-2 pb-2">
                 <Truck className="text-emerald-500" size={18} />
-                <span className="font-bold tracking-tight uppercase">
+                <span className="font-semibold tracking-tight uppercase">
                   Home Delivery
                 </span>
               </div>
@@ -125,7 +127,7 @@ export function OrderProfileSection({
                   ? profile.address_line1
                   : "No address set. Click 'Edit Profile' to add shipping details."}
               </p>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground opacity-60 mt-auto pt-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground opacity-60 mt-auto pt-2">
                 {profile?.city
                   ? `${profile.city}, ${profile.sub_city || ""}`
                   : ""}
@@ -144,14 +146,14 @@ export function OrderProfileSection({
             >
               <div className="flex items-center gap-2 pb-2">
                 <Store className="text-amber-500" size={18} />
-                <span className="font-bold tracking-tight uppercase">
+                <span className="font-semibold tracking-tight uppercase">
                   Manual Collection
                 </span>
               </div>
               <p className="text-xs font-medium text-muted-foreground leading-relaxed">
                 Pickup from our local studio directly when your order is ready.
               </p>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground opacity-60 mt-auto pt-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground opacity-60 mt-auto pt-2">
                 PrintOnline HQ, Addis Ababa
               </p>
             </Label>
@@ -160,13 +162,13 @@ export function OrderProfileSection({
       </div>
 
       <div className="space-y-3 pt-4 border-t border-border/40 relative z-10">
-        <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
+        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground ml-1">
           Special Instructions
         </Label>
         <Textarea
           value={specialInstructions}
           onChange={(e) => setSpecialInstructions(e.target.value)}
-          className="min-h-[80px] rounded-2xl bg-muted/5 border-border/40 font-bold resize-none p-4"
+          className="min-h-[80px] rounded-2xl bg-muted/5 border-border/40 font-medium resize-none p-4"
           placeholder="Any special requirements for production or delivery..."
         />
       </div>

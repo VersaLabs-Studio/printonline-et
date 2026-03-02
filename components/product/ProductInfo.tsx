@@ -48,7 +48,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
           <Badge
             variant="outline"
             className={cn(
-              "h-6 rounded-lg text-xs font-bold uppercase tracking-wider gap-1.5 px-3 border-2 shadow-sm",
+              "h-6 rounded-lg text-xs font-semibold uppercase tracking-wider gap-1.5 px-3 border-2 shadow-sm",
               status.class,
             )}
           >
@@ -56,27 +56,27 @@ export function ProductInfo({ product }: ProductInfoProps) {
             {status.label}
           </Badge>
           {product.category && (
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider opacity-40">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider opacity-40">
               {product.category.name}
             </span>
           )}
         </div>
-        <h1 className="text-4xl md:text-5xl font-extrabold text-foreground leading-tight">
+        <h1 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight leading-tight">
           {product.name}
         </h1>
       </div>
 
       <div className="flex items-baseline gap-3">
-        <span className="text-3xl font-bold text-primary tracking-tight">
+        <span className="text-xl md:text-2xl font-semibold text-primary tracking-tight">
           <PriceDisplay amount={product.base_price} />
         </span>
-        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider leading-none">
+        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest leading-none opacity-60">
           Starting Unit Price
         </span>
       </div>
 
       {product.short_description && (
-        <p className="text-sm font-bold text-muted-foreground leading-relaxed max-w-xl">
+        <p className="text-sm font-medium text-muted-foreground leading-relaxed max-w-xl">
           {product.short_description}
         </p>
       )}

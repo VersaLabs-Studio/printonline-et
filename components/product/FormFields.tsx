@@ -25,7 +25,7 @@ export function SelectField({
 
   return (
     <div className="space-y-1">
-      <label className="block text-xs font-bold text-foreground">
+      <label className="block text-xs font-light text-foreground">
         {field.label}
         {field.required && <span className="text-red-500 ml-0.5">*</span>}
       </label>

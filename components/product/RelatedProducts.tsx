@@ -41,16 +41,16 @@ export function RelatedProducts({ currentProduct }: RelatedProductsProps) {
     <div className="space-y-10 py-12 border-t border-border/40">
       <div className="flex items-end justify-between px-2">
         <div className="space-y-2">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-primary">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-primary">
             Explore More
           </h3>
-          <h2 className="text-3xl font-bold tracking-tight">
+          <h2 className="text-3xl font-semibold tracking-tight">
             You might also like
           </h2>
         </div>
         <Link
           href="/all-products"
-          className="group flex items-center gap-2 text-xs font-bold uppercase tracking-wider hover:text-primary transition-colors pb-1"
+          className="group flex items-center gap-2 text-xs font-semibold uppercase tracking-wider hover:text-primary transition-colors pb-1"
         >
           View Full Catalog
           <ArrowRight

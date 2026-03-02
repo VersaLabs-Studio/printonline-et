@@ -39,7 +39,10 @@ export default function Header() {
   const { data: categories } = useCategories();
 
   useEffect(() => {
-    setMounted(true);
+    // Avoid setting state synchronously; instead delay setting the mounted state slightly
+    // or just let hydration handle it if we only need it to render client-specific UI.
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const isLoggedIn = !!session?.user;
@@ -167,12 +170,12 @@ export default function Header() {
           <SearchBar />
 
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-2 mb-2">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground ml-2 mb-2">
               Navigation
             </span>
             <Link
               href="/"
-              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted text-sm font-bold uppercase tracking-wider text-foreground hover:text-primary transition-all"
+              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted text-sm font-semibold uppercase tracking-wider text-foreground hover:text-primary transition-all"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
@@ -182,7 +185,7 @@ export default function Header() {
             </Link>
             <Link
               href="/all-products"
-              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted text-sm font-bold uppercase tracking-wider text-foreground hover:text-primary transition-all"
+              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted text-sm font-semibold uppercase tracking-wider text-foreground hover:text-primary transition-all"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
@@ -193,7 +196,7 @@ export default function Header() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-2 mb-2">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground ml-2 mb-2">
               Categories
             </span>
             <div className="grid grid-cols-1 gap-1">
@@ -203,7 +206,7 @@ export default function Header() {
                   <Link
                     key={category.id}
                     href={`/categories/${category.slug}`}
-                    className="flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted text-sm font-bold uppercase tracking-wider text-foreground hover:text-primary group transition-all"
+                    className="flex items-center justify-between px-3 py-3 rounded-xl hover:bg-muted text-sm font-semibold uppercase tracking-wider text-foreground hover:text-primary group transition-all"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <div className="flex items-center gap-3">
@@ -221,7 +224,7 @@ export default function Header() {
 
           {/* Account Links */}
           <div className="flex flex-col gap-2 pt-4 border-t border-border/20">
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ml-2 mb-2">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground ml-2 mb-2">
               Account
             </span>
             {isLoggedIn ? (
@@ -229,14 +232,14 @@ export default function Header() {
                 <Link
                   href="/account"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="px-2 py-1 text-sm font-bold uppercase tracking-wider text-foreground hover:text-primary"
+                  className="px-2 py-1 text-sm font-semibold uppercase tracking-wider text-foreground hover:text-primary"
                 >
                   My Account
                 </Link>
                 <Link
                   href="/account/orders"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted text-sm font-bold uppercase tracking-wider text-foreground hover:text-primary transition-all"
+                  className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted text-sm font-semibold uppercase tracking-wider text-foreground hover:text-primary transition-all"
                 >
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
                     <Package size={18} />
@@ -248,7 +251,7 @@ export default function Header() {
                     signOut();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="px-2 py-1 text-sm font-bold uppercase tracking-wider text-destructive hover:text-destructive/80 text-left"
+                  className="px-2 py-1 text-sm font-semibold uppercase tracking-wider text-destructive hover:text-destructive/80 text-left"
                 >
                   Sign Out
                 </button>
@@ -258,14 +261,14 @@ export default function Header() {
                 <Link
                   href="/login"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="px-2 py-1 text-sm font-bold uppercase tracking-wider text-foreground hover:text-primary"
+                  className="px-2 py-1 text-sm font-semibold uppercase tracking-wider text-foreground hover:text-primary"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="px-2 py-1 text-sm font-bold uppercase tracking-wider text-foreground hover:text-primary"
+                  className="px-2 py-1 text-sm font-semibold uppercase tracking-wider text-foreground hover:text-primary"
                 >
                   Create Account
                 </Link>
@@ -274,7 +277,7 @@ export default function Header() {
           </div>
 
           <div className="mt-auto pb-12 flex flex-col gap-4">
-            <p className="text-center text-[10px] text-muted-foreground font-bold uppercase tracking-widest opacity-40">
+            <p className="text-center text-[10px] text-muted-foreground font-medium uppercase tracking-widest opacity-40">
               Professional Print Solutions • Addis Ababa
             </p>
           </div>
