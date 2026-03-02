@@ -3,6 +3,7 @@
 // Custom fields: phone, tin_number, company_name (Ethiopian e-commerce profile data)
 
 import { betterAuth } from "better-auth";
+import { nextCookies } from "better-auth/next-js";
 import { Pool } from "pg";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -14,6 +15,7 @@ const pool = new Pool({
 
 export const auth = betterAuth({
   database: pool,
+  plugins: [nextCookies()],
 
   // ── Base URL ──────────────────────────────────────────────────
   baseURL: process.env.BETTER_AUTH_URL,

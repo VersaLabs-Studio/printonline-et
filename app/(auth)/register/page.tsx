@@ -4,7 +4,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signUpSchema, type SignUpInput } from "@/lib/validations";
@@ -35,8 +36,10 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
-export default function RegisterPage() {
+function RegisterFormContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("redirect");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -74,7 +77,10 @@ export default function RegisterPage() {
         );
       } else {
         toast.success("Account created successfully! Please log in.");
-        router.push("/login?registered=true");
+        const redirectUrl = callbackUrl
+          ? `&redirect=${encodeURIComponent(callbackUrl)}`
+          : "";
+        router.push(`/login?registered=true${redirectUrl}`);
       }
     } catch (err) {
       toast.error("An unexpected error occurred. Please try again later.");
@@ -268,7 +274,11 @@ export default function RegisterPage() {
             Already have an account?
           </span>
           <Link
-            href="/login"
+            href={
+              callbackUrl
+                ? `/login?redirect=${encodeURIComponent(callbackUrl)}`
+                : "/login"
+            }
             className="text-sm font-semibold text-primary hover:underline hover:text-primary/80 transition-colors"
           >
             Sign in
@@ -288,5 +298,19 @@ export default function RegisterPage() {
         .
       </div>
     </motion.div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      }
+    >
+      <RegisterFormContent />
+    </Suspense>
   );
 }

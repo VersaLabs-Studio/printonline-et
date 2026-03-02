@@ -183,7 +183,11 @@ function LoginFormContent() {
             Don&apos;t have an account?
           </span>
           <Link
-            href="/register"
+            href={
+              callbackUrl && callbackUrl !== "/"
+                ? `/register?redirect=${encodeURIComponent(callbackUrl)}`
+                : "/register"
+            }
             className="text-sm font-semibold text-primary hover:underline hover:text-primary/80 transition-colors"
           >
             Create an account

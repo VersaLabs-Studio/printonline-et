@@ -1,18 +1,12 @@
 // app/layout.tsx
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./globals.css";
 import LayoutClient from "./LayoutClient";
 
-const inter = Inter({
+const outfit = Outfit({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-jakarta",
+  variable: "--font-outfit",
   display: "swap",
 });
 
@@ -32,11 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${inter.variable} ${jakarta.variable}`}
-    >
+    <html lang="en" suppressHydrationWarning className={`${outfit.variable}`}>
       <body className="font-sans antialiased text-foreground selection:bg-primary/30">
         <LayoutClient>{children}</LayoutClient>
       </body>
