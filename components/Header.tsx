@@ -107,7 +107,7 @@ export default function Header() {
                         asChild
                         className="cursor-pointer font-semibold"
                       >
-                        <Link href="/account/orders">My Orders</Link>
+                        <Link href="/account">My Orders</Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
@@ -237,7 +237,7 @@ export default function Header() {
                   My Account
                 </Link>
                 <Link
-                  href="/account/orders"
+                  href="/account"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted text-sm font-semibold uppercase tracking-wider text-foreground hover:text-primary transition-all"
                 >

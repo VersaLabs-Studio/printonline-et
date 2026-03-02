@@ -45,29 +45,29 @@ export default function AccountLayout({
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <div className="container mx-auto px-4 py-10">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Sidebar */}
-          <aside className="w-full md:w-64 lg:w-72 space-y-6">
-            <div className="bg-card rounded-2xl border border-border/50 shadow-sm p-6 overflow-hidden relative">
+    <div className="min-h-screen bg-muted/30 pb-20 md:pb-10">
+      <div className="container mx-auto px-4 py-6 md:py-10">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar - Desktop / Top Nav - Mobile */}
+          <aside className="w-full lg:w-72 space-y-4 md:space-y-6">
+            <div className="bg-card rounded-2xl border border-border/50 shadow-sm p-4 md:p-6 overflow-hidden relative">
               <div className="absolute top-0 left-0 w-full h-1 bg-primary" />
 
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-                  <User size={24} />
+              <div className="flex items-center gap-3 mb-4 md:mb-6">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0">
+                  <User size={20} className="md:w-6 md:h-6" />
                 </div>
                 <div className="flex flex-col overflow-hidden">
-                  <span className="font-bold text-foreground truncate">
+                  <span className="font-bold text-foreground text-sm md:text-base truncate">
                     {isPending ? "Loading..." : session?.user?.name || "User"}
                   </span>
-                  <span className="text-xs text-muted-foreground truncate">
+                  <span className="text-[10px] md:text-xs text-muted-foreground truncate opacity-70">
                     {session?.user?.email}
                   </span>
                 </div>
               </div>
 
-              <nav className="space-y-1">
+              <nav className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 scrollbar-hide -mx-1 px-1">
                 {navItems.map((item) => {
                   const isActive = pathname === item.href;
                   return (
@@ -75,7 +75,7 @@ export default function AccountLayout({
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "flex items-center justify-between group px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200",
+                        "flex items-center justify-between group px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-bold transition-all duration-200 whitespace-nowrap lg:whitespace-normal shrink-0 lg:shrink",
                         isActive
                           ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
                           : "text-muted-foreground hover:bg-secondary hover:text-foreground",
@@ -95,7 +95,7 @@ export default function AccountLayout({
                       <ChevronRight
                         size={14}
                         className={cn(
-                          "transition-transform duration-200",
+                          "hidden lg:block transition-transform duration-200",
                           isActive
                             ? "opacity-100 translate-x-0"
                             : "opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0",
@@ -105,10 +105,10 @@ export default function AccountLayout({
                   );
                 })}
 
-                <div className="pt-4 mt-4 border-t border-border/50">
+                <div className="lg:pt-4 lg:mt-4 lg:border-t lg:border-border/50 shrink-0 lg:shrink flex lg:block">
                   <button
                     onClick={handleSignOut}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-destructive hover:bg-destructive/10 transition-all duration-200"
+                    className="flex items-center gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-bold text-destructive hover:bg-destructive/10 transition-all duration-200 whitespace-nowrap"
                   >
                     <LogOut size={18} />
                     <span>Sign Out</span>
@@ -117,17 +117,17 @@ export default function AccountLayout({
               </nav>
             </div>
 
-            {/* Quick Support / Promotion Card */}
-            <div className="bg- Pana gradient bg- pana-gradient p-6 rounded-2xl text-primary-foreground overflow-hidden relative group">
+            {/* Quick Support - Hidden on small mobile, show on medium+ */}
+            <div className="hidden md:block bg-pana-gradient p-6 rounded-2xl text-primary-foreground overflow-hidden relative group shadow-lg shadow-primary/10">
               <div className="relative z-10">
                 <h3 className="font-bold mb-1">Need Help?</h3>
-                <p className="text-xs opacity-90 mb-4 leading-relaxed">
+                <p className="text-xs opacity-90 mb-4 leading-relaxed line-clamp-2">
                   Our support team is ready to help you with your printing
                   needs.
                 </p>
                 <Link
                   href="/contact"
-                  className="text-xs font-bold bg-white text-black px-4 py-2 rounded-full inline-block hover:bg-opacity-90 transition-colors"
+                  className="text-[10px] font-bold bg-white text-black px-4 py-2 rounded-full inline-block hover:bg-primary transition-all hover:text-white"
                 >
                   Contact Us
                 </Link>
