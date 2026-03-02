@@ -80,7 +80,6 @@ export async function proxy(request: NextRequest) {
 // Only run on routes that need auth checks.
 // Excludes static files, images, and API routes (except auth).
 export const config = {
-  runtime: "nodejs",
   matcher: [
     "/account/:path*",
     "/checkout/:path*",
