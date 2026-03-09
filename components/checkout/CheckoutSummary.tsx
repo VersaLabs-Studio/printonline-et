@@ -45,7 +45,7 @@ export function CheckoutSummary({
                   {item.name}
                 </p>
                 <p className="text-xs font-bold text-muted-foreground uppercase opacity-60">
-                  {item.quantity} Unit{item.quantity > 1 ? "s" : ""} •{" "}
+                  {item.quantity} Pc{item.quantity > 1 ? "s" : ""} •{" "}
                   <PriceDisplay amount={item.unitPrice} />
                 </p>
                 <p className="text-xs font-bold text-primary truncate mt-1">

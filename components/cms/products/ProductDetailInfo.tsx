@@ -88,7 +88,7 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
           </InfoStat>
           <InfoStat label="Min Order">
             <div className="text-xs font-bold">
-              {product.min_order_quantity} Units
+              {product.min_order_quantity} Pcs
             </div>
           </InfoStat>
         </div>

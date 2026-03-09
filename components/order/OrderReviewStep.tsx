@@ -114,16 +114,6 @@ export function OrderReviewStep({
         </div>
       )}
 
-      <div className="p-6 rounded-2xl bg-primary/5 border border-primary/10 relative z-10">
-        <p className="text-xs font-semibold text-foreground uppercase leading-relaxed text-center">
-          <strong className="text-primary tracking-wider block mb-1">
-            Data Guarantee
-          </strong>
-          Orders are logged against your active account infrastructure. We will
-          begin processing once billing info is finalized over phone routing.
-        </p>
-      </div>
-
       <div className="relative z-10">
         <TermsAndConditions
           content={TERMS_AND_CONDITIONS_CONTENT}

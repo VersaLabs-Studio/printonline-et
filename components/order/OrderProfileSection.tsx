@@ -119,7 +119,7 @@ export function OrderProfileSection({
               <div className="flex items-center gap-2 pb-2">
                 <Truck className="text-emerald-500" size={18} />
                 <span className="font-semibold tracking-tight uppercase">
-                  Home Delivery
+                  Deliver to my address
                 </span>
               </div>
               <p className="text-xs font-medium text-muted-foreground leading-relaxed line-clamp-2">
@@ -147,14 +147,15 @@ export function OrderProfileSection({
               <div className="flex items-center gap-2 pb-2">
                 <Store className="text-amber-500" size={18} />
                 <span className="font-semibold tracking-tight uppercase">
-                  Manual Collection
+                  Office Pickup
                 </span>
               </div>
               <p className="text-xs font-medium text-muted-foreground leading-relaxed">
-                Pickup from our local studio directly when your order is ready.
+                Pick up from our printing workshop when your order is ready
               </p>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground opacity-60 mt-auto pt-2">
-                PrintOnline HQ, Addis Ababa
+                Pana Promotion PLC, Addis Ababa, Bole Sub City, Woreda 03,
+                Wakero Building, Call +251911005255 for directions
               </p>
             </Label>
           </div>

@@ -291,7 +291,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
         <div className="space-y-2.5">
           <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
             <span className="w-1 h-1 rounded-full bg-primary" />
-            Quantity Volume
+            Quantity
           </label>
           <Select
             value={quantity.toString()}
@@ -307,20 +307,11 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
                   value={num.toString()}
                   className="font-bold py-2.5 rounded-lg"
                 >
-                  {num} {num === 1 ? "Unit" : "Units"}
+                  {num} {num === 1 ? "Pc" : "Pcs"}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-
-          <div className="pt-2 px-1 flex justify-between items-center opacity-60">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-              Scaling
-            </span>
-            <span className="text-[10px] font-bold text-primary">
-              Unit: ETB {unitPrice.toLocaleString()} / ea
-            </span>
-          </div>
         </div>
       </div>
 
