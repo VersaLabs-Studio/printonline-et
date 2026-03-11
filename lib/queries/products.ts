@@ -70,6 +70,9 @@ export async function getProductBySlug(
           group_name, description, display_order,
           is_default, is_active, metadata
         )
+      ),
+      pricing_matrix:product_pricing_matrix(
+        id, product_id, matrix_key, matrix_label, price, is_active
       )
     `,
     )
