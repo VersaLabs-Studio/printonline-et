@@ -107,10 +107,10 @@ export const profileUpdateSchema = z.object({
     .max(200, "Company name must be less than 200 characters")
     .optional()
     .or(z.literal("")),
-  addressLine1: z.string().max(255).optional().or(z.literal("")),
+  addressLine1: z.string().min(5, "Address Line 1 is required").max(255).trim(),
   addressLine2: z.string().max(255).optional().or(z.literal("")),
-  city: z.string().max(100).optional().default("Addis Ababa"),
-  subCity: z.string().max(100).optional().or(z.literal("")),
+  city: z.string().min(2, "City is required").max(100).default("Addis Ababa"),
+  subCity: z.string().min(2, "Sub-City is required").max(100).trim(),
   woreda: z.string().max(50).optional().or(z.literal("")),
 });
 

@@ -17,7 +17,7 @@ interface PriceDisplayProps {
   /** The price amount in ETB */
   amount: number;
   /** Display variant */
-  variant?: "default" | "compact" | "from" | "range" | "per-unit";
+  variant?: "default" | "compact" | "from" | "range" | "per-unit" | "free";
   /** Max amount for range variant */
   maxAmount?: number;
   /** Unit label for per-unit variant (e.g., "card", "piece") */
@@ -62,8 +62,12 @@ export function PriceDisplay({
     case "per-unit":
       formattedPrice = formatETBPerUnit(amount, unit);
       break;
+    case "free":
+      formattedPrice = amount === 0 ? "Free" : formatETB(amount);
+      break;
     default:
-      formattedPrice = formatETB(amount);
+      formattedPrice =
+        amount === 0 && variant === "default" ? "Free" : formatETB(amount);
   }
 
   return (

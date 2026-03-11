@@ -1,46 +1,93 @@
 "use client";
 
 import React from "react";
-import { CheckCircle2, Search, Truck, Layers } from "lucide-react";
+import {
+  CheckCircle2,
+  Truck,
+  Printer,
+  PackageCheck,
+  FileSearch,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface OrderStatusTrackerProps {
   date: string;
+  status: string;
 }
 
-export function OrderStatusTracker({ date }: OrderStatusTrackerProps) {
+export function OrderStatusTracker({
+  date,
+  status = "pending",
+}: OrderStatusTrackerProps) {
+  const s = status.toLowerCase();
+
+  const getStepStatus = (stepIdx: number) => {
+    // Current mapping to 5 milestones
+    const statusMap: Record<string, number> = {
+      pending: 0,
+      confirmed: 0,
+      design_review: 1,
+      on_hold: 1,
+      approved: 2,
+      printing: 3,
+      ready: 4,
+      out_for_delivery: 4,
+      delivered: 5, // All steps completed
+      cancelled: -1,
+    };
+
+    const currentStepIdx = statusMap[s] ?? 0;
+
+    if (s === "cancelled") return { active: false, completed: false };
+    if (currentStepIdx > stepIdx) return { active: true, completed: true };
+    if (currentStepIdx === stepIdx) return { active: true, completed: false };
+    return { active: false, completed: false };
+  };
+
   const steps = [
     {
-      label: "Confirmed",
-      desc: "Order Received",
-      date,
+      label: "Received",
+      desc: s === "pending" ? "Pending Receipt" : "Order Confirmed",
+      date: s === "pending" || s === "confirmed" ? date : "Completed",
       icon: CheckCircle2,
-      active: true,
-      completed: true,
+      ...getStepStatus(0),
     },
     {
-      label: "Processing",
-      desc: "Under Review",
-      date: "In Progress",
-      icon: Search,
-      active: true,
-      completed: false,
+      label: "Review",
+      desc: s === "on_hold" ? "On Hold" : "Design Review",
+      date:
+        s === "design_review" || s === "on_hold" ? "In Progress" : "Pending",
+      icon: FileSearch,
+      ...getStepStatus(1),
     },
     {
-      label: "In Production",
-      desc: "Being Produced",
-      date: "Pending",
-      icon: Layers,
-      active: false,
-      completed: false,
+      label: "Approved",
+      desc: "Ready for Print",
+      date: s === "approved" ? "Scheduled" : "Pending",
+      icon: PackageCheck,
+      ...getStepStatus(2),
     },
     {
-      label: "Delivery",
-      desc: "Out for Delivery",
-      date: "Pending",
+      label: "Production",
+      desc: "Printing Now",
+      date: s === "printing" ? "In Progress" : "Pending",
+      icon: Printer,
+      ...getStepStatus(3),
+    },
+    {
+      label: "Fulfillment",
+      desc:
+        s === "delivered"
+          ? "Delivered"
+          : s === "out_for_delivery"
+            ? "Out for Delivery"
+            : "Ready for Pickup",
+      date:
+        s === "ready" || s === "out_for_delivery" || s === "delivered"
+          ? "Active"
+          : "Pending",
       icon: Truck,
-      active: false,
-      completed: false,
+      ...getStepStatus(4),
     },
   ];
 
@@ -50,7 +97,7 @@ export function OrderStatusTracker({ date }: OrderStatusTrackerProps) {
         Order Status
       </h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
         {steps.map((step, idx) => (
           <div
             key={idx}

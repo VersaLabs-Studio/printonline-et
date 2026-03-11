@@ -49,7 +49,7 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
         >
           {/* Product Image */}
           <div
-            className={`relative ${viewMode === "list" ? "w-64 h-64" : "h-64"} overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/20`}
+            className={`relative ${viewMode === "list" ? "w-64 h-64" : "h-64"} overflow-hidden bg-linear-to-br from-primary/10 to-secondary/20`}
           >
             <motion.div
               whileHover={{ scale: 1.1 }}
@@ -62,15 +62,31 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
                 fill
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </motion.div>
 
             {/* Badge */}
-            {product.badge && (
-              <div className="absolute top-4 left-4 z-10">
-                <span className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                  {product.badge}
-                </span>
+            {(product.badge || product.stock_status === "out_of_stock") && (
+              <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+                {product.stock_status === "out_of_stock" && (
+                  <span className="bg-destructive text-destructive-foreground text-[10px] font-bold px-3 py-1 rounded-full shadow-lg uppercase tracking-wider">
+                    Out of Stock
+                  </span>
+                )}
+                {product.badge && product.stock_status !== "out_of_stock" && (
+                  <span className="bg-primary text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-full shadow-lg uppercase tracking-wider">
+                    {product.badge}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Out of Stock Overlay */}
+            {product.stock_status === "out_of_stock" && (
+              <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] z-10 flex items-center justify-center">
+                <div className="px-6 py-3 border-2 border-destructive/50 rounded-2xl bg-destructive/5 text-destructive font-black uppercase tracking-[0.2em] text-xs rotate-12 shadow-2xl">
+                  Unavailable
+                </div>
               </div>
             )}
 
@@ -119,15 +135,21 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
               <div className="flex items-center">
                 <div
                   className={`w-2 h-2 rounded-full mr-2 ${
-                    product.in_stock ? "bg-green-500" : "bg-red-500"
+                    product.stock_status !== "out_of_stock"
+                      ? "bg-green-500"
+                      : "bg-destructive shadow-[0_0_8px_rgba(239,68,68,0.5)] animate-pulse"
                   }`}
                 ></div>
                 <span
-                  className={`text-sm ${
-                    product.in_stock ? "text-green-600" : "text-red-500"
+                  className={`text-xs font-bold uppercase tracking-tight ${
+                    product.stock_status !== "out_of_stock"
+                      ? "text-green-600"
+                      : "text-destructive"
                   }`}
                 >
-                  {product.in_stock ? "Available" : "Out of Stock"}
+                  {product.stock_status !== "out_of_stock"
+                    ? "Available"
+                    : "Currently Out of Stock"}
                 </span>
               </div>
 
@@ -177,7 +199,7 @@ function AllProductsContent() {
       <section className="relative h-[300px] md:h-[400px] overflow-hidden bg-slate-50 flex items-center border-b border-border/40">
         {/* Animated Background Figures */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-50"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-size-[14px_24px] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-50"></div>
           <motion.div
             animate={{
               scale: [1, 1.2, 1],

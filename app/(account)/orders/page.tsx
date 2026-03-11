@@ -14,6 +14,8 @@ import {
   AlertCircle,
   Loader2,
   Filter,
+  FileText,
+  Printer,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 
@@ -82,11 +84,21 @@ export default function OrdersPage() {
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
       case "pending":
-        return <Clock className="h-4 w-4 text-yellow-500" />;
-      case "processing":
-        return <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />;
-      case "shipped":
-        return <Truck className="h-4 w-4 text-indigo-500" />;
+        return <Clock className="h-4 w-4 text-slate-500" />;
+      case "confirmed":
+        return <CheckCircle2 className="h-4 w-4 text-blue-500" />;
+      case "design_review":
+        return <FileText className="h-4 w-4 text-indigo-500" />;
+      case "on_hold":
+        return <AlertCircle className="h-4 w-4 text-amber-500" />;
+      case "approved":
+        return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
+      case "printing":
+        return <Printer className="h-4 w-4 text-orange-500" />;
+      case "ready":
+        return <Package className="h-4 w-4 text-cyan-500" />;
+      case "out_for_delivery":
+        return <Truck className="h-4 w-4 text-purple-500" />;
       case "delivered":
         return <CheckCircle2 className="h-4 w-4 text-green-500" />;
       case "cancelled":
@@ -97,39 +109,85 @@ export default function OrdersPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    switch (status.toLowerCase()) {
+    const s = status.toLowerCase();
+    switch (s) {
       case "pending":
         return (
           <Badge
             variant="outline"
-            className="bg-yellow-50 text-yellow-700 border-yellow-200"
+            className="bg-slate-50 text-slate-700 border-slate-200 uppercase text-[9px] tracking-widest font-bold"
           >
-            Pending
+            Pending Receipt
           </Badge>
         );
-      case "processing":
+      case "confirmed":
         return (
           <Badge
             variant="outline"
-            className="bg-blue-50 text-blue-700 border-blue-200"
+            className="bg-blue-50 text-blue-700 border-blue-200 uppercase text-[9px] tracking-widest font-bold"
           >
-            Processing
+            Confirmed
           </Badge>
         );
-      case "shipped":
+      case "design_review":
         return (
           <Badge
             variant="outline"
-            className="bg-indigo-50 text-indigo-700 border-indigo-200"
+            className="bg-indigo-50 text-indigo-700 border-indigo-200 uppercase text-[9px] tracking-widest font-bold"
           >
-            Shipped
+            Design Review
+          </Badge>
+        );
+      case "on_hold":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-amber-50 text-amber-700 border-amber-200 uppercase text-[9px] tracking-widest font-bold"
+          >
+            On Hold
+          </Badge>
+        );
+      case "approved":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-emerald-50 text-emerald-700 border-emerald-200 uppercase text-[9px] tracking-widest font-bold"
+          >
+            Production Approved
+          </Badge>
+        );
+      case "printing":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-orange-50 text-orange-700 border-orange-200 uppercase text-[9px] tracking-widest font-bold"
+          >
+            Printing
+          </Badge>
+        );
+      case "ready":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-cyan-50 text-cyan-700 border-cyan-200 uppercase text-[9px] tracking-widest font-bold"
+          >
+            Ready for Pickup
+          </Badge>
+        );
+      case "out_for_delivery":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-purple-50 text-purple-700 border-purple-200 uppercase text-[9px] tracking-widest font-bold"
+          >
+            Out for Delivery
           </Badge>
         );
       case "delivered":
         return (
           <Badge
             variant="outline"
-            className="bg-green-50 text-green-700 border-green-200"
+            className="bg-green-50 text-green-700 border-green-200 uppercase text-[9px] tracking-widest font-bold"
           >
             Delivered
           </Badge>
@@ -138,13 +196,20 @@ export default function OrdersPage() {
         return (
           <Badge
             variant="outline"
-            className="bg-red-50 text-red-700 border-red-200"
+            className="bg-red-50 text-red-700 border-red-200 uppercase text-[9px] tracking-widest font-bold"
           >
             Cancelled
           </Badge>
         );
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="uppercase text-[9px] tracking-widest font-bold"
+          >
+            {status}
+          </Badge>
+        );
     }
   };
 
@@ -194,8 +259,12 @@ export default function OrdersPage() {
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="processing">Processing</SelectItem>
-                  <SelectItem value="shipped">Shipped</SelectItem>
+                  <SelectItem value="confirmed">Confirmed</SelectItem>
+                  <SelectItem value="design_review">Design Review</SelectItem>
+                  <SelectItem value="on_hold">On Hold</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="printing">Printing</SelectItem>
+                  <SelectItem value="ready">Ready</SelectItem>
                   <SelectItem value="delivered">Delivered</SelectItem>
                 </SelectContent>
               </Select>

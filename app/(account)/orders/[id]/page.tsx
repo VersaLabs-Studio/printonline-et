@@ -47,7 +47,7 @@ export default function OrderDetailPage({
   if (!orderDetails) {
     return (
       <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-8">
-        <div className="h-24 w-24 bg-primary/5 rounded-[2rem] flex items-center justify-center text-primary/40 shadow-inner">
+        <div className="h-24 w-24 bg-primary/5 rounded-4xl flex items-center justify-center text-primary/40 shadow-inner">
           <PackageOpen size={48} />
         </div>
         <div className="space-y-2">
@@ -55,7 +55,8 @@ export default function OrderDetailPage({
             Order Record Not Found
           </h1>
           <p className="text-muted-foreground font-bold">
-            We couldn't locate this transaction id inside your account ledger.
+            We couldn&apos;t locate this transaction id inside your account
+            ledger.
           </p>
         </div>
         <Button
@@ -70,7 +71,7 @@ export default function OrderDetailPage({
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/[0.02] rounded-full blur-[140px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/2 rounded-full blur-[140px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
 
       <main className="container mx-auto px-4 py-16 relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col gap-12">
@@ -122,6 +123,7 @@ export default function OrderDetailPage({
           >
             <OrderStatusTracker
               date={new Date(orderDetails.created_at).toLocaleDateString()}
+              status={orderDetails.status}
             />
           </motion.div>
 

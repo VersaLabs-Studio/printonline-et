@@ -64,7 +64,12 @@ function NavItem({ href, icon: Icon, label, active, collapsed }: NavItemProps) {
   );
 }
 
-export function CMSSidebar() {
+interface CMSSidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export function CMSSidebar({ isOpen, onClose }: CMSSidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = React.useState(false);
 
@@ -85,7 +90,7 @@ export function CMSSidebar() {
           },
         },
       });
-    } catch (error) {
+    } catch {
       toast.error("Failed to sign out");
     }
   };
@@ -93,13 +98,14 @@ export function CMSSidebar() {
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 bg-card border-r border-border/40 z-40 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col shadow-sm",
+        "fixed inset-y-0 left-0 bg-card border-r border-border/40 z-50 transition-all duration-500 ease-in-out flex flex-col shadow-sm",
         collapsed ? "w-20" : "w-64",
+        isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
       )}
     >
       <div className="h-20 flex items-center px-6 border-b border-border/40 bg-muted/5">
         <div className="flex items-center gap-4 overflow-hidden">
-          <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground flex-shrink-0 shadow-xl shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform">
+          <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground shrink-0 shadow-xl shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform">
             <span className="font-bold text-xl italic">P</span>
           </div>
           {!collapsed && (
@@ -113,6 +119,17 @@ export function CMSSidebar() {
             </div>
           )}
         </div>
+        {/* Mobile Close */}
+        {isOpen && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="lg:hidden ml-auto rounded-full"
+          >
+            <ChevronLeft size={18} />
+          </Button>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto scrollbar-hide py-8 px-4 space-y-6">

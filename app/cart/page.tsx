@@ -9,6 +9,8 @@ import { EmptyCart } from "@/components/cart/EmptyCart";
 import { CartItem } from "@/components/cart/CartItem";
 import { CartSummary } from "@/components/cart/CartSummary";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { PriceDisplay } from "@/components/shared/PriceDisplay";
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, getCartTotal } =
@@ -113,7 +115,28 @@ export default function CartPage() {
             </div>
           </div>
         </div>
+
+        {/* Mobile Sticky CTA */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-4 bg-background/80 backdrop-blur-xl border-t border-border/50 flex items-center justify-between gap-4 animate-in slide-in-from-bottom duration-500">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">
+              Checkout Total
+            </span>
+            <span className="text-xl font-black text-primary tracking-tighter">
+              <PriceDisplay amount={total} />
+            </span>
+          </div>
+          <Button
+            asChild
+            className="flex-1 h-14 rounded-2xl font-bold uppercase tracking-widest text-xs btn-pana shadow-xl shadow-primary/20"
+          >
+            <Link href="/checkout">Checkout Now</Link>
+          </Button>
+        </div>
       </main>
+
+      {/* Spacer for bottom CTA on mobile */}
+      <div className="h-28 lg:hidden" />
     </div>
   );
 }

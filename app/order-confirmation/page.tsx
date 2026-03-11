@@ -66,7 +66,7 @@ function OrderConfirmationContent() {
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Background Ambience */}
-      <div className="absolute top-0 left-0 w-[1000px] h-[1000px] bg-emerald-500/[0.02] rounded-full blur-[150px] -translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+      <div className="absolute top-0 left-0 w-[1000px] h-[1000px] bg-emerald-500/2 rounded-full blur-[150px] -translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
       <main className="container mx-auto px-4 py-16 lg:py-24 relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col gap-16">
@@ -85,6 +85,7 @@ function OrderConfirmationContent() {
           >
             <OrderStatusTracker
               date={new Date(orderDetails.created_at).toLocaleDateString()}
+              status={orderDetails.status}
             />
           </motion.div>
 

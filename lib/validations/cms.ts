@@ -132,10 +132,13 @@ export const orderStatusUpdateSchema = z.object({
   status: z.enum([
     "pending",
     "confirmed",
-    "processing",
+    "design_review",
+    "on_hold",
+    "approved",
+    "printing",
     "ready",
+    "out_for_delivery",
     "delivered",
-    "completed",
     "cancelled",
   ]),
   note: z

@@ -40,6 +40,7 @@ export default function AccountDashboardPage() {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isDirty },
   } = useForm<ProfileUpdateInput>({
     resolver: zodResolver(profileUpdateSchema),
@@ -173,7 +174,11 @@ export default function AccountDashboardPage() {
 
             <Separator className="my-6 opacity-50" />
 
-            <ShippingAddressSection register={register} />
+            <ShippingAddressSection
+              register={register}
+              control={control}
+              errors={errors}
+            />
           </CardContent>
           <CardFooter className="bg-muted/10 border-t border-border/50 p-6 flex justify-end">
             <Button

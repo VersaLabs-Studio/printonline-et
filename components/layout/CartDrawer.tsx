@@ -74,13 +74,15 @@ export function CartDrawer() {
                   Browse our catalog to add products to your cart.
                 </p>
               </div>
-              <Button
-                asChild
-                variant="outline"
-                className="rounded-xl font-bold uppercase tracking-widest text-[10px]"
-              >
-                <Link href="/all-products">Browse Collections</Link>
-              </Button>
+              <SheetClose asChild>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="rounded-xl font-bold uppercase tracking-widest text-[10px]"
+                >
+                  <Link href="/all-products">Browse Collections</Link>
+                </Button>
+              </SheetClose>
             </div>
           ) : (
             <div className="divide-y divide-border/20 py-2">

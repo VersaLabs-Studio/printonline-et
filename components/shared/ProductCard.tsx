@@ -8,6 +8,7 @@ import { PriceDisplay } from "./PriceDisplay";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, ArrowUpRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
   product: ProductWithCategory;
@@ -17,7 +18,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <motion.div
       whileHover={{ y: -8 }}
-      className="group relative flex flex-col h-full bg-card rounded-[2rem] border border-border/40 overflow-hidden transition-all hover:shadow-2xl hover:shadow-primary/5"
+      className="group relative flex flex-col h-full bg-card rounded-4xl border border-border/40 overflow-hidden transition-all hover:shadow-2xl hover:shadow-primary/5"
     >
       <Link
         href={`/products/${product.slug}`}
@@ -25,7 +26,7 @@ export function ProductCard({ product }: ProductCardProps) {
       />
 
       {/* Image Container */}
-      <div className="relative aspect-[4/5] overflow-hidden bg-muted/20">
+      <div className="relative aspect-4/5 overflow-hidden bg-muted/20">
         <Image
           src={
             (product as any).product_images?.[0]?.image_url ||
@@ -43,10 +44,16 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         </div>
 
-        {product.badge && (
-          <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground font-bold uppercase tracking-[0.2em] text-[9px] h-6 px-3 shadow-lg border-none">
-            {product.badge}
+        {product.stock_status === "out_of_stock" ? (
+          <Badge className="absolute top-4 left-4 bg-destructive text-destructive-foreground font-bold uppercase tracking-[0.2em] text-[8px] h-6 px-3 shadow-lg border-none animate-pulse">
+            Out of Stock
           </Badge>
+        ) : (
+          product.badge && (
+            <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground font-bold uppercase tracking-[0.2em] text-[9px] h-6 px-3 shadow-lg border-none">
+              {product.badge}
+            </Badge>
+          )
         )}
       </div>
 
@@ -67,7 +74,15 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="text-xl font-bold text-primary tracking-tighter">
             <PriceDisplay amount={product.base_price} />
           </div>
-          <button className="h-10 w-10 rounded-xl bg-muted/40 border border-border/40 flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white hover:border-primary transition-all active:scale-95 shadow-sm">
+          <button
+            disabled={product.stock_status === "out_of_stock"}
+            className={cn(
+              "h-10 w-10 rounded-xl flex items-center justify-center transition-all active:scale-95 shadow-sm",
+              product.stock_status === "out_of_stock"
+                ? "bg-muted text-muted-foreground/30 border border-border/20 cursor-not-allowed"
+                : "bg-muted/40 border border-border/40 text-muted-foreground hover:bg-primary hover:text-white hover:border-primary",
+            )}
+          >
             <ShoppingBag size={18} />
           </button>
         </div>

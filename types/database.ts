@@ -716,10 +716,13 @@ export type OrderWithItems = Order & {
 export type OrderStatus =
   | "pending"
   | "confirmed"
-  | "processing"
+  | "design_review"
+  | "on_hold"
+  | "approved"
+  | "printing"
   | "ready"
+  | "out_for_delivery"
   | "delivered"
-  | "completed"
   | "cancelled";
 
 /** Stock status type */

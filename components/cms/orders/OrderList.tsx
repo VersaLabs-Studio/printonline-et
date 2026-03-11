@@ -7,10 +7,13 @@ import {
   Eye,
   FileDown,
   MoreHorizontal,
+  AlertCircle,
   Clock,
   CheckCircle2,
   Truck,
-  AlertCircle,
+  FileText,
+  Printer,
+  Package,
 } from "lucide-react";
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
@@ -39,23 +42,43 @@ const statusConfig: Record<
   },
   confirmed: {
     icon: CheckCircle2,
-    label: "Confirmed",
+    label: "Order Confirmed",
     className: "bg-blue-50 text-blue-700 border-blue-200",
   },
-  processing: {
-    icon: Clock,
-    label: "Processing",
+  design_review: {
+    icon: FileText,
+    label: "Design Under Review",
     className: "bg-indigo-50 text-indigo-700 border-indigo-200",
   },
-  shipped: {
+  on_hold: {
+    icon: AlertCircle,
+    label: "On Hold",
+    className: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  approved: {
+    icon: CheckCircle2,
+    label: "Approved for Production",
+    className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
+  printing: {
+    icon: Printer,
+    label: "Printing in Progress",
+    className: "bg-orange-50 text-orange-700 border-orange-200",
+  },
+  ready: {
+    icon: Package,
+    label: "Ready for Delivery",
+    className: "bg-cyan-50 text-cyan-700 border-cyan-200",
+  },
+  out_for_delivery: {
     icon: Truck,
-    label: "Shipped",
+    label: "Out for Delivery",
     className: "bg-purple-50 text-purple-700 border-purple-200",
   },
   delivered: {
     icon: CheckCircle2,
     label: "Delivered",
-    className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    className: "bg-green-50 text-green-700 border-green-200",
   },
   cancelled: {
     icon: AlertCircle,

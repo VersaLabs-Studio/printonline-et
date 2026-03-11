@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { PriceDisplay } from "@/components/shared/PriceDisplay";
-import { ShieldCheck, Package, Info } from "lucide-react";
+import { Package, Info } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CheckoutSummaryProps {
@@ -20,7 +20,7 @@ export function CheckoutSummary({
   total,
 }: CheckoutSummaryProps) {
   return (
-    <div className="bg-card border border-border/50 rounded-2xl border border-border/40 p-8 shadow-sm sticky top-24 overflow-hidden">
+    <div className="bg-card border border-border/40 rounded-2xl p-8 shadow-sm sticky top-24 overflow-hidden">
       {/* Ambience */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16" />
 

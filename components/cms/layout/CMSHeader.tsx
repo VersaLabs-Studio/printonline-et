@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { Bell, Search, User, Menu, ChevronRight, Globe } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { Bell, Search, User, Menu, Globe } from "lucide-react";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import {
@@ -17,12 +16,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export function CMSHeader() {
-  const pathname = usePathname();
-  const { data: session } = authClient.useSession();
+interface CMSHeaderProps {
+  onMenuClick?: () => void;
+}
 
-  // Generate breadcrumbs from pathname
-  const paths = pathname.split("/").filter(Boolean);
+export function CMSHeader({ onMenuClick }: CMSHeaderProps) {
+  const { data: session } = authClient.useSession();
 
   return (
     <header className="sticky top-0 right-0 h-16 bg-card/80 backdrop-blur-md border-b border-border/50 z-30 flex items-center justify-between px-6 transition-all">
@@ -35,7 +34,15 @@ export function CMSHeader() {
         />
       </div>
 
-      <div className="flex md:hidden items-center gap-2">
+      <div className="flex lg:hidden items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onMenuClick}
+          className="mr-2 text-muted-foreground"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
         <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold shadow-sm shadow-primary/20">
           P
         </div>

@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { PriceDisplay } from "@/components/shared/PriceDisplay";
+import { cn } from "@/lib/utils";
 
 interface ProductOrderFormProps {
   product: ProductWithDetails;
@@ -36,28 +38,60 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
   const { addToCart } = useCart();
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [designFile, setDesignFile] = useState<File | null>(null);
-  const [productionPriority, setProductionPriority] = useState<string>("");
+  const [productionPriority, setProductionPriority] =
+    useState<string>("standard");
   const [quantity, setQuantity] = useState<number>(1);
+  const [hireDesigner, setHireDesigner] = useState<boolean>(false);
+  const isOutOfStock = product.stock_status === "out_of_stock";
 
   // --- Real-time Pricing Calculations ---
-  const basePrice = product.base_price || 0;
-  let optionsPrice = 0;
+  const calculateUnitPrice = () => {
+    let base = product.base_price || 0;
+    let additives = 0;
 
-  product.product_options?.forEach((opt) => {
-    const selectedValId = selections[opt.id];
-    if (selectedValId) {
-      const selectedVal = opt.product_option_values?.find(
+    // 1. Identify scaling factors (like both sides doubling lamination/paper cost)
+    const sidesOpt = product.product_options?.find(
+      (o) => o.option_key === "print_sides",
+    );
+    const selectedSidesId = sidesOpt ? selections[sidesOpt.id] : null;
+    const isBothSides =
+      sidesOpt?.product_option_values?.find((v) => v.id === selectedSidesId)
+        ?.value === "both_sides";
+
+    // 2. Process all options
+    product.product_options?.forEach((opt) => {
+      const selectedValId = selections[opt.id];
+      if (!selectedValId) return;
+
+      const val = opt.product_option_values?.find(
         (v) => v.id === selectedValId,
       );
-      if (selectedVal) {
-        optionsPrice += selectedVal.price_amount || 0;
-      }
-    }
-  });
+      if (!val || val.price_amount === null) return;
 
+      let amount = val.price_amount;
+
+      // Handle scaling (e.g., Lamination/Paper cost doubles for 2-side print)
+      if (
+        isBothSides &&
+        (opt.option_key === "lamination" ||
+          opt.option_key === "paper_thickness")
+      ) {
+        amount *= 2;
+      }
+
+      if (val.price_type === "override") {
+        base = amount;
+      } else {
+        additives += amount;
+      }
+    });
+
+    return base + additives;
+  };
+
+  const unitPrice = calculateUnitPrice();
   const priorityPrice = productionPriority === "rush" ? 500 : 0;
-  const unitPrice = basePrice + optionsPrice + priorityPrice;
-  const totalPrice = unitPrice * quantity;
+  const totalPrice = unitPrice * quantity + priorityPrice;
   // ----------------------------------------
 
   const handleOptionChange = (optionId: string, value: string) => {
@@ -68,6 +102,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
     const file = e.target.files?.[0];
     if (file) {
       setDesignFile(file);
+      setHireDesigner(false); // Reset hire designer if file is uploaded
       toast.success(`File "${file.name}" uploaded successfully`);
     }
   };
@@ -87,6 +122,13 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
     if (!productionPriority) {
       toast.error("Production Speed Required", {
         description: "Please select either Standard or Rush production.",
+      });
+      return;
+    }
+
+    if (!designFile && !hireDesigner) {
+      toast.error("Design Required", {
+        description: "Please upload your design or select 'Need Design Help?'.",
       });
       return;
     }
@@ -114,6 +156,10 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
       humanReadableOptions["Production Speed"] = "Standard (2-4 Days)";
     }
 
+    if (hireDesigner) {
+      humanReadableOptions["Design Service"] = "Hire Pana Designer";
+    }
+
     const primaryImage =
       product.product_images?.find((img) => img.is_primary)?.image_url ||
       product.product_images?.[0]?.image_url ||
@@ -131,6 +177,8 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
       quantity: quantity,
       selectedOptions: humanReadableOptions,
       designFileName: designFile?.name,
+      priorityPrice,
+      hireDesigner,
     };
 
     setTimeout(() => {
@@ -158,9 +206,15 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
 
               {option.field_type === "select" ? (
                 <Select
+                  disabled={isOutOfStock}
                   onValueChange={(val) => handleOptionChange(option.id, val)}
                 >
-                  <SelectTrigger className="h-11 rounded-xl border-border/40 bg-muted/5 focus:ring-primary/20 transition-all font-semibold text-sm">
+                  <SelectTrigger
+                    className={cn(
+                      "h-11 rounded-xl border-border/40 bg-muted/5 focus:ring-primary/20 transition-all font-semibold text-sm",
+                      isOutOfStock && "opacity-50 cursor-not-allowed",
+                    )}
+                  >
                     <SelectValue
                       placeholder={`Choose ${option.option_label}`}
                     />
@@ -186,6 +240,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
                 </Select>
               ) : (
                 <RadioGroup
+                  disabled={isOutOfStock}
                   onValueChange={(val: string) =>
                     handleOptionChange(option.id, val)
                   }
@@ -254,9 +309,12 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
                     </span>
                   </div>
                 </div>
-                <span className="text-[10px] uppercase font-bold text-muted-foreground">
-                  Included
-                </span>
+                <PriceDisplay
+                  amount={0}
+                  variant="free"
+                  size="xs"
+                  className="uppercase font-bold text-muted-foreground"
+                />
               </Label>
             </div>
 
@@ -279,9 +337,12 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
                     </span>
                   </div>
                 </div>
-                <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-500">
-                  +ETB 500
-                </span>
+                <PriceDisplay
+                  amount={500}
+                  variant="free"
+                  size="xs"
+                  className="uppercase font-bold text-amber-600 dark:text-amber-500"
+                />
               </Label>
             </div>
           </RadioGroup>
@@ -301,7 +362,10 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
               <SelectValue placeholder="Select Quantity" />
             </SelectTrigger>
             <SelectContent className="rounded-xl shadow-xl border-border/40">
-              {[1, 5, 10, 25, 50, 100, 250, 500, 1000].map((num) => (
+              {(product.slug === "business-cards"
+                ? [50, 100, 250, 500, 1000, 2000, 5000]
+                : [1, 5, 10, 25, 50, 100, 250, 500, 1000]
+              ).map((num) => (
                 <SelectItem
                   key={num}
                   value={num.toString()}
@@ -339,8 +403,27 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
             )}
           </label>
 
-          <button className="flex flex-col items-center justify-center p-3 h-20 rounded-2xl border-2 border-border/40 bg-muted/5 hover:bg-muted/10 transition-all group">
-            <div className="w-8 h-8 bg-muted-foreground/10 text-muted-foreground rounded-xl flex items-center justify-center mb-1 group-hover:scale-110 group-hover:-rotate-3 transition-all">
+          <button
+            type="button"
+            onClick={() => {
+              setHireDesigner(!hireDesigner);
+              if (!hireDesigner) setDesignFile(null); // Clear file if switching to hire
+            }}
+            className={cn(
+              "flex flex-col items-center justify-center p-3 h-20 rounded-2xl border-2 transition-all group relative",
+              hireDesigner
+                ? "border-primary bg-primary/10 shadow-lg shadow-primary/10"
+                : "border-border/40 bg-muted/5 hover:bg-muted/10",
+            )}
+          >
+            <div
+              className={cn(
+                "w-8 h-8 rounded-xl flex items-center justify-center mb-1 transition-all",
+                hireDesigner
+                  ? "bg-primary text-primary-foreground scale-110 rotate-6 shadow-md"
+                  : "bg-muted-foreground/10 text-muted-foreground group-hover:scale-110 group-hover:-rotate-3",
+              )}
+            >
               <User size={14} />
             </div>
             <span className="text-[10px] font-bold uppercase tracking-widest text-foreground">
@@ -349,6 +432,11 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
             <p className="text-[8px] text-muted-foreground font-bold mt-0.5">
               Hire our graphic team
             </p>
+            {hireDesigner && (
+              <div className="absolute top-2 right-2 animate-in fade-in zoom-in">
+                <CheckCircle2 className="h-4 w-4 text-primary fill-white" />
+              </div>
+            )}
           </button>
         </div>
       </div>
@@ -358,17 +446,30 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
         <div className="flex gap-2">
           <Button
             onClick={handleProceed}
-            className="flex-1 h-14 rounded-2xl font-bold uppercase tracking-[0.15em] text-[10px] shadow-xl shadow-primary/10 gap-3 group active:scale-95 transition-all btn-pana overflow-hidden relative"
+            disabled={isOutOfStock}
+            className={cn(
+              "flex-1 h-14 rounded-2xl font-bold uppercase tracking-[0.15em] text-[10px] shadow-xl transition-all btn-pana overflow-hidden relative gap-3 group",
+              isOutOfStock
+                ? "bg-muted text-muted-foreground opacity-70 cursor-not-allowed shadow-none"
+                : "shadow-primary/10 active:scale-95",
+            )}
           >
             <div className="absolute inset-0 bg-linear-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <ShoppingCart
               size={16}
-              className="group-hover:scale-110 transition-transform"
+              className={cn(
+                "transition-transform",
+                !isOutOfStock && "group-hover:scale-110",
+              )}
             />
-            <span className="flex-1 text-left">Add to Cart</span>
-            <span className="bg-white/10 px-3 py-1.5 rounded-xl border border-white/5 text-[9px]">
-              ETB {totalPrice.toLocaleString()}
+            <span className="flex-1 text-left">
+              {isOutOfStock ? "Currently Out of Stock" : "Add to Cart"}
             </span>
+            {!isOutOfStock && (
+              <span className="bg-white/10 px-3 py-1.5 rounded-xl border border-white/5 text-[9px]">
+                ETB {totalPrice.toLocaleString()}
+              </span>
+            )}
           </Button>
           <Button
             variant="outline"
