@@ -38,6 +38,10 @@ export interface CartItem {
   designFileUrl?: string;
   /** Design file name */
   designFileName?: string;
+  /** Rush production surcharge (per order, not per piece) */
+  priorityPrice?: number;
+  /** Whether user wants to hire Pana designer */
+  hireDesigner?: boolean;
 }
 
 interface CartContextType {
@@ -145,7 +149,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const getCartTotal = useCallback(() => {
     return cart.reduce(
-      (total, item) => total + item.unitPrice * item.quantity,
+      (total, item) =>
+        total + item.unitPrice * item.quantity + (item.priorityPrice || 0),
       0,
     );
   }, [cart]);

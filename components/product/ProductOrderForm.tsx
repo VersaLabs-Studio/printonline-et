@@ -40,25 +40,60 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
   const [designFile, setDesignFile] = useState<File | null>(null);
   const [productionPriority, setProductionPriority] =
     useState<string>("standard");
-  const [quantity, setQuantity] = useState<number>(1);
+  const [quantity, setQuantity] = useState<number>(
+    product.min_order_quantity || 1,
+  );
   const [hireDesigner, setHireDesigner] = useState<boolean>(false);
   const isOutOfStock = product.stock_status === "out_of_stock";
 
-  // --- Real-time Pricing Calculations ---
+  // --- Real-time Pricing Calculations (Matrix-first, additive fallback) ---
+  // Option keys that form the pricing matrix key, in order
+  const MATRIX_OPTION_KEYS = [
+    "print_sides",
+    "paper_thickness",
+    "lamination",
+    "size",
+    "pocket",
+  ];
+
   const calculateUnitPrice = () => {
+    // 1. Try matrix pricing first (Business Cards, Flyers, Folders, Posters, Stickers, Bookmarks)
+    if (product.pricing_matrix && product.pricing_matrix.length > 0) {
+      const matrixParts: string[] = [];
+
+      for (const optKey of MATRIX_OPTION_KEYS) {
+        const opt = product.product_options?.find(
+          (o) => o.option_key === optKey,
+        );
+        if (!opt) continue;
+        const selectedValId = selections[opt.id];
+        if (!selectedValId) continue;
+        const val = opt.product_option_values?.find(
+          (v) => v.id === selectedValId,
+        );
+        if (val) matrixParts.push(val.value);
+      }
+
+      if (matrixParts.length > 0) {
+        const matrixKey = matrixParts.join("|");
+        const matrixEntry = product.pricing_matrix.find(
+          (m) => m.matrix_key === matrixKey && m.is_active !== false,
+        );
+        if (matrixEntry) {
+          return matrixEntry.price;
+        }
+      }
+
+      // If we have a pricing matrix but no match yet (user hasn't selected all options),
+      // return base_price as placeholder
+      return product.base_price || 0;
+    }
+
+    // 2. Fallback: additive pricing for products without a pricing matrix
+    //    (booklets, notebooks, gift bags, certificate paper, etc.)
     let base = product.base_price || 0;
     let additives = 0;
 
-    // 1. Identify scaling factors (like both sides doubling lamination/paper cost)
-    const sidesOpt = product.product_options?.find(
-      (o) => o.option_key === "print_sides",
-    );
-    const selectedSidesId = sidesOpt ? selections[sidesOpt.id] : null;
-    const isBothSides =
-      sidesOpt?.product_option_values?.find((v) => v.id === selectedSidesId)
-        ?.value === "both_sides";
-
-    // 2. Process all options
     product.product_options?.forEach((opt) => {
       const selectedValId = selections[opt.id];
       if (!selectedValId) return;
@@ -68,16 +103,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
       );
       if (!val || val.price_amount === null) return;
 
-      let amount = val.price_amount;
-
-      // Handle scaling (e.g., Lamination/Paper cost doubles for 2-side print)
-      if (
-        isBothSides &&
-        (opt.option_key === "lamination" ||
-          opt.option_key === "paper_thickness")
-      ) {
-        amount *= 2;
-      }
+      const amount = val.price_amount;
 
       if (val.price_type === "override") {
         base = amount;
@@ -230,7 +256,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
                           <span>{val.label}</span>
                           {val.price_amount && (
                             <span className="text-xs font-bold text-primary opacity-60">
-                              +ETB {val.price_amount}
+                              ETB {val.price_amount}
                             </span>
                           )}
                         </div>
@@ -262,7 +288,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
                         </span>
                         {val.price_amount && (
                           <span className="text-[10px] font-bold text-primary/60">
-                            +ETB {val.price_amount}
+                            ETB {val.price_amount}
                           </span>
                         )}
                       </Label>
@@ -353,6 +379,11 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
           <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
             <span className="w-1 h-1 rounded-full bg-primary" />
             Quantity
+            {product.min_order_quantity && product.min_order_quantity > 1 && (
+              <span className="text-[9px] font-medium normal-case tracking-normal text-muted-foreground/60">
+                (Min: {product.min_order_quantity} pcs)
+              </span>
+            )}
           </label>
           <Select
             value={quantity.toString()}
@@ -362,18 +393,25 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
               <SelectValue placeholder="Select Quantity" />
             </SelectTrigger>
             <SelectContent className="rounded-xl shadow-xl border-border/40">
-              {(product.slug === "business-cards"
-                ? [50, 100, 250, 500, 1000, 2000, 5000]
-                : [1, 5, 10, 25, 50, 100, 250, 500, 1000]
-              ).map((num) => (
-                <SelectItem
-                  key={num}
-                  value={num.toString()}
-                  className="font-bold py-2.5 rounded-lg"
-                >
-                  {num} {num === 1 ? "Pc" : "Pcs"}
-                </SelectItem>
-              ))}
+              {(() => {
+                const min = product.min_order_quantity || 1;
+                // Generate quantity options starting from min
+                const presets = [
+                  1, 5, 10, 25, 50, 100, 250, 500, 1000, 2000, 5000,
+                ];
+                const options = presets.filter((n) => n >= min);
+                // Ensure min is included if it's not in presets
+                if (!options.includes(min)) options.unshift(min);
+                return options.map((num) => (
+                  <SelectItem
+                    key={num}
+                    value={num.toString()}
+                    className="font-bold py-2.5 rounded-lg"
+                  >
+                    {num} {num === 1 ? "Pc" : "Pcs"}
+                  </SelectItem>
+                ));
+              })()}
             </SelectContent>
           </Select>
         </div>
@@ -427,7 +465,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
               <User size={14} />
             </div>
             <span className="text-[10px] font-bold uppercase tracking-widest text-foreground">
-              Need Design Help?
+              I don&apos;t have a Design
             </span>
             <p className="text-[8px] text-muted-foreground font-bold mt-0.5">
               Hire our graphic team

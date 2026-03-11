@@ -501,6 +501,44 @@ export type Database = {
           },
         ];
       };
+      product_pricing_matrix: {
+        Row: {
+          id: string;
+          product_id: string;
+          matrix_key: string;
+          matrix_label: string | null;
+          price: number;
+          is_active: boolean | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          matrix_key: string;
+          matrix_label?: string | null;
+          price: number;
+          is_active?: boolean | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          matrix_key?: string;
+          matrix_label?: string | null;
+          price?: number;
+          is_active?: boolean | null;
+          created_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "product_pricing_matrix_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -663,6 +701,8 @@ export type CustomerProfile =
   Database["public"]["Tables"]["customer_profiles"]["Row"];
 export type Order = Database["public"]["Tables"]["orders"]["Row"];
 export type OrderItem = Database["public"]["Tables"]["order_items"]["Row"];
+export type PricingMatrixEntry =
+  Database["public"]["Tables"]["product_pricing_matrix"]["Row"];
 
 // Insert types (what you pass to INSERT)
 export type CategoryInsert =
@@ -705,6 +745,7 @@ export type ProductWithDetails = Product & {
   product_options: (ProductOption & {
     product_option_values: ProductOptionValue[];
   })[];
+  pricing_matrix?: PricingMatrixEntry[];
 };
 
 /** Order with its line items */
@@ -714,13 +755,12 @@ export type OrderWithItems = Order & {
 
 /** Order status type for type-safe status checks */
 export type OrderStatus =
-  | "pending"
-  | "confirmed"
-  | "design_review"
+  | "order_confirmed"
+  | "design_under_review"
   | "on_hold"
-  | "approved"
-  | "printing"
-  | "ready"
+  | "approved_for_production"
+  | "printing_in_progress"
+  | "ready_for_delivery"
   | "out_for_delivery"
   | "delivered"
   | "cancelled";
