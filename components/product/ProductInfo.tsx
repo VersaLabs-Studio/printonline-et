@@ -14,7 +14,7 @@ interface ProductInfoProps {
 export function ProductInfo({ product }: ProductInfoProps) {
   const stockLabels: Record<
     string,
-    { label: string; icon: any; class: string }
+    { label: string; icon: React.ElementType; class: string }
   > = {
     in_stock: {
       label: "In Stock",
@@ -43,6 +43,22 @@ export function ProductInfo({ product }: ProductInfoProps) {
 
   return (
     <div className="space-y-4">
+      {product.stock_status === "out_of_stock" && (
+        <div className="bg-destructive/10 border border-destructive/20 rounded-2xl p-4 flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="h-10 w-10 rounded-xl bg-destructive/10 flex items-center justify-center text-destructive shrink-0">
+            <AlertCircle size={20} />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xs font-bold uppercase tracking-widest text-destructive">
+              Currently Unavailable
+            </span>
+            <span className="text-[10px] font-medium text-destructive/70">
+              This item is out of stock. Please check back later or contact us for restock info.
+            </span>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-1">
         <div className="flex items-center gap-2">
           <Badge

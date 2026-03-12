@@ -6,6 +6,9 @@ import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import { Pool } from "pg";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { sendEmail } from "@/lib/email";
+import { emailTemplateWelcome } from "@/lib/email-templates/welcome";
+import { emailTemplatePasswordReset } from "@/lib/email-templates/password-reset";
 
 // PostgreSQL pool connecting directly to Supabase's PostgreSQL
 // The connection string uses the Supabase project ref from the URL
@@ -28,6 +31,13 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 8,
     maxPasswordLength: 128,
+    sendResetPassword: async ({ user, url }) => {
+      await sendEmail({
+        to: user.email,
+        subject: "Reset Your Password - PrintOnline.et",
+        html: emailTemplatePasswordReset(user.name, url),
+      });
+    },
   },
 
   // ── Session Configuration ─────────────────────────────────────
@@ -127,10 +137,15 @@ export const auth = betterAuth({
                 ((user as Record<string, unknown>).companyName as string) ||
                 null,
             });
+
+            // Send Welcome Email
+            await sendEmail({
+              to: user.email,
+              subject: "Welcome to PrintOnline.et!",
+              html: emailTemplateWelcome(user.name),
+            });
           } catch (error) {
-            console.error("[auth] Failed to create customer_profile:", error);
-            // Don't throw — the user was created successfully in better-auth,
-            // the profile can be created/repaired later
+            console.error("[auth] Failed to process post-signup hooks:", error);
           }
         },
       },

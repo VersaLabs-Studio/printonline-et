@@ -46,76 +46,59 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
   const [hireDesigner, setHireDesigner] = useState<boolean>(false);
   const isOutOfStock = product.stock_status === "out_of_stock";
 
-  // --- Real-time Pricing Calculations (Matrix-first, additive fallback) ---
-  // Option keys that form the pricing matrix key, in order
-  const MATRIX_OPTION_KEYS = [
-    "print_sides",
-    "paper_thickness",
-    "lamination",
-    "size",
-    "pocket",
-  ];
-
-  const calculateUnitPrice = () => {
-    // 1. Try matrix pricing first (Business Cards, Flyers, Folders, Posters, Stickers, Bookmarks)
-    if (product.pricing_matrix && product.pricing_matrix.length > 0) {
-      const matrixParts: string[] = [];
-
-      for (const optKey of MATRIX_OPTION_KEYS) {
-        const opt = product.product_options?.find(
-          (o) => o.option_key === optKey,
-        );
-        if (!opt) continue;
-        const selectedValId = selections[opt.id];
-        if (!selectedValId) continue;
-        const val = opt.product_option_values?.find(
-          (v) => v.id === selectedValId,
-        );
-        if (val) matrixParts.push(val.value);
-      }
-
-      if (matrixParts.length > 0) {
-        const matrixKey = matrixParts.join("|");
-        const matrixEntry = product.pricing_matrix.find(
-          (m) => m.matrix_key === matrixKey && m.is_active !== false,
-        );
-        if (matrixEntry) {
-          return matrixEntry.price;
-        }
-      }
-
-      // If we have a pricing matrix but no match yet (user hasn't selected all options),
-      // return base_price as placeholder
-      return product.base_price || 0;
+  // --- Real-time Pricing Calculations (Robust Sorted-Key Manifest) ---
+  const calculateUnitPrice = (currentSelections: Record<string, string>) => {
+    if (!product.pricing_matrix || product.pricing_matrix.length === 0) {
+      // Fallback: Additive pricing for products without a matrix
+      let base = product.base_price || 0;
+      let additives = 0;
+      product.product_options?.forEach((opt) => {
+        const selectedValId = currentSelections[opt.id];
+        if (!selectedValId) return;
+        const val = opt.product_option_values?.find((v) => v.id === selectedValId);
+        if (!val || val.price_amount === null) return;
+        if (val.price_type === "override") base = val.price_amount;
+        else additives += val.price_amount;
+      });
+      return base + additives;
     }
 
-    // 2. Fallback: additive pricing for products without a pricing matrix
-    //    (booklets, notebooks, gift bags, certificate paper, etc.)
-    let base = product.base_price || 0;
-    let additives = 0;
+    // Matrix Logic: Build a sorted key using ONLY keys actually found in the matrix
+    // 1. Identify which option_keys are "active" in the matrix for THIS product
+    const sampleKey = product.pricing_matrix[0].matrix_key;
+    const activeKeys = sampleKey.split("|").map(part => part.split(":")[0]);
 
-    product.product_options?.forEach((opt) => {
-      const selectedValId = selections[opt.id];
-      if (!selectedValId) return;
-
-      const val = opt.product_option_values?.find(
-        (v) => v.id === selectedValId,
-      );
-      if (!val || val.price_amount === null) return;
-
-      const amount = val.price_amount;
-
-      if (val.price_type === "override") {
-        base = amount;
-      } else {
-        additives += amount;
+    // 2. Build our current key for matching
+    const currentKeyParts: string[] = [];
+    activeKeys.forEach(key => {
+      const opt = product.product_options?.find(o => o.option_key === key);
+      if (!opt) return;
+      
+      const valId = currentSelections[opt.id];
+      const val = opt.product_option_values?.find(v => v.id === valId);
+      if (val) {
+        currentKeyParts.push(`${key}:${val.value}`);
       }
     });
 
-    return base + additives;
+    // 3. Sort parts to ensure order-independence
+    const lookupKey = currentKeyParts.sort().join("|");
+
+    // 4. Exact match lookup
+    const entry = product.pricing_matrix.find(m => m.matrix_key === lookupKey);
+    if (entry) return entry.price;
+
+    return product.base_price || 0;
   };
 
-  const unitPrice = calculateUnitPrice();
+  const getPriceDifference = (optionId: string, valueId: string) => {
+    const currentPrice = calculateUnitPrice(selections);
+    const hypotheticalSelections = { ...selections, [optionId]: valueId };
+    const newPrice = calculateUnitPrice(hypotheticalSelections);
+    return newPrice - currentPrice;
+  };
+
+  const unitPrice = calculateUnitPrice(selections);
   const priorityPrice = productionPriority === "rush" ? 500 : 0;
   const totalPrice = unitPrice * quantity + priorityPrice;
   // ----------------------------------------
@@ -228,6 +211,15 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
                   <span className="w-1 h-1 rounded-full bg-primary" />
                 )}
                 {option.option_label}
+                {product.pricing_matrix &&
+                  product.pricing_matrix.length > 0 &&
+                  ["print_sides", "paper_thickness", "lamination", "pocket"].includes(
+                    option.option_key
+                  ) && (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 scale-90 origin-left">
+                      Matrix Price Spec
+                    </span>
+                  )}
               </label>
 
               {option.field_type === "select" ? (
@@ -254,11 +246,23 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
                       >
                         <div className="flex items-center justify-between w-full gap-4">
                           <span>{val.label}</span>
-                          {val.price_amount && (
-                            <span className="text-xs font-bold text-primary opacity-60">
-                              ETB {val.price_amount}
-                            </span>
-                          )}
+                          {(() => {
+                            const diff = getPriceDifference(option.id, val.id);
+                            if (diff === 0) return null;
+                            return (
+                              <span
+                                className={cn(
+                                  "text-[10px] font-bold px-2 py-0.5 rounded-md",
+                                  diff > 0
+                                    ? "bg-primary/10 text-primary"
+                                    : "bg-emerald-500/10 text-emerald-600"
+                                )}
+                              >
+                                {diff > 0 ? "+" : ""}
+                                ETB {diff.toLocaleString()}
+                              </span>
+                            );
+                          })()}
                         </div>
                       </SelectItem>
                     ))}
@@ -286,11 +290,23 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
                         <span className="text-xs font-semibold uppercase tracking-tight group-hover:tracking-wider transition-all line-clamp-1">
                           {val.label}
                         </span>
-                        {val.price_amount && (
-                          <span className="text-[10px] font-bold text-primary/60">
-                            ETB {val.price_amount}
-                          </span>
-                        )}
+                        {(() => {
+                          const diff = getPriceDifference(option.id, val.id);
+                          if (diff === 0) return null;
+                          return (
+                            <span
+                              className={cn(
+                                "text-[9px] font-bold px-1.5 py-0.5 rounded-md",
+                                diff > 0
+                                  ? "text-primary-foreground bg-primary"
+                                  : "bg-emerald-500 text-white"
+                              )}
+                            >
+                              {diff > 0 ? "+" : ""}
+                              ETB {diff.toLocaleString()}
+                            </span>
+                          );
+                        })()}
                       </Label>
                     </div>
                   ))}
