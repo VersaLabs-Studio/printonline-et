@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 import { FileText, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TermsAndConditions } from "@/components/checkout/TermsAndConditions";
-import { TERMS_AND_CONDITIONS_CONTENT } from "@/content/terms";
+import { TermsCheckbox } from "@/components/checkout/TermsCheckbox";
 
 interface OrderReviewStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -115,8 +114,7 @@ export function OrderReviewStep({
       )}
 
       <div className="relative z-10">
-        <TermsAndConditions
-          content={TERMS_AND_CONDITIONS_CONTENT}
+        <TermsCheckbox
           checked={termsAccepted}
           onCheckedChange={setTermsAccepted}
         />

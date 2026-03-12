@@ -157,7 +157,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
 
     if (designFiles.length === 0 && !hireDesigner) {
       toast.error("Design Required", {
-        description: "Please upload your design or select 'Need Design Help?'.",
+        description: "Please upload your design or select 'I don't have a Design'.",
       });
       return;
     }
@@ -278,7 +278,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
                                     : "bg-emerald-500/10 text-emerald-600"
                                 )}
                               >
-                                {diff > 0 ? "+" : ""}
+                                {diff > 0 ? "" : ""}
                                 ETB {diff.toLocaleString()}
                               </span>
                             );
@@ -322,7 +322,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
                                   : "bg-emerald-500 text-white"
                               )}
                             >
-                              {diff > 0 ? "+" : ""}
+                              {diff > 0 ? "" : ""}
                               ETB {diff.toLocaleString()}
                             </span>
                           );
@@ -432,12 +432,16 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
               {(() => {
                 const min = product.min_order_quantity || 1;
                 // Generate quantity options starting from min
-                const presets = [
-                  1, 5, 10, 25, 50, 100, 250, 500, 1000, 2000, 5000,
-                ];
-                const options = presets.filter((n) => n >= min);
-                // Ensure min is included if it's not in presets
-                if (!options.includes(min)) options.unshift(min);
+                const presets =
+                  product.slug === "business-cards"
+                    ? [50, 100, 250, 500, 1000, 2000, 5000]
+                    : [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2000, 5000];
+                
+                // Filter presets to only those >= min, and always include min
+                const options = Array.from(
+                  new Set([min, ...presets.filter((n) => n >= min)])
+                ).sort((a, b) => a - b);
+
                 return options.map((num) => (
                   <SelectItem
                     key={num}

@@ -75,9 +75,9 @@ export function CartItem({
                     {String(value)}
                   </div>
                 ))}
-                {item.designFileName && (
+                {item.designFileNames && item.designFileNames.length > 0 && (
                   <div className="px-3 py-1.5 rounded-lg bg-primary/5 text-xs font-bold uppercase tracking-wider text-primary border border-primary/10">
-                    Linked Asset: {item.designFileName}
+                    Linked Assets: {item.designFileNames.join(", ")}
                   </div>
                 )}
                 {item.priorityPrice > 0 && (
@@ -89,27 +89,13 @@ export function CartItem({
             )}
 
           <div className="mt-auto flex items-center justify-between pt-4 border-t border-border/20">
-            <div className="flex items-center bg-muted/30 rounded-xl p-1 border border-border/20">
-              <button
-                onClick={() =>
-                  onUpdateQuantity(item.cartLineId, item.quantity - 1)
-                }
-                disabled={item.quantity <= 1}
-                className="h-8 w-8 rounded-lg flex items-center justify-center hover:bg-background transition-all disabled:opacity-30 disabled:hover:bg-transparent"
-              >
-                <Minus size={14} />
-              </button>
-              <span className="w-10 text-center font-bold text-xs uppercase tracking-wider">
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-40">
+                Quantity
+              </span>
+              <span className="px-4 py-1.5 rounded-xl bg-muted/50 border border-border/10 font-bold text-sm tracking-tight">
                 {item.quantity}
               </span>
-              <button
-                onClick={() =>
-                  onUpdateQuantity(item.cartLineId, item.quantity + 1)
-                }
-                className="h-8 w-8 rounded-lg flex items-center justify-center hover:bg-background transition-all"
-              >
-                <Plus size={14} />
-              </button>
             </div>
             <div className="text-2xl font-bold text-primary tracking-tight">
               <PriceDisplay amount={item.unitPrice * item.quantity} />

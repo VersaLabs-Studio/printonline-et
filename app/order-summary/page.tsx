@@ -13,10 +13,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/context/CartContext";
 import { authClient } from "@/lib/auth-client";
 import { createClient } from "@/lib/supabase/client";
+import { uploadDesignFiles, type UploadedFile } from "@/lib/supabase/storage";
 
 export default function OrderSummaryPage() {
   const router = useRouter();
-  const { cart, getCartTotal, clearCart } = useCart();
+  const { cart, getCartTotal, clearCart, localFiles } = useCart();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -75,6 +76,17 @@ export default function OrderSummaryPage() {
       const city = isHome ? profile.city : "Addis Ababa";
       const subCity = isHome ? profile.sub_city : "Bole";
 
+      // 1. Upload files for each cart item
+      const itemAssetsMap: Record<string, UploadedFile[]> = {};
+      
+      for (const item of cart) {
+        const files = localFiles[item.cartLineId] || [];
+        if (files.length > 0) {
+          const uploaded = await uploadDesignFiles(item.cartLineId, files);
+          itemAssetsMap[item.cartLineId] = uploaded;
+        }
+      }
+
       const orderPayload = {
         customer_name: profile.full_name || session?.user?.name,
         customer_email: session?.user?.email,
@@ -87,19 +99,29 @@ export default function OrderSummaryPage() {
         subtotal: getCartTotal(),
         total_amount: getCartTotal(),
         terms_accepted: termsAccepted,
-        items: cart.map((item) => ({
-          product_id: item.productId,
-          product_name: item.name,
-          unit_price: item.unitPrice,
-          quantity: item.quantity,
-          line_total: item.unitPrice * item.quantity + (item.priorityPrice || 0),
-          selected_options: {
-            ...item.selectedOptions,
-            ...(item.priorityPrice ? { "Production Speed": "Rush" } : {}),
-            ...(item.hireDesigner ? { "Service": "Pana Designer" } : {}),
-          },
-          product_image: item.image,
-        })),
+        items: cart.map((item) => {
+          const uploadedAssets = itemAssetsMap[item.cartLineId] || [];
+          return {
+            product_id: item.productId,
+            product_name: item.name,
+            unit_price: item.unitPrice,
+            quantity: item.quantity,
+            line_total: item.unitPrice * item.quantity + (item.priorityPrice || 0),
+            selected_options: {
+              ...item.selectedOptions,
+              ...(item.priorityPrice ? { "Production Speed": "Rush" } : {}),
+              ...(item.hireDesigner ? { "Service": "Pana Designer" } : {}),
+              ...(uploadedAssets.length > 0 ? { 
+                "Uploaded Assets": uploadedAssets.map(a => a.name).join(", "),
+                "Asset URLs": uploadedAssets.map(a => a.url)
+              } : {}),
+            },
+            design_file_url: uploadedAssets[0]?.url || null,
+            design_file_name: uploadedAssets[0]?.name || null,
+            design_file_size: uploadedAssets[0]?.size || null,
+            product_image: item.image,
+          };
+        }),
       };
 
       const res = await fetch("/api/orders", {
