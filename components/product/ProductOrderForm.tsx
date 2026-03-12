@@ -37,7 +37,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
   const router = useRouter();
   const { addToCart } = useCart();
   const [selections, setSelections] = useState<Record<string, string>>({});
-  const [designFile, setDesignFile] = useState<File | null>(null);
+  const [designFiles, setDesignFiles] = useState<File[]>([]);
   const [productionPriority, setProductionPriority] =
     useState<string>("standard");
   const [quantity, setQuantity] = useState<number>(
@@ -108,12 +108,32 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setDesignFile(file);
-      setHireDesigner(false); // Reset hire designer if file is uploaded
-      toast.success(`File "${file.name}" uploaded successfully`);
+    const incomingFiles = Array.from(e.target.files || []);
+    const MAX_FILES = 4;
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+
+    if (designFiles.length + incomingFiles.length > MAX_FILES) {
+      toast.error(`Maximum ${MAX_FILES} files allowed.`);
+      return;
     }
+
+    const invalidFiles = incomingFiles.filter(f => f.size > MAX_SIZE);
+    if (invalidFiles.length > 0) {
+      toast.error("File size limit exceeded.", {
+        description: `Files must be under 10MB. Invalid: ${invalidFiles.map(f => f.name).join(", ")}`
+      });
+      return;
+    }
+
+    if (incomingFiles.length > 0) {
+      setDesignFiles((prev) => [...prev, ...incomingFiles]);
+      setHireDesigner(false);
+      toast.success(`${incomingFiles.length} file(s) added.`);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setDesignFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleProceed = () => {
@@ -135,7 +155,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
       return;
     }
 
-    if (!designFile && !hireDesigner) {
+    if (designFiles.length === 0 && !hireDesigner) {
       toast.error("Design Required", {
         description: "Please upload your design or select 'Need Design Help?'.",
       });
@@ -185,13 +205,13 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
       category: categoryName,
       quantity: quantity,
       selectedOptions: humanReadableOptions,
-      designFileName: designFile?.name,
+      designFileNames: designFiles.map((f) => f.name),
       priorityPrice,
       hireDesigner,
     };
 
     setTimeout(() => {
-      addToCart(cartItem);
+      addToCart(cartItem, designFiles);
       toast.dismiss(loadingToast);
       toast.success("Added to Cart");
       router.push("/cart"); // Open cart drawer/page
@@ -440,20 +460,23 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <label className="relative flex flex-col items-center justify-center p-3 h-20 rounded-2xl border-2 border-dashed border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all cursor-pointer group shadow-inner">
-            <input type="file" className="hidden" onChange={handleFileUpload} />
+            <input 
+              type="file" 
+              className="hidden" 
+              multiple 
+              onChange={handleFileUpload} 
+              disabled={designFiles.length >= 4}
+            />
             <div className="w-8 h-8 bg-primary text-primary-foreground rounded-xl flex items-center justify-center mb-1 shadow-lg shadow-primary/20 group-hover:scale-110 group-hover:rotate-6 transition-all">
               <UploadCloud size={14} />
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-foreground">
-              {designFile ? "Replace File" : "Upload Design"}
+            <span className="text-[10px] font-bold uppercase tracking-widest text-foreground text-center">
+              {designFiles.length > 0 ? "Add More Assets" : "Upload Design"}
             </span>
-            <p className="text-[8px] text-muted-foreground font-bold mt-0.5 text-center line-clamp-1 px-4">
-              {designFile ? designFile.name : "PDF, AI, or High-Res JPG"}
-            </p>
-            {designFile && (
-              <div className="absolute top-2 right-2 animate-in fade-in zoom-in">
-                <CheckCircle2 className="h-4 w-4 text-emerald-500 fill-white" />
-              </div>
+            {designFiles.length > 0 && (
+              <p className="text-[8px] text-primary font-bold mt-0.5">
+                {designFiles.length}/4 Files Selected
+              </p>
             )}
           </label>
 
@@ -461,12 +484,12 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
             type="button"
             onClick={() => {
               setHireDesigner(!hireDesigner);
-              if (!hireDesigner) setDesignFile(null); // Clear file if switching to hire
+              if (!hireDesigner) setDesignFiles([]); // Clear files if switching to hire
             }}
             className={cn(
-              "flex flex-col items-center justify-center p-3 h-20 rounded-2xl border-2 transition-all group relative",
+              "flex flex-col items-center justify-center p-3 h-20 rounded-2xl border-2 transition-all group relative overflow-hidden",
               hireDesigner
-                ? "border-primary bg-primary/10 shadow-lg shadow-primary/10"
+                ? "border-primary bg-primary/10 shadow-lg shadow-primary/10 transition-all"
                 : "border-border/40 bg-muted/5 hover:bg-muted/10",
             )}
           >
@@ -493,6 +516,40 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
             )}
           </button>
         </div>
+
+        {/* Selected Files List */}
+        {designFiles.length > 0 && (
+          <div className="space-y-1.5 animate-in fade-in slide-in-from-top-1">
+            {designFiles.map((file, idx) => (
+              <div 
+                key={idx} 
+                className="flex items-center justify-between p-2 rounded-xl bg-muted/30 border border-border/10 group"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="p-1.5 bg-background rounded-lg text-primary/60">
+                    <Palette size={10} />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[10px] font-bold truncate text-foreground uppercase tracking-tight">
+                      {file.name}
+                    </span>
+                    <span className="text-[8px] text-muted-foreground font-medium uppercase">
+                      {(file.size / (1024 * 1024)).toFixed(2)} MB
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeFile(idx)}
+                  className="p-1 rounded-lg hover:bg-rose-500/10 hover:text-rose-500 text-muted-foreground transition-all"
+                >
+                  <CheckCircle2 size={12} className="group-hover:hidden" />
+                  <span className="hidden group-hover:block text-[10px] font-bold px-1">✕</span>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Add To Cart Final Action */}

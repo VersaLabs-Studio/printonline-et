@@ -7,7 +7,12 @@ import { ArrowRight, ShieldCheck, Truck, Clock } from "lucide-react";
 import Link from "next/link";
 
 interface CartSummaryProps {
-  cart: { name: string; quantity: number; unitPrice: number }[];
+  cart: {
+    name: string;
+    quantity: number;
+    unitPrice: number;
+    priorityPrice?: number;
+  }[];
   subtotal: number;
   delivery: number;
   total: number;
@@ -47,19 +52,27 @@ export function CartSummary({ cart, subtotal, total }: CartSummaryProps) {
             {cart.map((item, idx) => (
               <div
                 key={idx}
-                className="flex justify-between items-start gap-4 p-2 rounded-lg hover:bg-muted/30 transition-colors"
+                className="flex flex-col gap-1 p-2 rounded-lg hover:bg-muted/30 transition-colors"
               >
-                <div className="flex flex-col flex-1 min-w-0">
-                  <span className="text-xs font-bold text-foreground truncate uppercase tracking-tight">
-                    {item.name}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
-                    Qty: {item.quantity}
+                <div className="flex justify-between items-start gap-4">
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <span className="text-xs font-bold text-foreground truncate uppercase tracking-tight">
+                      {item.name}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
+                      Qty: {item.quantity}
+                    </span>
+                  </div>
+                  <span className="text-xs font-bold text-muted-foreground shrink-0 uppercase tracking-widest">
+                    <PriceDisplay amount={item.unitPrice * item.quantity} />
                   </span>
                 </div>
-                <span className="text-xs font-bold text-muted-foreground shrink-0 uppercase tracking-widest">
-                  <PriceDisplay amount={item.unitPrice * item.quantity} />
-                </span>
+                {item.priorityPrice !== undefined && item.priorityPrice > 0 && (
+                  <div className="flex justify-between items-center text-[10px] font-bold text-emerald-500 uppercase tracking-wider pl-0.5">
+                    <span>+ Rush Production</span>
+                    <span>+{item.priorityPrice} ETB</span>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -108,7 +121,7 @@ export function CartSummary({ cart, subtotal, total }: CartSummaryProps) {
             href="/checkout"
             className="w-full flex items-center justify-center"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-linear-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <span className="flex-1 text-center">Proceed to Checkout</span>
             <div className="ml-auto w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform">
               <ArrowRight size={18} />

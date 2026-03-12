@@ -69,10 +69,24 @@ export function OrderSummaryDetails({
                     .join(", ")}
                 </p>
                 <PriceDisplay
-                  amount={item.unitPrice * item.quantity}
+                  amount={item.unitPrice * item.quantity + (item.priorityPrice || 0)}
                   size="sm"
                   className="mt-1"
                 />
+                {item.priorityPrice > 0 && (
+                  <p className="text-[10px] font-bold text-emerald-500 uppercase mt-1">
+                    + Rush Production: {item.priorityPrice} ETB
+                  </p>
+                )}
+                {item.designFileNames && item.designFileNames.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {item.designFileNames.map((fname: string, idx: number) => (
+                      <p key={idx} className="text-[9px] font-bold text-primary uppercase flex items-center gap-1">
+                        <FileText size={10} /> {fname}
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -117,18 +131,37 @@ export function OrderSummaryDetails({
         )
       )}
 
-      {orderItem?.designFile && (
-        <div className="mb-10 p-4 rounded-2xl bg-muted/20 border border-border/20 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shadow-sm">
-            <FileText size={18} />
+      {(orderItem?.designFile || orderItem?.designFileNames) && (
+        <div className="mb-10 p-4 rounded-2xl bg-muted/20 border border-border/20 space-y-3">
+          <div className="flex items-center gap-2">
+            <FileText size={14} className="text-primary" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Attached Assets</span>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-foreground uppercase truncate">
-              {orderItem.designFile.name}
-            </p>
-            <p className="text-xs font-semibold text-muted-foreground uppercase">
-              Attached File • {(orderItem.designFile.size / 1024).toFixed(1)} KB
-            </p>
+          <div className="grid grid-cols-1 gap-2">
+            {orderItem?.designFile && (
+              <div className="flex items-center gap-4 p-2 rounded-xl bg-background border border-border/10">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <FileText size={14} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-semibold text-foreground uppercase truncate">
+                    {orderItem.designFile.name}
+                  </p>
+                </div>
+              </div>
+            )}
+            {orderItem?.designFileNames?.map((fname: string, idx: number) => (
+              <div key={idx} className="flex items-center gap-4 p-2 rounded-xl bg-background border border-border/10">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <FileText size={14} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-semibold text-foreground uppercase truncate">
+                    {fname}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

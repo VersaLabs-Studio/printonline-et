@@ -80,6 +80,11 @@ export function CartItem({
                     Linked Asset: {item.designFileName}
                   </div>
                 )}
+                {item.priorityPrice > 0 && (
+                  <div className="px-3 py-1.5 rounded-lg bg-emerald-500/5 text-xs font-bold uppercase tracking-wider text-emerald-500 border border-emerald-500/10">
+                    Rush Production: +{item.priorityPrice} ETB
+                  </div>
+                )}
               </div>
             )}
 

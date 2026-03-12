@@ -34,10 +34,8 @@ export interface CartItem {
   quantity: number;
   /** Selected option values: { size: "a4", lamination: "matte", ... } */
   selectedOptions: Record<string, string>;
-  /** Design file URL (if uploaded) */
-  designFileUrl?: string;
-  /** Design file name */
-  designFileName?: string;
+  /** Design file names */
+  designFileNames?: string[];
   /** Rush production surcharge (per order, not per piece) */
   priorityPrice?: number;
   /** Whether user wants to hire Pana designer */
@@ -46,12 +44,15 @@ export interface CartItem {
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (item: Omit<CartItem, "cartLineId">) => void;
+  addToCart: (item: Omit<CartItem, "cartLineId">, files?: File[]) => void;
   removeFromCart: (cartLineId: string) => void;
   updateQuantity: (cartLineId: string, quantity: number) => void;
   clearCart: () => void;
   getCartTotal: () => number;
   getCartCount: () => number;
+  /** Access local File objects (not persisted) */
+  localFiles: Record<string, File[]>;
+  setLocalFiles: React.Dispatch<React.SetStateAction<Record<string, File[]>>>;
 }
 
 const STORAGE_KEY = "printonline-cart";
@@ -89,38 +90,57 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return [];
   });
 
+  // In-memory mapping of cart items to their local File objects
+  // This does NOT persist to localStorage.
+  const [localFiles, setLocalFiles] = useState<Record<string, File[]>>({});
+
   // Persist cart to localStorage
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
     window.dispatchEvent(new Event("storage"));
   }, [cart]);
 
-  const addToCart = useCallback((item: Omit<CartItem, "cartLineId">) => {
-    setCart((prevCart) => {
-      const cartLineId = generateCartLineId(
-        item.productId,
-        item.selectedOptions,
-      );
+  const addToCart = useCallback(
+    (item: Omit<CartItem, "cartLineId">, files?: File[]) => {
+      const cartLineId = generateCartLineId(item.productId, item.selectedOptions);
 
-      // Check if same product + same options already in cart
-      const existingIndex = prevCart.findIndex(
-        (cartItem) => cartItem.cartLineId === cartLineId,
-      );
-
-      if (existingIndex !== -1) {
-        // Update quantity of existing line
-        const updatedCart = [...prevCart];
-        updatedCart[existingIndex] = {
-          ...updatedCart[existingIndex],
-          quantity: updatedCart[existingIndex].quantity + item.quantity,
-        };
-        return updatedCart;
-      } else {
-        // Add new line
-        return [...prevCart, { ...item, cartLineId }];
+      if (files && files.length > 0) {
+        setLocalFiles((prev) => ({
+          ...prev,
+          [cartLineId]: files,
+        }));
       }
-    });
-  }, []);
+
+      setCart((prevCart) => {
+        // Check if same product + same options already in cart
+        const existingIndex = prevCart.findIndex(
+          (cartItem) => cartItem.cartLineId === cartLineId,
+        );
+
+        if (existingIndex !== -1) {
+          // Update quantity of existing line
+          const updatedCart = [...prevCart];
+          const existingItem = updatedCart[existingIndex];
+          updatedCart[existingIndex] = {
+            ...existingItem,
+            quantity: existingItem.quantity + item.quantity,
+            // Merge file names if they exist
+            designFileNames: Array.from(
+              new Set([
+                ...(existingItem.designFileNames || []),
+                ...(item.designFileNames || []),
+              ]),
+            ).slice(0, 4),
+          };
+          return updatedCart;
+        } else {
+          // Add new line
+          return [...prevCart, { ...item, cartLineId }];
+        }
+      });
+    },
+    [],
+  );
 
   const removeFromCart = useCallback((cartLineId: string) => {
     setCart((prevCart) =>
@@ -169,6 +189,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         clearCart,
         getCartTotal,
         getCartCount,
+        localFiles,
+        setLocalFiles,
       }}
     >
       {children}

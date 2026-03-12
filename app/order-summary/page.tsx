@@ -23,7 +23,9 @@ export default function OrderSummaryPage() {
   const { data: session, isPending: isSessionPending } =
     authClient.useSession();
   const supabase = createClient();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<
+    import("@/types/database").Database["public"]["Tables"]["customer_profiles"]["Row"] | null
+  >(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
 
   // New state for unified checkout
@@ -90,8 +92,12 @@ export default function OrderSummaryPage() {
           product_name: item.name,
           unit_price: item.unitPrice,
           quantity: item.quantity,
-          line_total: item.unitPrice * item.quantity,
-          selected_options: item.selectedOptions,
+          line_total: item.unitPrice * item.quantity + (item.priorityPrice || 0),
+          selected_options: {
+            ...item.selectedOptions,
+            ...(item.priorityPrice ? { "Production Speed": "Rush" } : {}),
+            ...(item.hireDesigner ? { "Service": "Pana Designer" } : {}),
+          },
           product_image: item.image,
         })),
       };
@@ -206,7 +212,7 @@ export default function OrderSummaryPage() {
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Background Ambience */}
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/[0.03] rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/3 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
 
       <main className="container mx-auto px-4 py-16 relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col gap-12">
