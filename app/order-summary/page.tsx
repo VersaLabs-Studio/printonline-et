@@ -110,15 +110,18 @@ export default function OrderSummaryPage() {
             selected_options: {
               ...item.selectedOptions,
               ...(item.priorityPrice ? { "Production Speed": "Rush" } : {}),
-              ...(item.hireDesigner ? { "Service": "Pana Designer" } : {}),
-              ...(uploadedAssets.length > 0 ? { 
-                "Uploaded Assets": uploadedAssets.map(a => a.name).join(", "),
-                "Asset URLs": uploadedAssets.map(a => a.url)
-              } : {}),
+              // We'll keep these in metadata for now but the main display will use dedicated columns
+              ...(item.hireDesigner ? { Service: "Pana Designer" } : {}),
             },
+            design_preference: item.hireDesigner ? "hire_designer" : "upload",
             design_file_url: uploadedAssets[0]?.url || null,
             design_file_name: uploadedAssets[0]?.name || null,
             design_file_size: uploadedAssets[0]?.size || null,
+            assets: uploadedAssets.map((asset) => ({
+              file_url: asset.url,
+              file_name: asset.name,
+              file_size: asset.size,
+            })),
             product_image: item.image,
           };
         }),

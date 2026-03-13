@@ -22,7 +22,9 @@ export async function GET(
     // Check if ID is a UUID or an order number (starts with POL-)
     const isOrderNumber = id.startsWith("POL-");
 
-    const query = supabaseAdmin.from("orders").select("*, order_items(*)");
+    const query = supabaseAdmin
+      .from("orders")
+      .select("*, order_items(*, order_item_design_assets(*))");
 
     if (isOrderNumber) {
       query.eq("order_number", id);

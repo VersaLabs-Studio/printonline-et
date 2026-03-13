@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Download, ExternalLink, File } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PriceDisplay } from "@/components/shared/PriceDisplay";
 import { OrderWithItems } from "@/types";
@@ -58,7 +57,10 @@ export function OrderItemList({ order }: OrderItemListProps) {
                       {Object.entries(
                         item.selected_options as Record<string, string>,
                       )
-                        .filter(([key]) => key !== "Asset URLs")
+                        .filter(
+                          ([key]) =>
+                            !["Asset URLs", "Uploaded Assets"].includes(key),
+                        )
                         .map(([key, val]) => (
                           <Badge
                             key={key}
@@ -71,44 +73,113 @@ export function OrderItemList({ order }: OrderItemListProps) {
                     </div>
 
                     {/* Design Assets Display */}
-                    {(item.design_file_url || (item.selected_options as any)?.["Asset URLs"]) && (
+                    {item.design_preference === "hire_designer" ||
+                    (item.selected_options as Record<string, any>)?.Service ===
+                      "Pana Designer" ? (
+                      <div className="pt-2 border-t border-border/10">
+                        <Badge
+                          variant="outline"
+                          className="bg-primary/5 text-primary border-primary/20 gap-2 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest"
+                        >
+                          <ShoppingCart size={12} /> Hire a Pana Designer
+                        </Badge>
+                      </div>
+                    ) : (item.design_file_url ||
+                        (item.order_item_design_assets &&
+                          item.order_item_design_assets.length > 0) ||
+                        (item.selected_options as Record<string, any>)?.[
+                          "Asset URLs"
+                        ]) && (
                       <div className="pt-2 space-y-2 border-t border-border/10">
                         <p className="text-[9px] font-bold uppercase tracking-widest text-primary/60 flex items-center gap-2">
-                          Design Assets
+                          <File size={12} /> Design Assets
                         </p>
                         <div className="flex flex-wrap gap-2">
-                          {/* Primary File */}
-                          {item.design_file_url && (
-                            <a
-                              href={item.design_file_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 p-2 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors group"
-                            >
-                              <span className="text-[9px] font-bold text-foreground truncate max-w-[150px] uppercase">
-                                {item.design_file_name || "Main Design"}
-                              </span>
-                            </a>
-                          )}
-                          
-                          {/* Additional Files */}
-                          {Array.isArray((item.selected_options as any)?.["Asset URLs"]) && 
-                            (item.selected_options as any)["Asset URLs"]
-                              .filter((url: string) => url !== item.design_file_url)
-                              .map((url: string, idx: number) => (
+                          {/* New Structured Assets */}
+                          {item.order_item_design_assets &&
+                          item.order_item_design_assets.length > 0 ? (
+                            item.order_item_design_assets.map(
+                              (asset, idx) => (
                                 <a
-                                  key={idx}
-                                  href={url}
+                                  key={asset.id || idx}
+                                  href={asset.file_url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-2 p-2 rounded-lg bg-muted/30 border border-border/10 hover:bg-muted/50 transition-colors group"
+                                  className="inline-flex items-center gap-2 p-2 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors group"
                                 >
+                                  <Download
+                                    size={10}
+                                    className="text-primary"
+                                  />
                                   <span className="text-[9px] font-bold text-foreground truncate max-w-[150px] uppercase">
-                                    Asset {idx + 2}
+                                    {asset.file_name}
                                   </span>
+                                  <ExternalLink
+                                    size={8}
+                                    className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                                  />
                                 </a>
-                              ))
-                          }
+                              ),
+                            )
+                          ) : (
+                            <>
+                              {/* Legacy Single File */}
+                              {item.design_file_url && (
+                                <a
+                                  href={item.design_file_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 p-2 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors group"
+                                >
+                                  <Download
+                                    size={10}
+                                    className="text-primary"
+                                  />
+                                  <span className="text-[9px] font-bold text-foreground truncate max-w-[150px] uppercase">
+                                    {item.design_file_name || "Main Design"}
+                                  </span>
+                                  <ExternalLink
+                                    size={8}
+                                    className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                                  />
+                                </a>
+                              )}
+
+                              {/* Legacy Metadata Array */}
+                              {Array.isArray(
+                                (item.selected_options as Record<string, any>)
+                                  ?.["Asset URLs"],
+                              ) &&
+                                (item.selected_options as Record<string, any>)[
+                                  "Asset URLs"
+                                ]
+                                  .filter(
+                                    (url: string) =>
+                                      url !== item.design_file_url,
+                                  )
+                                  .map((url: string, idx: number) => (
+                                    <a
+                                      key={idx}
+                                      href={url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-2 p-2 rounded-lg bg-muted/30 border border-border/10 hover:bg-muted/50 transition-colors group"
+                                    >
+                                      <Download
+                                        size={10}
+                                        className="text-muted-foreground"
+                                      />
+                                      <span className="text-[9px] font-bold text-foreground truncate max-w-[150px] uppercase">
+                                        Asset {idx + 2}
+                                      </span>
+                                      <ExternalLink
+                                        size={8}
+                                        className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                                      />
+                                    </a>
+                                  ))}
+                            </>
+                          )}
                         </div>
                       </div>
                     )}

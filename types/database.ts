@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -120,6 +120,7 @@ export type Database = {
           design_file_name: string | null;
           design_file_size: number | null;
           design_file_url: string | null;
+          design_preference: string | null;
           id: string;
           line_total: number;
           order_id: string;
@@ -137,6 +138,7 @@ export type Database = {
           design_file_name?: string | null;
           design_file_size?: number | null;
           design_file_url?: string | null;
+          design_preference?: string | null;
           id?: string;
           line_total: number;
           order_id: string;
@@ -154,6 +156,7 @@ export type Database = {
           design_file_name?: string | null;
           design_file_size?: number | null;
           design_file_url?: string | null;
+          design_preference?: string | null;
           id?: string;
           line_total?: number;
           order_id?: string;
@@ -539,6 +542,41 @@ export type Database = {
           },
         ];
       };
+      order_item_design_assets: {
+        Row: {
+          created_at: string | null;
+          file_name: string;
+          file_size: number | null;
+          file_url: string;
+          id: string;
+          order_item_id: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          file_name: string;
+          file_size?: number | null;
+          file_url: string;
+          id?: string;
+          order_item_id: string;
+        };
+        Update: {
+          created_at?: string | null;
+          file_name?: string;
+          file_size?: number | null;
+          file_url?: string;
+          id?: string;
+          order_item_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "order_item_design_assets_order_item_id_fkey";
+            columns: ["order_item_id"];
+            isOneToOne: false;
+            referencedRelation: "order_items";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -748,10 +786,14 @@ export type ProductWithDetails = Product & {
   pricing_matrix?: PricingMatrixEntry[];
 };
 
-/** Order with its line items */
+/** Order with its line items and design assets */
 export type OrderWithItems = Order & {
-  order_items: OrderItem[];
+  order_items: (OrderItem & {
+    order_item_design_assets: OrderItemDesignAsset[];
+  })[];
 };
+
+export type OrderItemDesignAsset = Database["public"]["Tables"]["order_item_design_assets"]["Row"];
 
 /** Order status type for type-safe status checks */
 export type OrderStatus =

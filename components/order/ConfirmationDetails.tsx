@@ -58,7 +58,7 @@ export function ConfirmationDetails({
                     Object.keys(item.selected_options).length > 0 && (
                       <div className="grid grid-cols-2 gap-x-8 gap-y-4 pt-4 border-t border-border/10">
                         {Object.entries(item.selected_options)
-                          .filter(([key]) => key !== "Asset URLs") // Don't show raw URLs in details grid
+                          .filter(([key]) => !["Asset URLs", "Uploaded Assets"].includes(key)) // Don't show raw asset data in details grid
                           .map(([key, value], idx) => (
                             <div key={idx} className="space-y-1">
                               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/40 line-clamp-1">
@@ -72,52 +72,120 @@ export function ConfirmationDetails({
                       </div>
                     )}
 
-                  {(item.design_file_url || (item.selected_options && item.selected_options["Asset URLs"])) && (
+                  {/* UX Distinction: Hire a Designer vs Upload */}
+                  {item.design_preference === "hire_designer" ||
+                  item.selected_options?.Service === "Pana Designer" ? (
+                    <div className="pt-4 border-t border-border/10">
+                      <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center gap-4 transition-all hover:bg-primary/10">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-inner">
+                          <User size={18} />
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-[9px] font-bold uppercase tracking-widest text-primary/60">
+                            Service Tier
+                          </p>
+                          <p className="text-sm font-bold uppercase tracking-tight text-foreground">
+                            Hire a Pana Designer
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (item.design_file_url ||
+                      (item.order_item_design_assets &&
+                        item.order_item_design_assets.length > 0) ||
+                      item.selected_options?.["Asset URLs"]) && (
                     <div className="pt-4 border-t border-border/10 space-y-3">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-primary/60 flex items-center gap-2">
                         <File size={12} /> Design Assets
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {/* Primary File (Legacy/Default) */}
-                        {item.design_file_url && (
-                          <a
-                            href={item.design_file_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-between p-2.5 rounded-xl bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors group"
-                          >
-                            <div className="flex items-center gap-2 min-w-0">
-                              <Download size={12} className="text-primary" />
-                              <span className="text-[10px] font-bold text-foreground truncate uppercase">
-                                {item.design_file_name || "Main Design"}
-                              </span>
-                            </div>
-                            <ExternalLink size={10} className="text-muted-foreground group-hover:text-primary transition-colors" />
-                          </a>
-                        )}
-                        
-                        {/* Secondary Files from Asset URLs array */}
-                        {Array.isArray(item.selected_options?.["Asset URLs"]) && 
-                          item.selected_options["Asset URLs"]
-                            .filter((url: string) => url !== item.design_file_url) // avoid duplication
-                            .map((url: string, idx: number) => (
+                        {/* New Nested Assets Structure */}
+                        {item.order_item_design_assets &&
+                        item.order_item_design_assets.length > 0 ? (
+                          item.order_item_design_assets.map(
+                            (asset: any, idx: number) => (
                               <a
-                                key={idx}
-                                href={url}
+                                key={asset.id || idx}
+                                href={asset.file_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-between p-2.5 rounded-xl bg-muted/30 border border-border/10 hover:bg-muted/50 transition-colors group"
+                                className="flex items-center justify-between p-2.5 rounded-xl bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-all group scale-100 active:scale-95"
                               >
                                 <div className="flex items-center gap-2 min-w-0">
-                                  <Download size={12} className="text-muted-foreground" />
+                                  <Download
+                                    size={12}
+                                    className="text-primary shrink-0"
+                                  />
                                   <span className="text-[10px] font-bold text-foreground truncate uppercase">
-                                    Asset {idx + 2}
+                                    {asset.file_name}
                                   </span>
                                 </div>
-                                <ExternalLink size={10} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                                <ExternalLink
+                                  size={10}
+                                  className="text-muted-foreground group-hover:text-primary transition-colors shrink-0"
+                                />
                               </a>
-                            ))
-                        }
+                            ),
+                          )
+                        ) : (
+                          <>
+                            {/* Fallback to legacy column */}
+                            {item.design_file_url && (
+                              <a
+                                href={item.design_file_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-between p-2.5 rounded-xl bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-all group"
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <Download
+                                    size={12}
+                                    className="text-primary shrink-0"
+                                  />
+                                  <span className="text-[10px] font-bold text-foreground truncate uppercase">
+                                    {item.design_file_name || "Main Design"}
+                                  </span>
+                                </div>
+                                <ExternalLink
+                                  size={10}
+                                  className="text-muted-foreground group-hover:text-primary transition-colors shrink-0"
+                                />
+                              </a>
+                            )}
+                            {/* Fallback to metadata array */}
+                            {Array.isArray(
+                              item.selected_options?.["Asset URLs"],
+                            ) &&
+                              item.selected_options["Asset URLs"]
+                                .filter(
+                                  (url: string) =>
+                                    url !== item.design_file_url,
+                                )
+                                .map((url: string, idx: number) => (
+                                  <a
+                                    key={idx}
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center justify-between p-2.5 rounded-xl bg-muted/30 border border-border/10 hover:bg-muted/50 transition-all group"
+                                  >
+                                    <div className="flex items-center gap-2 min-w-0">
+                                      <Download
+                                        size={12}
+                                        className="text-muted-foreground shrink-0"
+                                      />
+                                      <span className="text-[10px] font-bold text-foreground truncate uppercase">
+                                        Asset {idx + 2}
+                                      </span>
+                                    </div>
+                                    <ExternalLink
+                                      size={10}
+                                      className="text-muted-foreground group-hover:text-primary transition-colors shrink-0"
+                                    />
+                                  </a>
+                                ))}
+                          </>
+                        )}
                       </div>
                     </div>
                   )}

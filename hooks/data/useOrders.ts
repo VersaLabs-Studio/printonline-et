@@ -26,7 +26,7 @@ export function useOrders(customerId?: string) {
     queryFn: async (): Promise<OrderWithItems[]> => {
       let query = supabase
         .from("orders")
-        .select("*, order_items(*)")
+        .select("*, order_items(*, order_item_design_assets(*))")
         .order("created_at", { ascending: false });
 
       if (customerId) {
@@ -54,7 +54,7 @@ export function useOrder(orderId: string) {
     queryFn: async (): Promise<OrderWithItems> => {
       const { data, error } = await supabase
         .from("orders")
-        .select("*, order_items(*)")
+        .select("*, order_items(*, order_item_design_assets(*))")
         .eq("id", orderId)
         .single();
 
@@ -80,7 +80,7 @@ export function useOrderByNumber(orderNumber: string) {
     queryFn: async (): Promise<OrderWithItems> => {
       const { data, error } = await supabase
         .from("orders")
-        .select("*, order_items(*)")
+        .select("*, order_items(*, order_item_design_assets(*))")
         .eq("order_number", orderNumber)
         .single();
 
