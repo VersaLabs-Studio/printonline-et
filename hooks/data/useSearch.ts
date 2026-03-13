@@ -26,7 +26,11 @@ export function useSearch(query: string, limit: number = 20) {
 
       const { data, error } = await supabase
         .from("products")
-        .select("*, category:categories(name, slug)")
+        .select(`
+          *,
+          category:categories(name, slug),
+          product_images(image_url, is_primary)
+        `)
         .eq("is_active", true)
         .or(
           `name.ilike.%${query}%,description.ilike.%${query}%,short_description.ilike.%${query}%`,

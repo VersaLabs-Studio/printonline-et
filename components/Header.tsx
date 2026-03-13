@@ -167,7 +167,7 @@ export default function Header() {
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 top-[64px] bg-background z-50 animate-in slide-in-from-top duration-300 flex flex-col p-6 space-y-8 overflow-y-auto">
-          <SearchBar />
+          <SearchBar onSearch={() => setIsMobileMenuOpen(false)} />
 
           <div className="flex flex-col gap-2">
             <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground ml-2 mb-2">
