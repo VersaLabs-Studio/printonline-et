@@ -22,8 +22,12 @@ export async function uploadDesignFiles(
     try {
       // Create a unique path: folder(cartLineId) / timestamp-filename
       const timestamp = new Date().getTime();
-      const cleanFileName = file.name.replace(/[^\x00-\x7F]/g, ""); // Basic cleanup
-      const filePath = `${cartLineId}/${timestamp}-${cleanFileName}`;
+      
+      // Sanitize cartLineId for storage path (remove illegal characters)
+      const sanitizedFolder = cartLineId.replace(/[:|() ]/g, "_").replace(/_{2,}/g, "_");
+      
+      const cleanFileName = file.name.replace(/[^\x00-\x7F]/g, "").replace(/[:|() ]/g, "_");
+      const filePath = `${sanitizedFolder}/${timestamp}-${cleanFileName}`;
 
       const { error } = await supabase.storage
         .from(bucketName)

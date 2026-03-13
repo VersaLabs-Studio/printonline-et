@@ -53,18 +53,65 @@ export function OrderItemList({ order }: OrderItemListProps) {
                   {item.quantity} x <PriceDisplay amount={item.unit_price} />
                 </p>
                 {item.selected_options && (
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {Object.entries(
-                      item.selected_options as Record<string, string>,
-                    ).map(([key, val]) => (
-                      <Badge
-                        key={key}
-                        variant="secondary"
-                        className="text-[9px] font-bold uppercase px-2 py-0.5 bg-muted/60 border-border/20 shadow-sm"
-                      >
-                        {key}: {val}
-                      </Badge>
-                    ))}
+                  <div className="space-y-3 pt-2">
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(
+                        item.selected_options as Record<string, string>,
+                      )
+                        .filter(([key]) => key !== "Asset URLs")
+                        .map(([key, val]) => (
+                          <Badge
+                            key={key}
+                            variant="secondary"
+                            className="text-[9px] font-bold uppercase px-2 py-0.5 bg-muted/60 border-border/20 shadow-sm"
+                          >
+                            {key}: {val}
+                          </Badge>
+                        ))}
+                    </div>
+
+                    {/* Design Assets Display */}
+                    {(item.design_file_url || (item.selected_options as any)?.["Asset URLs"]) && (
+                      <div className="pt-2 space-y-2 border-t border-border/10">
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-primary/60 flex items-center gap-2">
+                          Design Assets
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {/* Primary File */}
+                          {item.design_file_url && (
+                            <a
+                              href={item.design_file_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 p-2 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors group"
+                            >
+                              <span className="text-[9px] font-bold text-foreground truncate max-w-[150px] uppercase">
+                                {item.design_file_name || "Main Design"}
+                              </span>
+                            </a>
+                          )}
+                          
+                          {/* Additional Files */}
+                          {Array.isArray((item.selected_options as any)?.["Asset URLs"]) && 
+                            (item.selected_options as any)["Asset URLs"]
+                              .filter((url: string) => url !== item.design_file_url)
+                              .map((url: string, idx: number) => (
+                                <a
+                                  key={idx}
+                                  href={url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 p-2 rounded-lg bg-muted/30 border border-border/10 hover:bg-muted/50 transition-colors group"
+                                >
+                                  <span className="text-[9px] font-bold text-foreground truncate max-w-[150px] uppercase">
+                                    Asset {idx + 2}
+                                  </span>
+                                </a>
+                              ))
+                          }
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
