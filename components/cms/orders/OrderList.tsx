@@ -5,7 +5,6 @@ import { CMSDataTable } from "@/components/cms/shared/CMSDataTable";
 import { Button } from "@/components/ui/button";
 import {
   Eye,
-  FileDown,
   MoreHorizontal,
   AlertCircle,
   Clock,
@@ -30,6 +29,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { CMSConfirmDialog } from "@/components/cms/shared/CMSConfirmDialog";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const statusConfig: Record<
   string,
@@ -132,6 +134,16 @@ export const columns: ColumnDef<OrderWithItems>[] = [
     ),
   },
   {
+    accessorFn: (row) => row.order_items?.length || 0,
+    id: "items",
+    header: "Items",
+    cell: ({ row }) => (
+      <span className="text-xs font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
+        {row.original.order_items?.length || 0}
+      </span>
+    ),
+  },
+  {
     accessorFn: (row) => row.total_amount,
     id: "total_amount",
     header: "Total",
@@ -170,43 +182,84 @@ export const columns: ColumnDef<OrderWithItems>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => {
+    cell: function ActionCell({ row }) {
       const order = row.original;
+      const [isCancelConfirmOpen, setIsCancelConfirmOpen] = React.useState(false);
+      const [isProcessing, setIsProcessing] = React.useState(false);
+      const router = useRouter();
+
+      const handleCancel = async () => {
+        try {
+          setIsProcessing(true);
+          const response = await fetch(`/api/orders/${order.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              status: "cancelled",
+              note: "Order cancelled by administrator from list view.",
+            }),
+          });
+
+          if (!response.ok) throw new Error("Failed to cancel order");
+
+          toast.success(`Order ${order.order_number} cancelled successfully`);
+          setIsCancelConfirmOpen(false);
+          router.refresh();
+        } catch (error) {
+          toast.error("Failed to cancel order. Please try again.");
+          console.error(error);
+        } finally {
+          setIsProcessing(false);
+        }
+      };
+
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="h-8 w-8 p-0 hover:bg-muted rounded-full active:scale-90 transition-all"
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="h-8 w-8 p-0 hover:bg-muted rounded-full"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-52 rounded-xl shadow-xl border-border/40 p-1.5"
             >
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className="w-52 rounded-xl shadow-xl border-border/40 p-1.5"
-          >
-            <DropdownMenuLabel className="text-[10px] uppercase font-medium tracking-wider text-muted-foreground px-2 py-1.5">
-              Order Management
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator className="opacity-50" />
-            <DropdownMenuItem
-              asChild
-              className="rounded-lg cursor-pointer font-semibold text-xs gap-3 py-2"
-            >
-              <Link href={`/cms/orders/${order.id}`}>
-                <Eye className="h-4 w-4 text-primary" /> View Full Detail
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="rounded-lg cursor-pointer font-semibold text-xs gap-3 py-2">
-              <FileDown className="h-4 w-4 text-primary" /> Generate Invoice
-            </DropdownMenuItem>
-            <DropdownMenuSeparator className="opacity-50" />
-            <DropdownMenuItem className="rounded-lg text-destructive focus:text-destructive cursor-pointer font-semibold text-xs gap-3 py-2">
-              <AlertCircle className="h-4 w-4" /> Cancel Order
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <DropdownMenuLabel className="text-[10px] uppercase font-medium tracking-wider text-muted-foreground px-2 py-1.5">
+                Order Management
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="opacity-50" />
+              <DropdownMenuItem
+                asChild
+                className="rounded-lg cursor-pointer font-semibold text-xs gap-3 py-2"
+              >
+                <Link href={`/cms/orders/${order.id}`}>
+                  <Eye className="h-4 w-4 text-primary" /> View Full Detail
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="opacity-50" />
+              <DropdownMenuItem 
+                className="rounded-lg text-destructive focus:text-destructive cursor-pointer font-semibold text-xs gap-3 py-2"
+                onClick={() => setIsCancelConfirmOpen(true)}
+              >
+                <AlertCircle className="h-4 w-4" /> Cancel Order
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <CMSConfirmDialog
+            isOpen={isCancelConfirmOpen}
+            onClose={() => !isProcessing && setIsCancelConfirmOpen(false)}
+            onConfirm={handleCancel}
+            title={`Cancel Order ${order.order_number}?`}
+            description="This will mark the order as cancelled and notify the customer. This action is tracked in the status history."
+            confirmLabel={isProcessing ? "Cancelling..." : "Confirm Cancellation"}
+            variant="destructive"
+          />
+        </>
       );
     },
   },

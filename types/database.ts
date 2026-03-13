@@ -788,6 +788,7 @@ export type ProductWithDetails = Product & {
 
 /** Order with its line items and design assets */
 export type OrderWithItems = Order & {
+  customer?: CustomerProfile | null;
   order_items: (OrderItem & {
     order_item_design_assets: OrderItemDesignAsset[];
   })[];

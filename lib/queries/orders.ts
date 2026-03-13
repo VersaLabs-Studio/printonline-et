@@ -38,7 +38,7 @@ export async function getOrderById(
 
   const { data, error } = await supabase
     .from("orders")
-    .select("*, order_items(*)")
+    .select("*, order_items(*, order_item_design_assets(*)), customer:customer_profiles(*)")
     .eq("id", orderId)
     .single();
 
@@ -160,7 +160,7 @@ export async function getAllOrders(options?: {
 }): Promise<Order[]> {
   let query = supabaseAdmin
     .from("orders")
-    .select("*")
+    .select("*, order_items(*)")
     .order("created_at", { ascending: false });
 
   if (options?.status) {

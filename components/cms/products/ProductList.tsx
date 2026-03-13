@@ -44,7 +44,7 @@ export const columns: ColumnDef<ProductWithCategory>[] = [
               <img
                 src={mainImage.image_url}
                 alt={product.name}
-                className="h-full w-full object-cover transition-transform hover:scale-110"
+                className="h-full w-full object-cover"
               />
             ) : (
               <PackageIcon className="h-5 w-5 text-muted-foreground/30" />
@@ -105,7 +105,7 @@ export const columns: ColumnDef<ProductWithCategory>[] = [
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="h-8 w-8 p-0 hover:bg-muted rounded-full transition-all active:scale-90"
+              className="h-8 w-8 p-0 hover:bg-muted rounded-full transition-all duration-200 ease-out"
             >
               <MoreHorizontal className="h-4 w-4" />
             </Button>

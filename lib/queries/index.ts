@@ -14,3 +14,4 @@ export {
   updateOrderStatus,
   getAllOrders,
 } from "./orders";
+export { getDashboardStats, getRecentOrdersSnippet } from "./dashboard";

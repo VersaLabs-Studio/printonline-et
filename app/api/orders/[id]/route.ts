@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { z } from "zod";
+import { isAdmin } from "@/lib/permissions";
 
 export async function GET(
   req: Request,
@@ -45,15 +46,16 @@ export async function GET(
       .single();
 
     // Check ownership. Bypass if user role is admin.
+    const isOrderAdmin = isAdmin(session.user);
     if (
       order.customer_id !== customerProfile?.id &&
-      session.user.role !== "admin"
+      !isOrderAdmin
     ) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     return NextResponse.json({ order }, { status: 200 });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },
@@ -65,10 +67,13 @@ const updateStatusSchema = z.object({
   status: z.enum([
     "pending",
     "confirmed",
-    "processing",
+    "design_review",
+    "on_hold",
+    "approved",
+    "printing",
     "ready",
+    "out_for_delivery",
     "delivered",
-    "completed",
     "cancelled",
   ]),
   note: z.string().optional(),
@@ -87,23 +92,35 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Check if user is admin
-    if (session.user.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
     const { id } = await params;
     const body = await req.json();
     const { status, note } = updateStatusSchema.parse(body);
 
     const { data: order, error: fetchError } = await supabaseAdmin
       .from("orders")
-      .select("status_history")
+      .select("status_history, customer_id, status")
       .eq("id", id)
       .single();
 
     if (fetchError || !order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    // --- Authorization Logic ---
+    const { data: customerProfile } = await supabaseAdmin
+      .from("customer_profiles")
+      .select("id")
+      .eq("auth_user_id", session.user.id)
+      .single();
+
+    const isOrderOwner = order.customer_id === customerProfile?.id;
+    const isOrderAdmin = isAdmin(session.user);
+    
+    // Only admins can change to anything other than 'cancelled'
+    // Customers can only 'cancel' their own orders
+    if (!isOrderAdmin && !(isOrderOwner && status === "cancelled")) {
+      console.warn(`[API PUT /api/orders/${id}] 403 Forbidden for user ${session.user.email}`);
+      return NextResponse.json({ error: "Forbidden: Administrative privileges required for this transition." }, { status: 403 });
     }
 
     const currentHistory = Array.isArray(order.status_history)
@@ -115,7 +132,7 @@ export async function PUT(
         status,
         timestamp: new Date().toISOString(),
         by: session.user.email,
-        note: note || `Status updated to ${status}`,
+        note: note || `Status updated to ${status} by ${isOrderAdmin ? "administrator" : "customer"}`,
       },
     ];
 
@@ -123,7 +140,7 @@ export async function PUT(
       .from("orders")
       .update({
         status,
-        status_history: newHistory as any,
+        status_history: newHistory as any[],
       })
       .eq("id", id)
       .select()

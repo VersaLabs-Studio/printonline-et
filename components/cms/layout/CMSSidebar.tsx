@@ -11,8 +11,8 @@ import {
   Layers,
   ChevronLeft,
   ExternalLink,
-  ChevronRight,
   LogOut,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,14 @@ interface NavItemProps {
   maintenance?: boolean;
 }
 
-function NavItem({ href, icon: Icon, label, active, collapsed, maintenance }: NavItemProps) {
+function NavItem({
+  href,
+  icon: Icon,
+  label,
+  active,
+  collapsed,
+  maintenance,
+}: NavItemProps) {
   return (
     <Link href={href} className="block">
       <span
@@ -79,14 +86,25 @@ interface CMSSidebarProps {
 
 export function CMSSidebar({ isOpen, onClose }: CMSSidebarProps) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = React.useState(false);
+  const [collapsed] = React.useState(false);
 
   const navigation = [
     { href: "/cms", icon: BarChart3, label: "Overview" },
     { href: "/cms/orders", icon: ShoppingCart, label: "Orders" },
-    { href: "/cms/products", icon: Package, label: "Products", maintenance: true },
+    {
+      href: "/cms/products",
+      icon: Package,
+      label: "Products",
+      maintenance: true,
+    },
     { href: "/cms/customers", icon: Users, label: "Customers" },
-    { href: "/cms/categories", icon: Layers, label: "Categories", maintenance: true },
+    { href: "/cms/team", icon: ShieldCheck, label: "Team" },
+    {
+      href: "/cms/categories",
+      icon: Layers,
+      label: "Categories",
+      maintenance: true,
+    },
   ];
 
   const handleSignOut = async () => {
@@ -114,10 +132,10 @@ export function CMSSidebar({ isOpen, onClose }: CMSSidebarProps) {
       <div className="h-20 flex items-center px-6 border-b border-border/40 bg-muted/5 group">
         <div className="flex items-center gap-4 overflow-hidden">
           <div className="relative w-50 h-10 shrink-0">
-            <Image 
-              src="/nav-logo.png" 
-              alt="Pana Design" 
-              fill 
+            <Image
+              src="/nav-logo.png"
+              alt="Pana Design"
+              fill
               className="object-contain"
             />
           </div>
@@ -203,12 +221,12 @@ export function CMSSidebar({ isOpen, onClose }: CMSSidebarProps) {
           {!collapsed && <span>System Logout</span>}
         </Button>
 
-        <button
+        {/* <button
           onClick={() => setCollapsed(!collapsed)}
           className="mt-4 w-full h-8 flex items-center justify-center rounded-xl bg-muted/30 hover:bg-muted text-muted-foreground/60 hover:text-primary transition-all active:scale-95 border border-border/20"
         >
           {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-        </button>
+        </button> */}
       </div>
     </aside>
   );

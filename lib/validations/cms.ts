@@ -149,3 +149,19 @@ export const orderStatusUpdateSchema = z.object({
 });
 
 export type OrderStatusUpdateFormData = z.infer<typeof orderStatusUpdateSchema>;
+
+/**
+ * Strict status transition rules for CMS Order Pipeline
+ */
+export const ORDER_STATUS_TRANSITIONS: Record<string, string[]> = {
+  pending: ["confirmed", "cancelled"],
+  confirmed: ["design_review", "on_hold", "cancelled"],
+  design_review: ["on_hold", "approved", "cancelled"],
+  on_hold: ["design_review", "cancelled"],
+  approved: ["printing", "cancelled"],
+  printing: ["ready", "cancelled"],
+  ready: ["out_for_delivery", "cancelled"],
+  out_for_delivery: ["delivered", "cancelled"],
+  delivered: [], // Terminal
+  cancelled: [], // Terminal
+};

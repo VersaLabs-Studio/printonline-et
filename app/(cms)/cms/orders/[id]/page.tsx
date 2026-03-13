@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useOrder } from "@/hooks/data/useOrders";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { CMSPageHeader } from "@/components/cms/shared/CMSPageHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,9 +11,12 @@ import {
   Truck,
   AlertCircle,
   FileText,
-  Calendar,
   Printer,
   Package,
+  ShieldCheck,
+  History,
+  MessageSquare,
+  ArrowRight,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,59 +26,72 @@ import { OrderItemList } from "@/components/cms/orders/OrderItemList";
 import { OrderCustomerInfo } from "@/components/cms/orders/OrderCustomerInfo";
 import { OrderFulfillmentInfo } from "@/components/cms/orders/OrderFulfillmentInfo";
 import { Card } from "@/components/ui/card";
+import { ORDER_STATUS_TRANSITIONS } from "@/lib/validations/cms";
+import { CMSConfirmDialog } from "@/components/cms/shared/CMSConfirmDialog";
+import { toast } from "sonner";
 
 const statusConfig: Record<
   string,
-  { icon: any; label: string; className: string }
+  { icon: React.ElementType; label: string; className: string; description: string }
 > = {
   pending: {
     icon: Clock,
     label: "Pending Receipt",
+    description: "Initial state, awaiting admin review.",
     className: "bg-slate-50 text-slate-700 border-slate-200",
   },
   confirmed: {
     icon: CheckCircle2,
     label: "Order Confirmed",
+    description: "Order accepted and ready for design review.",
     className: "bg-blue-50 text-blue-700 border-blue-200",
   },
   design_review: {
     icon: FileText,
     label: "Design Under Review",
+    description: "Graphic design team is verifying assets.",
     className: "bg-indigo-50 text-indigo-700 border-indigo-200",
   },
   on_hold: {
     icon: AlertCircle,
     label: "On Hold",
+    description: "Waiting for customer clarification or assets.",
     className: "bg-amber-50 text-amber-700 border-amber-200",
   },
   approved: {
-    icon: CheckCircle2,
+    icon: ShieldCheck,
     label: "Approved for Production",
+    description: "Design verified and queued for printing.",
     className: "bg-emerald-50 text-emerald-700 border-emerald-200",
   },
   printing: {
     icon: Printer,
     label: "Printing in Progress",
+    description: "Active production on the printing floor.",
     className: "bg-orange-50 text-orange-700 border-orange-200",
   },
   ready: {
     icon: Package,
     label: "Ready for Delivery",
+    description: "Quality checked and packaged.",
     className: "bg-cyan-50 text-cyan-700 border-cyan-200",
   },
   out_for_delivery: {
     icon: Truck,
     label: "Out for Delivery",
+    description: "Dispatched with Pana Logistics fleet.",
     className: "bg-purple-50 text-purple-700 border-purple-200",
   },
   delivered: {
     icon: CheckCircle2,
     label: "Delivered",
+    description: "Order successfully handed to customer.",
     className: "bg-green-50 text-green-700 border-green-200",
   },
   cancelled: {
     icon: AlertCircle,
     label: "Cancelled",
+    description: "Transaction terminated.",
     className: "bg-red-50 text-red-700 border-red-200",
   },
 };
@@ -83,6 +99,9 @@ const statusConfig: Record<
 export default function CMSOrderDetailPage() {
   const { id } = useParams();
   const { data: order, isLoading } = useOrder(id as string);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null);
+  const router = useRouter();
 
   if (isLoading) {
     return (
@@ -105,12 +124,38 @@ export default function CMSOrderDetailPage() {
       </div>
     );
 
-  const currentStatus =
-    statusConfig[order.status.toLowerCase()] || statusConfig.pending;
+  const currentStatusKey = order.status.toLowerCase();
+  const currentStatus = statusConfig[currentStatusKey] || statusConfig.pending;
   const StatusIcon = currentStatus.icon;
+  
+  const allowedNextStatuses = ORDER_STATUS_TRANSITIONS[currentStatusKey] || [];
+
+  const handleStatusUpdate = async (newStatus: string) => {
+    setIsUpdating(true);
+    try {
+      const res = await fetch(`/api/orders/${order.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          status: newStatus,
+          note: `Status manually advanced from ${currentStatusKey} to ${newStatus} by admin.`
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update status");
+
+      toast.success(`Success! Order advanced to ${statusConfig[newStatus]?.label || newStatus}`);
+      router.refresh();
+    } catch {
+      toast.error("Process Error: Failed to update order pipeline status.");
+    } finally {
+      setIsUpdating(false);
+      setPendingStatus(null);
+    }
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-10">
       <CMSPageHeader
         title={order.order_number}
         subtitle={`Transaction initialized on ${format(new Date(order.created_at!), "MMM d, yyyy 'at' hh:mm a")}`}
@@ -120,54 +165,122 @@ export default function CMSOrderDetailPage() {
           { label: order.order_number },
         ]}
         actions={
-          <Badge
-            variant="outline"
-            className={cn(
-              "text-[10px] font-bold uppercase tracking-widest gap-2 px-5 py-2.5 rounded-xl shadow-lg border-2",
-              currentStatus.className,
-            )}
-          >
-            <StatusIcon size={16} />
-            {currentStatus.label}
-          </Badge>
+          <div className="flex items-center gap-4">
+             <Badge
+              variant="outline"
+              className={cn(
+                "text-[10px] font-bold uppercase tracking-[0.2em] gap-2 px-6 py-3 rounded-2xl shadow-sm border-2",
+                currentStatus.className,
+              )}
+            >
+              <StatusIcon size={16} />
+              {currentStatus.label}
+            </Badge>
+          </div>
         }
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">
-        <div className="lg:col-span-2 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Main Content */}
+        <div className="lg:col-span-8 space-y-8">
+          {/* Status Pipeline Controller */}
+          <Card className="border-border/40 shadow-xl rounded-3xl overflow-hidden bg-card/50 backdrop-blur-md">
+            <div className="p-8 border-b border-border/20 bg-muted/5 flex items-center justify-between">
+              <div>
+                <h5 className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary mb-1">Pipeline Control</h5>
+                <p className="text-xs font-medium text-muted-foreground">Enforce strict status transitions and fulfillment triggers.</p>
+              </div>
+              <History size={20} className="text-muted-foreground/30" />
+            </div>
+            <div className="p-8">
+              <div className="flex flex-wrap gap-4">
+                {allowedNextStatuses.length > 0 ? (
+                  allowedNextStatuses.map((nextKey) => {
+                    const cfg = statusConfig[nextKey];
+                    if (!cfg) return null;
+                    const NextIcon = cfg.icon;
+                    return (
+                      <Button
+                        key={nextKey}
+                        onClick={() => setPendingStatus(nextKey)}
+                        disabled={isUpdating}
+                        variant={nextKey === "cancelled" ? "ghost" : "outline"}
+                        className={cn(
+                          "h-auto py-5 px-6 rounded-2xl border-2 flex-1 min-w-[200px] flex flex-col items-start gap-3 transition-all group",
+                          nextKey === "cancelled" 
+                            ? "hover:bg-red-50 hover:text-red-700 hover:border-red-200" 
+                            : "hover:border-primary/50 hover:bg-primary/5 shadow-sm"
+                        )}
+                      >
+                        <div className="flex items-center justify-between w-full">
+                          <div className={cn(
+                            "p-2 rounded-xl group-hover:scale-110 transition-transform",
+                            nextKey === "cancelled" ? "bg-red-100/50 text-red-600" : "bg-primary/10 text-primary"
+                          )}>
+                            <NextIcon size={20} />
+                          </div>
+                          <ArrowRight size={16} className="text-muted-foreground/20 group-hover:text-primary/40 group-hover:translate-x-1 transition-all" />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-[10px] font-bold uppercase tracking-widest leading-none mb-1">Advance to</p>
+                          <p className="text-sm font-black tracking-tight">{cfg.label}</p>
+                        </div>
+                      </Button>
+                    );
+                  })
+                ) : (
+                  <div className="w-full p-10 rounded-3xl border-2 border-dashed border-border/40 bg-muted/10 flex flex-col items-center text-center">
+                    <CheckCircle2 size={40} className="text-emerald-500 mb-4 opacity-50" />
+                    <p className="font-bold text-foreground">Order Lifecycle Terminal</p>
+                    <p className="text-xs text-muted-foreground mt-1 max-w-[300px]">This order has reached its final state. No further transitions are available.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+
           <OrderItemList order={order} />
 
-          {order.special_instructions && (
-            <Card className="border-border/40 shadow-sm rounded-2xl bg-muted/10 p-6 border-l-4 border-l-primary/40">
-              <h5 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2">
-                <FileText size={14} className="text-primary" /> Customer
-                Instructions
+          {order.internal_notes && (
+            <Card className="border-border/40 shadow-sm rounded-2xl bg-muted/5 p-8 border-l-4 border-l-primary group">
+              <h5 className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground mb-4 flex items-center gap-2">
+                <MessageSquare size={14} className="text-primary" /> Internal HQ Notes
               </h5>
-              <p className="text-sm font-bold leading-relaxed italic text-foreground/80">
-                &quot;{order.special_instructions}&quot;
+              <p className="text-sm font-semibold leading-relaxed text-foreground/80 italic">
+                &quot;{order.internal_notes}&quot;
               </p>
             </Card>
           )}
         </div>
 
-        <div className="space-y-6">
+        {/* Sidebar Widgets */}
+        <div className="lg:col-span-4 space-y-8">
           <OrderCustomerInfo order={order} />
           <OrderFulfillmentInfo order={order} />
-
-          <div className="space-y-3 pt-2">
-            <Button className="w-full h-12 rounded-xl shadow-xl shadow-primary/20 font-bold uppercase tracking-widest text-[11px] gap-2 active:scale-95 transition-all">
-              <CheckCircle2 size={18} /> Update Fulfillment Status
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full h-12 rounded-xl border-border/50 font-bold uppercase tracking-widest text-[11px] gap-2 hover:bg-muted/50 transition-all"
-            >
-              <Calendar size={18} className="text-primary" /> Logistics
-              Scheduler
-            </Button>
+          
+          <div className="p-8 rounded-3xl bg-primary shadow-2xl shadow-primary/20 text-primary-foreground relative overflow-hidden group">
+            <div className="relative z-10">
+              <h6 className="text-[10px] font-black uppercase tracking-[0.4em] mb-4 opacity-70">Support Hotline</h6>
+              <p className="text-2xl font-black tracking-tighter mb-1">+251 911 223344</p>
+              <p className="text-xs font-bold opacity-60">Reach out for immediate fulfillment escalations.</p>
+              <Button className="w-full mt-6 bg-white text-primary hover:bg-white/90 font-bold uppercase tracking-widest text-[9px] h-12 shadow-lg rounded-xl">
+                 Contact Account Executive
+              </Button>
+            </div>
+            <Printer size={120} className="absolute -bottom-10 -right-10 opacity-10 group-hover:rotate-12 transition-transform duration-700" />
           </div>
         </div>
       </div>
+
+      <CMSConfirmDialog
+        isOpen={!!pendingStatus}
+        onClose={() => setPendingStatus(null)}
+        onConfirm={() => pendingStatus && handleStatusUpdate(pendingStatus)}
+        title="Confirm Status Transition"
+        description={`You are about to advance this order from "${currentStatus.label}" to "${statusConfig[pendingStatus!]?.label}". This will trigger an automatic email notification to the customer. Proceed?`}
+        confirmLabel="Confirm Advance"
+        variant={pendingStatus === "cancelled" ? "destructive" : "primary"}
+      />
     </div>
   );
 }

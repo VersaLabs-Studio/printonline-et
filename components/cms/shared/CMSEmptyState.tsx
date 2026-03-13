@@ -47,7 +47,7 @@ export function CMSEmptyState({
         <Button
           asChild={!!actionHref}
           onClick={onClick}
-          className="rounded-xl shadow-lg shadow-primary/20 font-semibold uppercase tracking-wider text-[10px] h-10 px-8 mt-4 animate-in fade-in zoom-in duration-500"
+          className="rounded-xl shadow-lg shadow-primary/20 font-semibold uppercase tracking-wider text-[10px] h-10 px-8 mt-4 transition-all duration-200 ease-out"
         >
           {actionHref ? (
             <Link href={actionHref} className="gap-2">

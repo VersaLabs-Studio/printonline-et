@@ -24,10 +24,10 @@ export function CMSPageHeader({
     <div className="space-y-4 mb-10">
       {/* Breadcrumbs */}
       {breadcrumbs && (
-        <nav className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60 transition-all">
+        <nav className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">
           <Link
             href="/cms"
-            className="hover:text-primary hover:tracking-[0.15em] transition-all duration-300"
+            className="hover:text-primary"
           >
             DASHBOARD
           </Link>
@@ -37,7 +37,7 @@ export function CMSPageHeader({
               {crumb.href ? (
                 <Link
                   href={crumb.href}
-                  className="hover:text-primary hover:tracking-[0.15em] transition-all duration-300"
+                  className="hover:text-primary transition-all duration-200 ease-out"
                 >
                   {crumb.label}
                 </Link>
@@ -50,14 +50,14 @@ export function CMSPageHeader({
       )}
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="space-y-1.5 animate-in fade-in slide-in-from-left duration-500">
+        <div className="space-y-1.5 duration-200 ease-out">
           <div className="flex items-center gap-4">
             {backHref && (
               <Button
                 variant="outline"
                 size="icon"
                 asChild
-                className="h-9 w-9 rounded-xl -ml-1 border-border/50 hover:bg-muted/50 hover:border-primary/20 shadow-sm transition-all active:scale-90"
+                className="h-9 w-9 rounded-xl -ml-1 border-border/50 hover:bg-muted/50 hover:border-primary/20 shadow-sm transition-all"
               >
                 <Link href={backHref}>
                   <ArrowLeft size={16} className="text-primary" />
@@ -76,7 +76,7 @@ export function CMSPageHeader({
         </div>
 
         {actions && (
-          <div className="flex items-center gap-3 shrink-0 animate-in fade-in slide-in-from-right duration-500">
+          <div className="flex items-center gap-3 shrink-0 duration-200 ease-out">
             {actions}
           </div>
         )}
