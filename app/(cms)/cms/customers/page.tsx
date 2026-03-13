@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useCustomers } from "@/hooks/data/useCustomers";
+import { useCustomers, CustomerWithStats } from "@/hooks/data/useCustomers";
 import { CMSPageHeader } from "@/components/cms/shared/CMSPageHeader";
 import { CMSDataTable } from "@/components/cms/shared/CMSDataTable";
 import { ColumnDef } from "@tanstack/react-table";
@@ -25,24 +25,22 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Database } from "@/types/database";
-
-type Customer = Database["public"]["Tables"]["customer_profiles"]["Row"];
+import { Badge } from "@/components/ui/badge";
 
 export default function CMSCustomersPage() {
   const { data: customers, isLoading, error } = useCustomers();
 
-  const columns: ColumnDef<Customer>[] = [
+  const columns: ColumnDef<CustomerWithStats>[] = [
     {
       accessorKey: "full_name",
       header: "Customer",
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs border border-primary/20 shadow-sm">
-            {row.original.full_name.charAt(0)}
+            {row.original.full_name?.charAt(0) || "U"}
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-sm tracking-tight">
+            <span className="font-bold text-sm tracking-tight text-foreground">
               {row.original.full_name}
             </span>
             <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest leading-none">
@@ -54,16 +52,18 @@ export default function CMSCustomersPage() {
     },
     {
       accessorKey: "email",
-      header: "Contact Intelligence",
+      header: "Contact",
       cell: ({ row }) => (
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2 text-xs font-bold text-foreground/80">
-            <Mail size={12} className="text-primary/60" /> {row.original.email}
+            <Mail size={12} className="text-muted-foreground" /> {row.original.email}
           </div>
-          <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground tracking-tight">
-            <Phone size={10} className="text-primary/60" />{" "}
-            {row.original.phone || "No phone record"}
-          </div>
+          {row.original.phone && (
+            <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground tracking-tight">
+              <Phone size={10} className="text-muted-foreground" />{" "}
+              {row.original.phone}
+            </div>
+          )}
         </div>
       ),
     },
@@ -73,11 +73,27 @@ export default function CMSCustomersPage() {
       cell: ({ row }) => (
         <div className="flex flex-col">
           <span className="text-xs font-bold">
-            {row.original.company_name || "Personal Account"}
+            {row.original.company_name || "Personal"}
           </span>
           {row.original.tin_number && (
             <span className="text-[10px] text-muted-foreground font-mono">
               TIN: {row.original.tin_number}
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "total_orders",
+      header: "Volume",
+      cell: ({ row }) => (
+        <div className="flex flex-col">
+          <Badge variant="secondary" className="w-fit text-[10px] font-bold py-0 h-5 px-2 bg-primary/5 text-primary border-primary/10">
+            {row.original.total_orders} Orders
+          </Badge>
+          {row.original.last_order_date && (
+            <span className="text-[9px] text-muted-foreground font-bold uppercase mt-1">
+              Last: {format(new Date(row.original.last_order_date), "MMM d, yyyy")}
             </span>
           )}
         </div>
@@ -101,7 +117,7 @@ export default function CMSCustomersPage() {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="h-8 w-8 p-0 hover:bg-muted rounded-full transition-all"
+              className="h-8 w-8 p-0 hover:bg-primary/5 rounded-full transition-all text-muted-foreground hover:text-primary"
             >
               <MoreHorizontal className="h-4 w-4" />
             </Button>
@@ -111,20 +127,24 @@ export default function CMSCustomersPage() {
             className="w-52 rounded-xl shadow-xl border-border/40 p-1.5"
           >
             <DropdownMenuLabel className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground px-2 py-1.5">
-              Customer Access
+              Customer Actions
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="opacity-50" />
             <DropdownMenuItem
               asChild
-              className="rounded-lg cursor-pointer font-bold text-xs gap-3 py-2"
+              className="rounded-lg cursor-pointer font-bold text-xs gap-3 py-2.5"
             >
               <Link href={`/cms/customers/${row.original.id}`}>
-                <Eye className="h-4 w-4 text-primary" /> Profile Overview
+                <Eye className="h-4 w-4 text-primary" /> View Details
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="rounded-lg cursor-pointer font-bold text-xs gap-3 py-2">
-              <ExternalLink className="h-4 w-4 text-primary" /> View Order
-              History
+            <DropdownMenuItem
+              asChild
+              className="rounded-lg cursor-pointer font-bold text-xs gap-3 py-2.5"
+            >
+              <Link href={`/cms/orders?customer=${row.original.id}`}>
+                <ExternalLink className="h-4 w-4 text-primary" /> Order History
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
