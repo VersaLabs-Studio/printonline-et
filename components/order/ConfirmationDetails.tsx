@@ -4,10 +4,11 @@ import React from "react";
 import Image from "next/image";
 import { User, MapPin, Mail, Phone, Info, File, ExternalLink, Download } from "lucide-react";
 import { PriceDisplay } from "@/components/shared/PriceDisplay";
+import { Badge } from "@/components/ui/badge";
+import type { OrderWithItems, OrderItemDesignAsset } from "@/types/database";
 
 interface ConfirmationDetailsProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  orderDetails: any;
+  orderDetails: OrderWithItems;
 }
 
 export function ConfirmationDetails({
@@ -57,18 +58,17 @@ export function ConfirmationDetails({
                   {item.selected_options &&
                     Object.keys(item.selected_options).length > 0 && (
                       <div className="grid grid-cols-2 gap-x-8 gap-y-4 pt-4 border-t border-border/10">
-                        {Object.entries(item.selected_options)
-                          .filter(([key]) => !["Asset URLs", "Uploaded Assets"].includes(key)) // Don't show raw asset data in details grid
-                          .map(([key, value], idx) => (
-                            <div key={idx} className="space-y-1">
-                              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/40 line-clamp-1">
-                                {key}
-                              </p>
-                              <p className="text-xs font-semibold uppercase tracking-tight text-foreground line-clamp-1">
-                                {String(value)}
-                              </p>
-                            </div>
-                          ))}
+                         {Object.entries((item.selected_options as Record<string, string | number | boolean>) || {})
+                          .filter(([key, val]) => val && !['Service', 'Asset URLs'].includes(key))
+                          .map(([key, val]) => (
+                          <Badge
+                            key={key}
+                            variant="secondary"
+                            className="text-[9px] font-medium bg-muted/50 border-border/20 px-2 py-0.5 rounded-md"
+                          >
+                            {key}: {String(val)}
+                          </Badge>
+                        ))}
                       </div>
                     )}
 
@@ -100,10 +100,10 @@ export function ConfirmationDetails({
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {/* New Nested Assets Structure */}
-                        {item.order_item_design_assets &&
-                        item.order_item_design_assets.length > 0 ? (
-                          item.order_item_design_assets.map(
-                            (asset: any, idx: number) => (
+                         {item.order_item_design_assets &&
+                         item.order_item_design_assets.length > 0 ? (
+                           item.order_item_design_assets.map(
+                             (asset: OrderItemDesignAsset, idx: number) => (
                               <a
                                 key={asset.id || idx}
                                 href={asset.file_url}

@@ -47,8 +47,22 @@ export default function OrderSummaryPage() {
         } else {
           // Fallback if no profile is completely registered
           setProfile({
-            full_name: session.user.name,
-            email: session.user.email,
+            id: crypto.randomUUID(),
+            auth_user_id: session.user.id,
+            full_name: session.user.name || "Guest Account",
+            email: session.user.email || "",
+            phone: null,
+            tin_number: null,
+            company_name: null,
+            address_line1: null,
+            address_line2: null,
+            city: "Addis Ababa",
+            sub_city: null,
+            woreda: null,
+            country: "Ethiopia",
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           });
         }
         setIsProfileLoading(false);

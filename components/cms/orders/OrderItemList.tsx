@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShoppingCart, Download, ExternalLink, File } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PriceDisplay } from "@/components/shared/PriceDisplay";
-import { OrderWithItems } from "@/types";
+import type { OrderWithItems } from "@/types/database";
 
 interface OrderItemListProps {
   order: OrderWithItems;
@@ -53,28 +53,23 @@ export function OrderItemList({ order }: OrderItemListProps) {
                 </p>
                 {item.selected_options && (
                   <div className="space-y-3 pt-2">
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(
-                        item.selected_options as Record<string, string>,
-                      )
-                        .filter(
-                          ([key]) =>
-                            !["Asset URLs", "Uploaded Assets"].includes(key),
-                        )
-                        .map(([key, val]) => (
-                          <Badge
-                            key={key}
-                            variant="secondary"
-                            className="text-[9px] font-bold uppercase px-2 py-0.5 bg-muted/60 border-border/20 shadow-sm"
+                    <div className="flex flex-wrap gap-2 mb-2">
+                        {Object.entries((item.selected_options as Record<string, string | number | boolean>) || {})
+                          .filter(([key, val]) => val && !['Service', 'Asset URLs'].includes(key))
+                          .map(([key, val]) => (
+                          <Badge 
+                            key={key} 
+                            variant="secondary" 
+                            className="text-[9px] font-medium bg-muted/50 border-border/20 px-2 py-0.5 rounded-md"
                           >
-                            {key}: {val}
+                            {key}: {String(val)}
                           </Badge>
                         ))}
                     </div>
 
                     {/* Design Assets Display */}
                     {item.design_preference === "hire_designer" ||
-                    (item.selected_options as Record<string, any>)?.Service ===
+                    (item.selected_options as Record<string, string>)?.Service ===
                       "Pana Designer" ? (
                       <div className="pt-2 border-t border-border/10">
                         <Badge
@@ -87,7 +82,7 @@ export function OrderItemList({ order }: OrderItemListProps) {
                     ) : (item.design_file_url ||
                         (item.order_item_design_assets &&
                           item.order_item_design_assets.length > 0) ||
-                        (item.selected_options as Record<string, any>)?.[
+                        !!(item.selected_options as Record<string, unknown>)?.[
                           "Asset URLs"
                         ]) && (
                       <div className="pt-2 space-y-2 border-t border-border/10">
@@ -147,12 +142,10 @@ export function OrderItemList({ order }: OrderItemListProps) {
 
                               {/* Legacy Metadata Array */}
                               {Array.isArray(
-                                (item.selected_options as Record<string, any>)
+                                (item.selected_options as Record<string, unknown>)
                                   ?.["Asset URLs"],
                               ) &&
-                                (item.selected_options as Record<string, any>)[
-                                  "Asset URLs"
-                                ]
+                                ((item.selected_options as Record<string, string[]>)["Asset URLs"])
                                   .filter(
                                     (url: string) =>
                                       url !== item.design_file_url,
