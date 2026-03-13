@@ -51,10 +51,10 @@ export const columns: ColumnDef<ProductWithCategory>[] = [
             )}
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-sm tracking-tight">
+            <span className="font-semibold text-sm tracking-tight">
               {product.name}
             </span>
-            <span className="text-[10px] text-muted-foreground font-mono font-bold uppercase tracking-widest bg-muted/50 w-fit px-1.5 rounded">
+            <span className="text-[10px] text-muted-foreground font-mono font-medium uppercase tracking-wider bg-muted/50 w-fit px-1.5 rounded">
               {product.sku || "NO-SKU"}
             </span>
           </div>
@@ -68,7 +68,7 @@ export const columns: ColumnDef<ProductWithCategory>[] = [
     cell: ({ row }) => (
       <PriceDisplay
         amount={row.original.base_price}
-        className="text-sm font-bold text-primary"
+        className="text-sm font-semibold text-primary"
       />
     ),
   },
@@ -87,7 +87,7 @@ export const columns: ColumnDef<ProductWithCategory>[] = [
         <Badge
           variant="outline"
           className={cn(
-            "text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md shadow-sm",
+            "text-[9px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm",
             variants[status] || "bg-muted text-muted-foreground",
           )}
         >
@@ -114,13 +114,13 @@ export const columns: ColumnDef<ProductWithCategory>[] = [
             align="end"
             className="w-48 rounded-xl shadow-xl border-border/40 p-1.5"
           >
-            <DropdownMenuLabel className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground px-2 py-1.5">
+            <DropdownMenuLabel className="text-[10px] uppercase font-medium tracking-wider text-muted-foreground px-2 py-1.5">
               Actions
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="opacity-50" />
             <DropdownMenuItem
               asChild
-              className="rounded-lg cursor-pointer font-bold text-xs gap-2"
+              className="rounded-lg cursor-pointer font-semibold text-xs gap-2"
             >
               <Link href={`/cms/products/${product.id}`}>
                 <Eye className="h-4 w-4 text-primary" /> View Details
@@ -128,7 +128,7 @@ export const columns: ColumnDef<ProductWithCategory>[] = [
             </DropdownMenuItem>
             <DropdownMenuItem
               asChild
-              className="rounded-lg cursor-pointer font-bold text-xs gap-2"
+              className="rounded-lg cursor-pointer font-semibold text-xs gap-2"
             >
               <Link href={`/cms/products/${product.id}/edit`}>
                 <Edit className="h-4 w-4 text-primary" /> Edit Product
@@ -136,7 +136,7 @@ export const columns: ColumnDef<ProductWithCategory>[] = [
             </DropdownMenuItem>
             <DropdownMenuItem
               asChild
-              className="rounded-lg cursor-pointer font-bold text-xs gap-2"
+              className="rounded-lg cursor-pointer font-semibold text-xs gap-2"
             >
               <Link href={`/products/${product.slug}`} target="_blank">
                 <ExternalLink className="h-4 w-4 text-primary" /> View on Site
@@ -144,7 +144,7 @@ export const columns: ColumnDef<ProductWithCategory>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator className="opacity-50" />
             <DropdownMenuItem
-              className="rounded-lg text-destructive focus:text-destructive cursor-pointer font-bold text-xs gap-2"
+              className="rounded-lg text-destructive focus:text-destructive cursor-pointer font-semibold text-xs gap-2"
               onClick={() =>
                 toast.success("Delete functionality coming in 4.2.4")
               }

@@ -14,7 +14,7 @@ export function OrderItemList({ order }: OrderItemListProps) {
   return (
     <Card className="border-border/40 shadow-sm rounded-2xl overflow-hidden">
       <CardHeader className="bg-muted/10 border-b border-border/40 py-4">
-        <CardTitle className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+        <CardTitle className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2 text-foreground">
           <ShoppingCart size={16} className="text-primary" /> Order Items (
           {order.order_items?.length})
         </CardTitle>
@@ -40,15 +40,15 @@ export function OrderItemList({ order }: OrderItemListProps) {
               </div>
               <div className="flex-1 space-y-1">
                 <div className="flex justify-between">
-                  <h4 className="font-bold text-sm tracking-tight">
+                  <h4 className="font-semibold text-sm tracking-tight">
                     {item.product_name}
                   </h4>
                   <PriceDisplay
                     amount={item.line_total}
-                    className="text-sm font-bold text-primary"
+                    className="text-sm font-semibold text-primary"
                   />
                 </div>
-                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
+                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
                   {item.quantity} x <PriceDisplay amount={item.unit_price} />
                 </p>
                 {item.selected_options && (
@@ -74,7 +74,7 @@ export function OrderItemList({ order }: OrderItemListProps) {
                       <div className="pt-2 border-t border-border/10">
                         <Badge
                           variant="outline"
-                          className="bg-primary/5 text-primary border-primary/20 gap-2 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest"
+                          className="bg-primary/5 text-primary border-primary/20 gap-2 px-3 py-1 rounded-lg text-[10px] font-medium uppercase tracking-wider"
                         >
                           <ShoppingCart size={12} /> Hire a Pana Designer
                         </Badge>
@@ -86,7 +86,7 @@ export function OrderItemList({ order }: OrderItemListProps) {
                           "Asset URLs"
                         ]) && (
                       <div className="pt-2 space-y-2 border-t border-border/10">
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-primary/60 flex items-center gap-2">
+                        <p className="text-[9px] font-medium uppercase tracking-wider text-primary/60 flex items-center gap-2">
                           <File size={12} /> Design Assets
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -106,7 +106,7 @@ export function OrderItemList({ order }: OrderItemListProps) {
                                     size={10}
                                     className="text-primary"
                                   />
-                                  <span className="text-[9px] font-bold text-foreground truncate max-w-[150px] uppercase">
+                                  <span className="text-[9px] font-semibold text-foreground truncate max-w-[150px] uppercase">
                                     {asset.file_name}
                                   </span>
                                   <ExternalLink
@@ -130,7 +130,7 @@ export function OrderItemList({ order }: OrderItemListProps) {
                                     size={10}
                                     className="text-primary"
                                   />
-                                  <span className="text-[9px] font-bold text-foreground truncate max-w-[150px] uppercase">
+                                  <span className="text-[9px] font-semibold text-foreground truncate max-w-[150px] uppercase">
                                     {item.design_file_name || "Main Design"}
                                   </span>
                                   <ExternalLink
@@ -162,7 +162,7 @@ export function OrderItemList({ order }: OrderItemListProps) {
                                         size={10}
                                         className="text-muted-foreground"
                                       />
-                                      <span className="text-[9px] font-bold text-foreground truncate max-w-[150px] uppercase">
+                                      <span className="text-[9px] font-semibold text-foreground truncate max-w-[150px] uppercase">
                                         Asset {idx + 2}
                                       </span>
                                       <ExternalLink
@@ -184,27 +184,27 @@ export function OrderItemList({ order }: OrderItemListProps) {
         </div>
         <div className="bg-muted/10 p-6 space-y-3 border-t border-border/40">
           <div className="flex justify-between text-sm">
-            <span className="font-bold text-muted-foreground uppercase tracking-widest text-[9px]">
+            <span className="font-medium text-muted-foreground uppercase tracking-wider text-[9px]">
               Subtotal
             </span>
-            <PriceDisplay amount={order.subtotal} className="font-bold" />
+            <PriceDisplay amount={order.subtotal} className="font-semibold" />
           </div>
           <div className="flex justify-between text-sm">
-            <span className="font-bold text-muted-foreground uppercase tracking-widest text-[9px]">
+            <span className="font-medium text-muted-foreground uppercase tracking-wider text-[9px]">
               Taxes & Fees
             </span>
             <PriceDisplay
               amount={order.tax_amount || 0}
-              className="font-bold"
+              className="font-semibold"
             />
           </div>
           <div className="flex justify-between text-lg pt-3 border-t-2 border-dashed border-border/40">
-            <span className="font-bold uppercase tracking-widest text-xs">
+            <span className="font-medium uppercase tracking-wider text-xs">
               Total Amount
             </span>
             <PriceDisplay
               amount={order.total_amount}
-              className="font-bold text-primary text-xl"
+              className="font-semibold text-primary text-xl"
             />
           </div>
         </div>

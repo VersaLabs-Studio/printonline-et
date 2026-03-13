@@ -43,10 +43,10 @@ export function CMSHeader({ onMenuClick }: CMSHeaderProps) {
         >
           <Menu className="h-5 w-5" />
         </Button>
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold shadow-sm shadow-primary/20">
+        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-semibold shadow-sm shadow-primary/20">
           P
         </div>
-        <span className="font-bold text-sm tracking-tight leading-tight">
+        <span className="font-semibold text-sm tracking-tight leading-tight">
           PrintOnline CMS
         </span>
       </div>
@@ -87,15 +87,15 @@ export function CMSHeader({ onMenuClick }: CMSHeaderProps) {
                   src={session?.user?.image || ""}
                   alt={session?.user?.name || "Admin"}
                 />
-                <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
+                <AvatarFallback className="bg-primary/5 text-primary text-xs font-medium">
                   {session?.user?.name?.charAt(0) || "A"}
                 </AvatarFallback>
               </Avatar>
               <div className="hidden lg:flex flex-col items-start">
-                <span className="text-sm font-bold leading-none">
+                <span className="text-sm font-semibold leading-none">
                   {session?.user?.name}
                 </span>
-                <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-tighter">
+                <span className="text-[10px] text-muted-foreground font-medium uppercase">
                   System Admin
                 </span>
               </div>
@@ -104,7 +104,7 @@ export function CMSHeader({ onMenuClick }: CMSHeaderProps) {
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-bold leading-none">
+                <p className="text-sm font-semibold leading-none">
                   {session?.user?.name}
                 </p>
                 <p className="text-xs leading-none text-muted-foreground">

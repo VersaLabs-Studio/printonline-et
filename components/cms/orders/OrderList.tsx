@@ -33,7 +33,7 @@ import { cn } from "@/lib/utils";
 
 const statusConfig: Record<
   string,
-  { icon: any; label: string; className: string }
+  { icon: React.ElementType; label: string; className: string }
 > = {
   pending: {
     icon: Clock,
@@ -92,7 +92,7 @@ export const columns: ColumnDef<OrderWithItems>[] = [
     accessorKey: "order_number",
     header: "Order #",
     cell: ({ row }) => (
-      <span className="font-bold text-sm font-mono tracking-tighter bg-muted/40 px-2 py-1 rounded-lg border border-border/20">
+      <span className="font-semibold text-sm font-mono tracking-tighter bg-muted/40 px-2 py-1 rounded-lg border border-border/20">
         {row.original.order_number}
       </span>
     ),
@@ -103,10 +103,10 @@ export const columns: ColumnDef<OrderWithItems>[] = [
     header: "Customer",
     cell: ({ row }) => (
       <div className="flex flex-col">
-        <span className="font-bold text-sm tracking-tight text-foreground">
+        <span className="font-semibold text-sm tracking-tight text-foreground">
           {row.original.customer_name}
         </span>
-        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
+        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
           {row.original.customer_email}
         </span>
       </div>
@@ -118,12 +118,12 @@ export const columns: ColumnDef<OrderWithItems>[] = [
     header: "Order Date",
     cell: ({ row }) => (
       <div className="flex flex-col">
-        <span className="text-xs font-bold text-foreground/80">
+        <span className="text-xs font-medium text-foreground/80">
           {row.original.created_at
             ? format(new Date(row.original.created_at), "MMM d, yyyy")
             : "N/A"}
         </span>
-        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-tighter">
+        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">
           {row.original.created_at
             ? format(new Date(row.original.created_at), "hh:mm a")
             : ""}
@@ -138,7 +138,7 @@ export const columns: ColumnDef<OrderWithItems>[] = [
     cell: ({ row }) => (
       <PriceDisplay
         amount={row.original.total_amount}
-        className="text-sm font-bold text-primary bg-primary/5 px-2 py-1 rounded-lg"
+        className="text-sm font-semibold text-primary bg-primary/5 px-2 py-1 rounded-lg"
       />
     ),
   },
@@ -158,7 +158,7 @@ export const columns: ColumnDef<OrderWithItems>[] = [
         <Badge
           variant="outline"
           className={cn(
-            "text-[9px] font-bold uppercase tracking-widest gap-1.5 px-2.5 py-1 rounded-lg shadow-sm",
+            "text-[9px] font-medium uppercase tracking-wider gap-1.5 px-2.5 py-1 rounded-lg shadow-sm",
             config.className,
           )}
         >
@@ -186,23 +186,23 @@ export const columns: ColumnDef<OrderWithItems>[] = [
             align="end"
             className="w-52 rounded-xl shadow-xl border-border/40 p-1.5"
           >
-            <DropdownMenuLabel className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground px-2 py-1.5">
+            <DropdownMenuLabel className="text-[10px] uppercase font-medium tracking-wider text-muted-foreground px-2 py-1.5">
               Order Management
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="opacity-50" />
             <DropdownMenuItem
               asChild
-              className="rounded-lg cursor-pointer font-bold text-xs gap-3 py-2"
+              className="rounded-lg cursor-pointer font-semibold text-xs gap-3 py-2"
             >
               <Link href={`/cms/orders/${order.id}`}>
                 <Eye className="h-4 w-4 text-primary" /> View Full Detail
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="rounded-lg cursor-pointer font-bold text-xs gap-3 py-2">
+            <DropdownMenuItem className="rounded-lg cursor-pointer font-semibold text-xs gap-3 py-2">
               <FileDown className="h-4 w-4 text-primary" /> Generate Invoice
             </DropdownMenuItem>
             <DropdownMenuSeparator className="opacity-50" />
-            <DropdownMenuItem className="rounded-lg text-destructive focus:text-destructive cursor-pointer font-bold text-xs gap-3 py-2">
+            <DropdownMenuItem className="rounded-lg text-destructive focus:text-destructive cursor-pointer font-semibold text-xs gap-3 py-2">
               <AlertCircle className="h-4 w-4" /> Cancel Order
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -219,7 +219,7 @@ interface OrderListProps {
 export function OrderList({ orders }: OrderListProps) {
   return (
     <CMSDataTable
-      columns={columns as any}
+      columns={columns}
       data={orders}
       searchPlaceholder="Search by number, customer or status..."
     />

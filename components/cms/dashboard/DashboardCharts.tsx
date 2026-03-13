@@ -32,7 +32,7 @@ export function DashboardCharts() {
   return (
     <Card className="xl:col-span-2 shadow-sm border-border/50 rounded-2xl overflow-hidden">
       <CardHeader className="bg-muted/20 border-b border-border/40">
-        <CardTitle className="text-sm font-bold uppercase tracking-wider">
+        <CardTitle className="text-sm font-medium uppercase tracking-wider">
           Weekly Orders
         </CardTitle>
         <CardDescription className="text-xs">
@@ -74,7 +74,7 @@ export function DashboardCharts() {
                 borderColor: "hsl(var(--border))",
                 borderRadius: "12px",
                 fontSize: "12px",
-                fontWeight: "bold",
+                fontWeight: 600,
                 boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
               }}
             />

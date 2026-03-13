@@ -12,19 +12,19 @@ interface OrderCustomerInfoProps {
 export function OrderCustomerInfo({ order }: OrderCustomerInfoProps) {
   return (
     <Card className="border-border/40 shadow-sm rounded-2xl p-6 bg-muted/5">
-      <h5 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-5 flex items-center gap-2">
+      <h5 className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
         <User size={14} className="text-primary" /> Customer Profile
       </h5>
       <div className="space-y-5">
         <div className="flex items-center gap-4">
-          <div className="h-12 w-12 rounded-2xl bg-primary shadow-lg shadow-primary/20 text-primary-foreground flex items-center justify-center font-bold text-lg">
+          <div className="h-12 w-12 rounded-2xl bg-primary shadow-lg shadow-primary/20 text-primary-foreground flex items-center justify-center font-semibold text-lg">
             {order.customer_name.charAt(0)}
           </div>
           <div className="overflow-hidden">
-            <p className="text-sm font-bold tracking-tight text-foreground truncate">
+            <p className="text-sm font-semibold tracking-tight text-foreground truncate">
               {order.customer_name}
             </p>
-            <p className="text-[11px] text-muted-foreground font-bold truncate tracking-tight">
+            <p className="text-[11px] text-muted-foreground font-medium truncate tracking-tight">
               {order.customer_email}
             </p>
           </div>
@@ -59,16 +59,16 @@ function ContactItem({
   label,
   value,
 }: {
-  icon: any;
+  icon: React.ElementType;
   label: string;
   value: string;
 }) {
   return (
     <div className="flex flex-col gap-1 group">
-      <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest leading-none flex items-center gap-1.5 px-0.5">
+      <span className="text-[8px] font-medium text-muted-foreground uppercase tracking-wider leading-none flex items-center gap-1.5 px-0.5">
         <Icon size={10} className="text-primary/60" /> {label}
       </span>
-      <p className="text-xs font-bold text-foreground/80 bg-background/50 border border-border/20 rounded-lg px-2.5 py-1.5 shadow-sm group-hover:border-primary/20 transition-colors">
+      <p className="text-xs font-medium text-foreground/80 bg-background/50 border border-border/20 rounded-lg px-2.5 py-1.5 shadow-sm group-hover:border-primary/20 transition-colors">
         {value}
       </p>
     </div>

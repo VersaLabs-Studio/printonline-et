@@ -9,12 +9,10 @@ import {
   ShoppingCart,
   Users,
   Layers,
-  Settings,
   ChevronLeft,
   ExternalLink,
   ChevronRight,
   LogOut,
-  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -51,7 +49,7 @@ function NavItem({ href, icon: Icon, label, active, collapsed, maintenance }: Na
         />
         {!collapsed && (
           <div className="flex flex-1 items-center justify-between min-w-0">
-            <span className="text-xs font-bold uppercase tracking-widest whitespace-nowrap overflow-hidden truncate">
+            <span className="text-[15px] font-medium whitespace-nowrap overflow-hidden truncate">
               {label}
             </span>
             {maintenance && (
@@ -62,7 +60,7 @@ function NavItem({ href, icon: Icon, label, active, collapsed, maintenance }: Na
           </div>
         )}
         {collapsed && (
-          <div className="absolute left-full ml-4 px-3 py-1.5 bg-card text-foreground text-[10px] font-bold uppercase tracking-widest rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 shadow-xl border border-border/50 whitespace-nowrap">
+          <div className="absolute left-full ml-4 px-3 py-1.5 bg-card text-foreground text-[10px] font-medium uppercase tracking-wider rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 shadow-xl border border-border/50 whitespace-nowrap">
             {label}
           </div>
         )}
@@ -123,6 +121,11 @@ export function CMSSidebar({ isOpen, onClose }: CMSSidebarProps) {
               className="object-contain"
             />
           </div>
+          {!collapsed && (
+            <span className="font-semibold text-sm tracking-tight leading-tight">
+              PrintOnline CMS
+            </span>
+          )}
         </div>
         {/* Mobile Close */}
         {isOpen && (
@@ -141,7 +144,7 @@ export function CMSSidebar({ isOpen, onClose }: CMSSidebarProps) {
         <div>
           <div
             className={cn(
-              "px-3 mb-4 text-[9px] font-bold text-muted-foreground uppercase tracking-[0.3em] opacity-50",
+              "px-3 mb-4 text-[9px] font-medium text-muted-foreground tracking-[0.3em] opacity-50",
               collapsed && "hidden",
             )}
           >
@@ -168,7 +171,7 @@ export function CMSSidebar({ isOpen, onClose }: CMSSidebarProps) {
         <div>
           <div
             className={cn(
-              "px-3 mb-4 text-[9px] font-bold text-muted-foreground uppercase tracking-[0.3em] opacity-50",
+              "px-3 mb-4 text-[9px] font-medium text-muted-foreground uppercase tracking-[0.3em] opacity-50",
               collapsed && "hidden",
             )}
           >
@@ -192,7 +195,7 @@ export function CMSSidebar({ isOpen, onClose }: CMSSidebarProps) {
           className={cn(
             "w-full rounded-xl transition-all duration-300",
             collapsed ? "h-12" : "h-12 justify-start px-4 gap-4",
-            "text-muted-foreground hover:text-destructive hover:bg-destructive/5 font-bold uppercase tracking-widest text-[10px]",
+            "text-muted-foreground hover:text-destructive hover:bg-destructive/5 font-semibold uppercase tracking-wider text-[10px]",
           )}
           onClick={handleSignOut}
         >

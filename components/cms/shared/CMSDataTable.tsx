@@ -89,7 +89,7 @@ export function CMSDataTable<TData, TValue>({
                     {headerGroup.headers.map((header) => (
                       <TableHead
                         key={header.id}
-                        className="h-12 px-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground"
+                        className="h-12 px-6 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
                       >
                         {header.isPlaceholder
                           ? null
@@ -128,10 +128,10 @@ export function CMSDataTable<TData, TValue>({
                     >
                       <div className="flex flex-col items-center justify-center space-y-2 opacity-40">
                         <Search size={40} className="mb-2" />
-                        <p className="text-sm font-bold uppercase tracking-widest">
+                        <p className="text-sm font-medium uppercase tracking-wider">
                           No matching records
                         </p>
-                        <p className="text-xs font-bold">
+                        <p className="text-xs font-normal">
                           Try adjusting your search criteria
                         </p>
                       </div>

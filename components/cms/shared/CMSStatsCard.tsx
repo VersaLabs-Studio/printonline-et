@@ -34,12 +34,12 @@ export function CMSStatsCard({
       <CardContent className="p-6">
         <div className="flex justify-between items-start">
           <div className="space-y-1">
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               {title}
             </p>
-            <h2 className="text-2xl font-bold tracking-tight">{value}</h2>
+            <h2 className="text-2xl font-semibold tracking-tight">{value}</h2>
             {delta && (
-              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold uppercase tracking-tighter">
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-tighter">
                 {delta}
               </p>
             )}

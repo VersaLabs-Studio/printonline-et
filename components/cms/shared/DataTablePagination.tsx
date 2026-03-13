@@ -31,7 +31,7 @@ export function DataTablePagination<TData>({
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
-      <div className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest">
+      <div className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
         Showing <span className="text-foreground">{currentStart}</span> to{" "}
         <span className="text-foreground">{currentEnd}</span> of{" "}
         <span className="text-foreground">{totalEntries}</span> records
@@ -55,7 +55,7 @@ export function DataTablePagination<TData>({
         >
           <ChevronLeft size={14} />
         </Button>
-        <div className="flex items-center px-4 h-8 rounded-lg border border-border/50 bg-muted/20 text-[10px] font-bold uppercase tracking-tighter">
+        <div className="flex items-center px-4 h-8 rounded-lg border border-border/50 bg-muted/20 text-[10px] font-medium uppercase tracking-tighter">
           Page {table.getState().pagination.pageIndex + 1} /{" "}
           {table.getPageCount()}
         </div>

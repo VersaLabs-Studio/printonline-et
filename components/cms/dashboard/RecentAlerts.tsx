@@ -37,7 +37,7 @@ function AlertItem({ icon: Icon, title, desc, color }: AlertItemProps) {
         <Icon size={18} className={color} />
       </div>
       <div className="space-y-0.5 overflow-hidden">
-        <p className="text-sm font-bold truncate">{title}</p>
+        <p className="text-sm font-semibold truncate">{title}</p>
         <p className="text-[11px] text-muted-foreground truncate">{desc}</p>
       </div>
     </div>
@@ -48,7 +48,7 @@ export function RecentAlerts() {
   return (
     <Card className="shadow-sm border-border/50 rounded-2xl overflow-hidden">
       <CardHeader className="bg-muted/20 border-b border-border/40">
-        <CardTitle className="text-sm font-bold uppercase tracking-wider">
+        <CardTitle className="text-sm font-medium uppercase tracking-wider">
           System Alerts
         </CardTitle>
         <CardDescription className="text-xs">
@@ -77,7 +77,7 @@ export function RecentAlerts() {
 
         <Button
           variant="outline"
-          className="w-full mt-4 rounded-xl border-border/60 font-bold text-xs uppercase tracking-widest gap-2"
+          className="w-full mt-4 rounded-xl border-border/60 font-semibold text-xs uppercase tracking-wider gap-2"
           asChild
         >
           <Link href="/cms/orders">
