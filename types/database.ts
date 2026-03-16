@@ -202,7 +202,9 @@ export type Database = {
           id: string;
           internal_notes: string | null;
           order_number: string;
+          payment_completed_at: string | null;
           payment_method: string | null;
+          payment_provider: string | null;
           payment_status: string | null;
           special_instructions: string | null;
           status: string;
@@ -212,6 +214,7 @@ export type Database = {
           terms_accepted: boolean | null;
           terms_accepted_at: string | null;
           total_amount: number;
+          tx_ref: string | null;
           updated_at: string | null;
         };
         Insert: {
@@ -230,7 +233,9 @@ export type Database = {
           id?: string;
           internal_notes?: string | null;
           order_number: string;
+          payment_completed_at?: string | null;
           payment_method?: string | null;
+          payment_provider?: string | null;
           payment_status?: string | null;
           special_instructions?: string | null;
           status?: string;
@@ -240,6 +245,7 @@ export type Database = {
           terms_accepted?: boolean | null;
           terms_accepted_at?: string | null;
           total_amount?: number;
+          tx_ref?: string | null;
           updated_at?: string | null;
         };
         Update: {
@@ -258,7 +264,9 @@ export type Database = {
           id?: string;
           internal_notes?: string | null;
           order_number?: string;
+          payment_completed_at?: string | null;
           payment_method?: string | null;
+          payment_provider?: string | null;
           payment_status?: string | null;
           special_instructions?: string | null;
           status?: string;
@@ -268,6 +276,7 @@ export type Database = {
           terms_accepted?: boolean | null;
           terms_accepted_at?: string | null;
           total_amount?: number;
+          tx_ref?: string | null;
           updated_at?: string | null;
         };
         Relationships: [
