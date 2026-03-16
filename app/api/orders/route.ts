@@ -160,7 +160,8 @@ export async function POST(req: Request) {
 
     // 2. Initialize Chapa Payment
     const timestamp = Date.now();
-    const tx_ref = `POL-TXN-${order.id}-${timestamp}`;
+    // Chapa tx_ref limit is 50 chars. POL-TXN (7) + UUID-prefix (8) + Timestamp (13) + separators = ~30 chars
+    const tx_ref = `POL-${order.id.slice(0, 8)}-${timestamp}`;
     
     // Split name for Chapa (Simple split, can be improved)
     const nameParts = validatedData.customer_name.trim().split(/\s+/);
@@ -178,7 +179,7 @@ export async function POST(req: Request) {
         callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/webhook`,
         return_url: `${process.env.NEXT_PUBLIC_APP_URL}/order-confirmation?tx_ref=${tx_ref}`,
         customization: {
-          title: "PrintOnline Ethiopia",
+          title: "PrintOnline.et",
           description: `Payment for Order ${order.order_number}`,
         },
       });

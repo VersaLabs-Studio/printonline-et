@@ -16,7 +16,7 @@ function OrderConfirmationContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get("order");
 
-  const { data: orderDetails, isLoading } = useQuery({
+  const { data: orderDetails, isLoading: isOrderLoading, refetch: refetchOrder } = useQuery({
     queryKey: ["order", orderNumber],
     queryFn: async () => {
       const res = await fetch(`/api/orders/${orderNumber}`);
@@ -27,13 +27,86 @@ function OrderConfirmationContent() {
     enabled: !!orderNumber,
   });
 
+  const txRef = searchParams.get("tx_ref");
+
+  const { data: verificationData, isLoading: isVerifying } = useQuery({
+    queryKey: ["verify-payment", txRef],
+    queryFn: async () => {
+      const res = await fetch(`/api/payments/verify?tx_ref=${txRef}`);
+      const data = await res.json();
+      
+      if (data.success) {
+        // Trigger email once verified successfully
+        await fetch("/api/send-order-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "order_confirmation",
+            order_id: data.order.id,
+          }),
+        });
+        // Refetch order details to show the updated "paid" status
+        refetchOrder();
+      }
+      
+      return data;
+    },
+    enabled: !!txRef,
+    retry: 1,
+  });
+
+  const isLoading = isOrderLoading || isVerifying;
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-8">
-        <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-muted-foreground font-bold animate-pulse">
-          Loading order details...
-        </p>
+        <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <div className="space-y-2">
+          <p className="text-xl font-semibold uppercase tracking-widest text-primary animate-pulse">
+            {isVerifying ? "Verifying Payment..." : "Loading Order Details..."}
+          </p>
+          <p className="text-xs text-muted-foreground font-medium">
+            {isVerifying ? "Securing your transaction with Chapa..." : "Retrieving your order information..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (txRef && verificationData && !verificationData.success) {
+    return (
+      <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
+        <div className="h-24 w-24 bg-red-500/10 rounded-3xl flex items-center justify-center text-red-500 shadow-inner">
+          <ShoppingBag size={48} />
+        </div>
+        <div className="space-y-3">
+          <h1 className="text-3xl font-bold tracking-tight uppercase text-red-500">
+            Payment Verification Failed
+          </h1>
+          <p className="max-w-md mx-auto text-muted-foreground font-medium text-sm leading-relaxed">
+            We couldn&apos;t automatically verify your payment. This might be due to a network delay or a canceled transaction.
+          </p>
+          {verificationData.details && (
+             <p className="text-[10px] font-bold uppercase tracking-widest text-red-400 opacity-60">
+               Reason: {verificationData.details}
+             </p>
+          )}
+        </div>
+        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+          <Button
+            onClick={() => window.location.reload()}
+            className="h-14 px-8 rounded-2xl font-bold uppercase tracking-wider text-xs"
+          >
+            Try Verifying Again
+          </Button>
+          <Button
+            variant="outline"
+            asChild
+            className="h-14 px-8 rounded-2xl font-bold uppercase tracking-wider text-xs border-border/40"
+          >
+            <Link href="/contact">Contact Support</Link>
+          </Button>
+        </div>
       </div>
     );
   }

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Package, ArrowLeft, Loader2, Lock } from "lucide-react";
@@ -14,9 +13,9 @@ import { useCart } from "@/context/CartContext";
 import { authClient } from "@/lib/auth-client";
 import { createClient } from "@/lib/supabase/client";
 import { uploadDesignFiles, type UploadedFile } from "@/lib/supabase/storage";
+import { OrderPaymentStep } from "@/components/order/OrderPaymentStep";
 
 export default function OrderSummaryPage() {
-  const router = useRouter();
   const { cart, getCartTotal, clearCart, localFiles } = useCart();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,7 +72,7 @@ export default function OrderSummaryPage() {
     }
   }, [session, isSessionPending, supabase]);
 
-  const handlePlaceOrder = async (termsAccepted: boolean) => {
+  const handlePaymentInitiation = async (termsAccepted: boolean) => {
     if (!termsAccepted) {
       toast.error("Please accept the terms and conditions.");
       return;
@@ -124,7 +123,6 @@ export default function OrderSummaryPage() {
             selected_options: {
               ...item.selectedOptions,
               ...(item.priorityPrice ? { "Production Speed": "Rush" } : {}),
-              // We'll keep these in metadata for now but the main display will use dedicated columns
               ...(item.hireDesigner ? { Service: "Pana Designer" } : {}),
             },
             design_preference: item.hireDesigner ? "hire_designer" : "upload",
@@ -147,29 +145,29 @@ export default function OrderSummaryPage() {
         body: JSON.stringify(orderPayload),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error("Failed to place order.");
+        throw new Error(data.error || "Failed to place order.");
       }
 
-      const { order } = await res.json();
-
-      // Trigger email
-      await fetch("/api/send-order-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "order_confirmation",
-          order_id: order.id,
-        }),
-      });
-
-      clearCart();
+      if (data.checkout_url) {
+        // Clear cart now as the order is created in 'pending_payment'
+        clearCart();
+        setIsSubmitting(false);
+        toast.success("Order initiated. Redirecting to secure payment...");
+        
+        // Short delay for the toast to be readable
+        setTimeout(() => {
+          window.location.href = data.checkout_url;
+        }, 1500);
+      } else {
+        throw new Error("No checkout URL received from Chapa.");
+      }
+    } catch (error: unknown) {
       setIsSubmitting(false);
-      toast.success("Order placed successfully!");
-      router.push(`/order-confirmation?order=${order.order_number}`);
-    } catch {
-      setIsSubmitting(false);
-      toast.error("An error occurred during checkout. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "An error occurred during checkout. Please try again.";
+      toast.error(errorMessage);
     }
   };
 
@@ -277,7 +275,7 @@ export default function OrderSummaryPage() {
               <AnimatePresence mode="wait">
                 {step === 1 ? (
                   <motion.div
-                    key="profile-sections"
+                    key="step-1"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
@@ -292,9 +290,9 @@ export default function OrderSummaryPage() {
                       onNext={() => setStep(2)}
                     />
                   </motion.div>
-                ) : (
+                ) : step === 2 ? (
                   <motion.div
-                    key="review-step"
+                    key="step-2"
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 1.02 }}
@@ -305,8 +303,22 @@ export default function OrderSummaryPage() {
                       deliveryMethod={deliveryMethod}
                       specialInstructions={specialInstructions}
                       onBack={() => setStep(1)}
-                      onSubmit={handlePlaceOrder}
+                      onSubmit={() => setStep(3)}
                       isSubmitting={isSubmitting}
+                    />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="step-3"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                  >
+                    <OrderPaymentStep
+                      onBack={() => setStep(2)}
+                      onSubmit={() => handlePaymentInitiation(true)}
+                      isSubmitting={isSubmitting}
+                      total={getCartTotal()}
                     />
                   </motion.div>
                 )}

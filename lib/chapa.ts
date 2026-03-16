@@ -74,7 +74,10 @@ export const chapa = {
 
     if (!response.ok) {
       console.error("Chapa Initialization Error:", data);
-      throw new Error(data.message || "Failed to initialize Chapa transaction");
+      const errorMessage = typeof data.message === "object" 
+        ? JSON.stringify(data.message) 
+        : data.message;
+      throw new Error(errorMessage || "Failed to initialize Chapa transaction");
     }
 
     return data;
@@ -99,7 +102,10 @@ export const chapa = {
 
     if (!response.ok) {
       console.error("Chapa Verification Error:", data);
-      throw new Error(data.message || "Failed to verify Chapa transaction");
+      const errorMessage = typeof data.message === "object" 
+        ? JSON.stringify(data.message) 
+        : data.message;
+      throw new Error(errorMessage || "Failed to verify Chapa transaction");
     }
 
     return data;
