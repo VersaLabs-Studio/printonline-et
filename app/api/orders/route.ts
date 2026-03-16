@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { z } from "zod";
+import { chapa } from "@/lib/chapa";
 
 const orderItemSchema = z.object({
   product_id: z.string().uuid().optional().nullable(),
@@ -80,7 +81,9 @@ export async function POST(req: Request) {
         delivery_address: validatedData.delivery_address,
         delivery_city: validatedData.delivery_city,
         delivery_sub_city: validatedData.delivery_sub_city,
-        status: validatedData.status,
+        status: "pending", // Initial status before payment
+        payment_status: "pending_payment",
+        payment_provider: "chapa",
         subtotal: validatedData.subtotal,
         delivery_fee: validatedData.delivery_fee,
         tax_amount: validatedData.tax_amount,
@@ -89,12 +92,11 @@ export async function POST(req: Request) {
         special_instructions: validatedData.special_instructions,
         terms_accepted: validatedData.terms_accepted,
         terms_accepted_at: new Date().toISOString(),
-        payment_method: validatedData.payment_method,
         status_history: [
           {
             status: "pending",
             timestamp: new Date().toISOString(),
-            note: "Order placed",
+            note: "Order initiated, awaiting payment",
           },
         ],
       })
@@ -156,7 +158,53 @@ export async function POST(req: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, order }, { status: 201 });
+    // 2. Initialize Chapa Payment
+    const timestamp = Date.now();
+    const tx_ref = `POL-TXN-${order.id}-${timestamp}`;
+    
+    // Split name for Chapa (Simple split, can be improved)
+    const nameParts = validatedData.customer_name.trim().split(/\s+/);
+    const firstName = nameParts[0] || "Customer";
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "System";
+
+    try {
+      const chapaResponse = await chapa.initialize({
+        amount: validatedData.total_amount.toString(),
+        currency: "ETB",
+        email: validatedData.customer_email,
+        first_name: firstName,
+        last_name: lastName,
+        tx_ref,
+        callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/webhook`,
+        return_url: `${process.env.NEXT_PUBLIC_APP_URL}/order-confirmation?tx_ref=${tx_ref}`,
+        customization: {
+          title: "PrintOnline Ethiopia",
+          description: `Payment for Order ${order.order_number}`,
+        },
+      });
+
+      // 3. Update order with tx_ref
+      await supabaseAdmin
+        .from("orders")
+        .update({ tx_ref })
+        .eq("id", order.id);
+
+      return NextResponse.json({ 
+        success: true, 
+        order,
+        checkout_url: chapaResponse.data.checkout_url 
+      }, { status: 201 });
+
+    } catch (chapaError) {
+      console.error("Chapa Initialization Error:", chapaError);
+      // Even if payment init fails, the order is created. 
+      // We return it so the frontend can handle the retry or failure and show the order summary.
+      return NextResponse.json({ 
+        success: false, 
+        order,
+        error: "Payment initialization failed"
+      }, { status: 201 });
+    }
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
