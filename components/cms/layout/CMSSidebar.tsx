@@ -38,13 +38,17 @@ function NavItem({
   maintenance,
 }: NavItemProps) {
   return (
-    <Link href={href} className="block">
+    <Link
+      href={href}
+      className={cn("block", maintenance && "pointer-events-none")}
+    >
       <span
         className={cn(
           "flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-300 group relative",
           active
             ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]"
             : "text-muted-foreground hover:bg-muted hover:text-foreground",
+          maintenance && "opacity-50 grayscale cursor-not-allowed",
         )}
       >
         <Icon

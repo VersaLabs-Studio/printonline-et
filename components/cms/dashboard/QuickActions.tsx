@@ -2,14 +2,13 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, ShoppingCart, Package, Settings, ExternalLink } from "lucide-react";
+import { Plus, ShoppingCart, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 export function QuickActions() {
   const actions = [
     { label: "New Product", icon: Plus, href: "/cms/products/new", color: "text-primary" },
     { label: "Orders", icon: ShoppingCart, href: "/cms/orders", color: "text-blue-500" },
-    { label: "Settings", icon: Settings, href: "/cms/settings", color: "text-slate-500" },
     { label: "Live Site", icon: ExternalLink, href: "/", color: "text-emerald-500" },
   ];
 
