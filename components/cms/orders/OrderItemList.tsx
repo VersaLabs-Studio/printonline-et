@@ -186,17 +186,13 @@ export function OrderItemList({ order }: OrderItemListProps) {
                 <PriceDisplay amount={order.subtotal} className="text-sm font-semibold" />
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">Taxation (15% VAT)</span>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">Tax Inclusive</span>
                 <PriceDisplay amount={order.tax_amount || 0} className="text-sm font-semibold text-emerald-600" />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">Logistics Surcharge</span>
-                <PriceDisplay amount={order.delivery_fee || 0} className="text-sm font-semibold" />
               </div>
             </div>
           </div>
           
-          <div className="flex flex-col justify-end items-end space-y-2">
+          <div className="flex flex-col justify-end items-end space-y-4">
             <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-muted-foreground translate-x-1">Total Receivables</span>
             <div className="flex items-baseline gap-2">
               <span className="text-sm font-bold text-primary/40 uppercase tracking-tighter">ETB</span>
@@ -205,8 +201,30 @@ export function OrderItemList({ order }: OrderItemListProps) {
                 className="text-5xl font-black text-primary tracking-tighter"
               />
             </div>
-            <div className="px-3 py-1 bg-primary/5 border border-primary/20 rounded-full">
-              <p className="text-[9px] font-bold text-primary uppercase tracking-widest">Finance Verified • Tax Inclusive</p>
+            <div className={`px-4 py-2 rounded-xl border ${
+              order.payment_status === "paid"
+                ? "bg-emerald-50 border-emerald-200"
+                : "bg-amber-50 border-amber-200"
+            }`}>
+              <div className="flex items-center gap-2">
+                <div className={`h-2 w-2 rounded-full ${
+                  order.payment_status === "paid" ? "bg-emerald-500" : "bg-amber-500"
+                }`} />
+                <p className={`text-[10px] font-bold uppercase tracking-widest ${
+                  order.payment_status === "paid" ? "text-emerald-700" : "text-amber-700"
+                }`}>
+                  {order.payment_status === "paid"
+                    ? "Payment Confirmed • Tax Inclusive"
+                    : order.payment_status === "pending_payment"
+                      ? "Awaiting Payment • Tax Inclusive"
+                      : `${order.payment_status || "Unknown"} • Tax Inclusive`}
+                </p>
+              </div>
+              {order.payment_completed_at && (
+                <p className="text-[8px] text-muted-foreground mt-1 ml-4">
+                  Verified on {new Date(order.payment_completed_at).toLocaleDateString()}
+                </p>
+              )}
             </div>
           </div>
         </div>
