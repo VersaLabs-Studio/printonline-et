@@ -14,10 +14,14 @@ import { authClient } from "@/lib/auth-client";
 import { createClient } from "@/lib/supabase/client";
 import { uploadDesignFiles, type UploadedFile } from "@/lib/supabase/storage";
 import { OrderPaymentStep } from "@/components/order/OrderPaymentStep";
+import { useSearchParams } from "next/navigation";
 
 export default function OrderSummaryPage() {
-  const { cart, getCartTotal, clearCart, localFiles } = useCart();
-  const [step, setStep] = useState(1);
+  const searchParams = useSearchParams();
+  const initialStep = parseInt(searchParams.get("step") || "1");
+  
+  const { cart, getCartTotal, localFiles } = useCart();
+  const [step, setStep] = useState(initialStep);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data: session, isPending: isSessionPending } =
@@ -152,8 +156,7 @@ export default function OrderSummaryPage() {
       }
 
       if (data.checkout_url) {
-        // Clear cart now as the order is created in 'pending_payment'
-        clearCart();
+        // DO NOT clear cart here. Only clear on confirmation page after success.
         setIsSubmitting(false);
         toast.success("Order initiated. Redirecting to secure payment...");
         

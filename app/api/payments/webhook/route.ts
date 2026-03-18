@@ -35,12 +35,12 @@ export async function POST(req: Request) {
         .from("orders")
         .update({
           payment_status: "paid",
-          status: "order_confirmed",
+          status: "confirmed",
           payment_completed_at: new Date().toISOString(),
           status_history: [
             ...(Array.isArray(order.status_history) ? order.status_history : []),
             {
-              status: "order_confirmed",
+              status: "confirmed",
               timestamp: new Date().toISOString(),
               note: "Payment confirmed via Webhook",
             },

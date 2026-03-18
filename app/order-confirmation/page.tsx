@@ -11,12 +11,17 @@ import { motion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Suspense } from "react";
+import { useCart } from "@/context/CartContext";
 
 function OrderConfirmationContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get("order");
+  const txRef = searchParams.get("tx_ref");
 
-  const { data: orderDetails, isLoading: isOrderLoading, refetch: refetchOrder } = useQuery({
+  const { clearCart } = useCart();
+  
+  // Query for order by order_number (when coming from account page or direct link)
+  const { data: orderByNumber, isLoading: isOrderLoading } = useQuery({
     queryKey: ["order", orderNumber],
     queryFn: async () => {
       const res = await fetch(`/api/orders/${orderNumber}`);
@@ -27,8 +32,6 @@ function OrderConfirmationContent() {
     enabled: !!orderNumber,
   });
 
-  const txRef = searchParams.get("tx_ref");
-
   const { data: verificationData, isLoading: isVerifying } = useQuery({
     queryKey: ["verify-payment", txRef],
     queryFn: async () => {
@@ -36,6 +39,9 @@ function OrderConfirmationContent() {
       const data = await res.json();
       
       if (data.success) {
+        // Clear cart only after successful payment verification
+        clearCart();
+
         // Trigger email once verified successfully
         await fetch("/api/send-order-email", {
           method: "POST",
@@ -45,8 +51,6 @@ function OrderConfirmationContent() {
             order_id: data.order.id,
           }),
         });
-        // Refetch order details to show the updated "paid" status
-        refetchOrder();
       }
       
       return data;
@@ -55,7 +59,9 @@ function OrderConfirmationContent() {
     retry: 1,
   });
 
-  const isLoading = isOrderLoading || isVerifying;
+  // Use order from verification response (when coming from Chapa) or from direct query
+  const orderDetails = orderByNumber || (verificationData?.success ? verificationData.order : null);
+  const isLoading = isOrderLoading || (isVerifying && !verificationData);
 
   if (isLoading) {
     return (
@@ -94,10 +100,10 @@ function OrderConfirmationContent() {
         </div>
         <div className="flex flex-col sm:flex-row gap-4 pt-4">
           <Button
-            onClick={() => window.location.reload()}
-            className="h-14 px-8 rounded-2xl font-bold uppercase tracking-wider text-xs"
+            asChild
+            className="h-14 px-8 rounded-2xl font-bold uppercase tracking-wider text-xs shadow-lg shadow-primary/20"
           >
-            Try Verifying Again
+            <Link href="/order-summary?step=3">Return to Payment</Link>
           </Button>
           <Button
             variant="outline"
@@ -157,7 +163,7 @@ function OrderConfirmationContent() {
             transition={{ delay: 0.2, duration: 0.5 }}
           >
             <OrderStatusTracker
-              date={new Date(orderDetails.created_at).toLocaleDateString()}
+              date={orderDetails.created_at ? new Date(orderDetails.created_at).toLocaleDateString() : new Date().toLocaleDateString()}
               status={orderDetails.status}
             />
           </motion.div>

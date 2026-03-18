@@ -14,7 +14,43 @@ export async function GET(req: Request) {
     // 1. Check if already verified in our DB (Idempotency)
     const { data: existingOrder, error: fetchError } = await supabaseAdmin
       .from("orders")
-      .select("id, status, payment_status, total_amount")
+      .select(`
+        id,
+        order_number,
+        status,
+        payment_status,
+        payment_provider,
+        payment_completed_at,
+        total_amount,
+        subtotal,
+        delivery_fee,
+        tax_amount,
+        currency,
+        customer_name,
+        customer_email,
+        customer_phone,
+        customer_tin,
+        delivery_address,
+        delivery_city,
+        delivery_sub_city,
+        special_instructions,
+        created_at,
+        order_items (
+          id,
+          product_id,
+          product_name,
+          product_slug,
+          product_image,
+          category,
+          unit_price,
+          quantity,
+          line_total,
+          selected_options,
+          design_preference,
+          design_file_url,
+          design_file_name
+        )
+      `)
       .eq("tx_ref", tx_ref)
       .single();
 
@@ -39,12 +75,12 @@ export async function GET(req: Request) {
         .from("orders")
         .update({
           payment_status: "paid",
-          status: "order_confirmed",
+          status: "confirmed",
           payment_completed_at: new Date().toISOString(),
           status_history: [
             ...((existingOrder as any).status_history || []),
             {
-              status: "order_confirmed",
+              status: "confirmed",
               timestamp: new Date().toISOString(),
               note: "Payment verified via Chapa",
             },
@@ -59,10 +95,34 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: "Failed to update order status" }, { status: 500 });
       }
 
-      return NextResponse.json({ 
-        success: true, 
+      // Fetch complete order with items after update
+      const { data: completeOrder } = await supabaseAdmin
+        .from("orders")
+        .select(`
+          *,
+          order_items (
+            id,
+            product_id,
+            product_name,
+            product_slug,
+            product_image,
+            category,
+            unit_price,
+            quantity,
+            line_total,
+            selected_options,
+            design_preference,
+            design_file_url,
+            design_file_name
+          )
+        `)
+        .eq("id", existingOrder.id)
+        .single();
+
+      return NextResponse.json({
+        success: true,
         message: "Payment verified successfully",
-        order: updatedOrder 
+        order: completeOrder || updatedOrder
       });
     } else {
       return NextResponse.json({ 

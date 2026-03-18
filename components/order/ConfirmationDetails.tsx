@@ -269,13 +269,21 @@ export function ConfirmationDetails({
                 className="text-2xl font-semibold text-primary tracking-tight"
               />
             </div>
-            {orderDetails.status && (
+            {orderDetails.payment_status && (
               <div className="flex justify-between items-center py-4 border-t border-border/10">
                 <p className="text-xs font-semibold uppercase text-muted-foreground">
                   Finance Status
                 </p>
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-                  Pending Payment Link
+                <p className={`text-xs font-semibold uppercase tracking-wider ${
+                  orderDetails.payment_status === "paid"
+                    ? "text-emerald-500"
+                    : "text-primary"
+                }`}>
+                  {orderDetails.payment_status === "paid"
+                    ? "Payment Confirmed"
+                    : orderDetails.payment_status === "pending_payment"
+                      ? "Awaiting Payment"
+                      : orderDetails.payment_status}
                 </p>
               </div>
             )}
