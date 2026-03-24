@@ -2,8 +2,10 @@ import { createAuthClient } from "better-auth/react";
 import { inferAdditionalFields } from "better-auth/client/plugins";
 import type { Auth } from "./auth";
 
+// Use empty string for baseURL so requests are relative to the current origin.
+// This works for both localhost and ngrok/proxy access without configuration changes.
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "",
+  baseURL: "",
   plugins: [inferAdditionalFields<Auth>()],
 });
 

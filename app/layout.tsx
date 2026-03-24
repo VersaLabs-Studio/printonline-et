@@ -13,6 +13,9 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "Print Online Ethiopia",
   description: "Leading printing and branding solutions in Ethiopia.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://printonline.et"
+  ),
   icons: {
     icon: "/favicon.png",
     shortcut: "/favicon.png",

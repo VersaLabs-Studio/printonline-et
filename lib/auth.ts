@@ -23,6 +23,15 @@ export const auth = betterAuth({
   // ── Base URL ──────────────────────────────────────────────────
   baseURL: process.env.BETTER_AUTH_URL,
 
+  // ── Trusted Origins ───────────────────────────────────────────
+  // Allow auth requests from localhost and ngrok domains for demos
+  // Add additional origins via AUTH_TRUSTED_ORIGINS env var (comma-separated)
+  trustedOrigins: [
+    "http://localhost:3000",
+    "https://localhost:3000",
+    ...(process.env.AUTH_TRUSTED_ORIGINS?.split(",").filter(Boolean) ?? []),
+  ],
+
   // ── Secret ────────────────────────────────────────────────────
   secret: process.env.BETTER_AUTH_SECRET,
 
