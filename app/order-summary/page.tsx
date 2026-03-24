@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Package, ArrowLeft, Loader2, Lock } from "lucide-react";
@@ -16,7 +16,7 @@ import { uploadDesignFiles, type UploadedFile } from "@/lib/supabase/storage";
 import { OrderPaymentStep } from "@/components/order/OrderPaymentStep";
 import { useSearchParams } from "next/navigation";
 
-export default function OrderSummaryPage() {
+function OrderSummaryContent() {
   const searchParams = useSearchParams();
   const initialStep = parseInt(searchParams.get("step") || "1");
   
@@ -335,5 +335,22 @@ export default function OrderSummaryPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function OrderSummaryPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="font-semibold text-muted-foreground animate-pulse uppercase tracking-widest text-xs">
+            Loading checkout...
+          </p>
+        </div>
+      }
+    >
+      <OrderSummaryContent />
+    </Suspense>
   );
 }
