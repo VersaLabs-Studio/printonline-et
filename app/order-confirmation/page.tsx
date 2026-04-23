@@ -7,7 +7,7 @@ import { ConfirmationDetails } from "@/components/order/ConfirmationDetails";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ShoppingBag, User } from "lucide-react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { SafeMotionDiv } from "@/components/shared/SafeMotion";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Suspense } from "react";
@@ -149,15 +149,15 @@ function OrderConfirmationContent() {
 
       <main className="container mx-auto px-4 py-16 lg:py-24 relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col gap-16">
-          <motion.div
+          <SafeMotionDiv
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
           >
             <ConfirmationHeader orderId={orderDetails.order_number} />
-          </motion.div>
+          </SafeMotionDiv>
 
-          <motion.div
+          <SafeMotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
@@ -166,15 +166,15 @@ function OrderConfirmationContent() {
               date={orderDetails.created_at ? new Date(orderDetails.created_at).toLocaleDateString() : new Date().toLocaleDateString()}
               status={orderDetails.status}
             />
-          </motion.div>
+          </SafeMotionDiv>
 
-          <motion.div
+          <SafeMotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
           >
             <ConfirmationDetails orderDetails={orderDetails} />
-          </motion.div>
+          </SafeMotionDiv>
 
           <footer className="pt-8 flex flex-col md:flex-row items-center justify-center gap-6">
             <Button

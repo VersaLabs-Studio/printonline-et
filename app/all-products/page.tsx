@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { CSSFadeIn, SafeMotionDiv } from "@/components/shared/SafeMotion";
 import {
   Search,
   Grid,
@@ -36,11 +36,7 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
     primaryImage?.image_url || "/product-images/Business-Card-Design-1.webp";
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.03 }}
-    >
+    <CSSFadeIn>
       <Link href={`/products/${product.slug}`} className="block h-full">
         <div
           className={`group relative bg-card border border-border/50 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer ${
@@ -51,11 +47,7 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
           <div
             className={`relative ${viewMode === "list" ? "w-64 h-64" : "h-64"} overflow-hidden bg-linear-to-br from-primary/10 to-secondary/20`}
           >
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="relative w-full h-full"
-            >
+            <div className="relative w-full h-full transition-transform duration-500 group-hover:scale-110">
               <Image
                 src={imageUrl}
                 alt={product.name}
@@ -63,7 +55,7 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </motion.div>
+            </div>
 
             {/* Badge */}
             {(product.badge || product.stock_status === "out_of_stock") && (
@@ -91,17 +83,12 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
             )}
 
             {/* Hover Overlay */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              whileHover={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
+            <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
               <span className="w-full btn-pana text-sm py-3 inline-flex items-center justify-center">
                 View Details
                 <ChevronRight className="h-4 w-4 ml-2" />
               </span>
-            </motion.div>
+            </div>
           </div>
 
           {/* Product Info */}
@@ -153,18 +140,14 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
                 </span>
               </div>
 
-              <motion.div
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.5 }}
-                className="p-2 rounded-full bg-primary/10 text-primary"
-              >
+              <div className="p-2 rounded-full bg-primary/10 text-primary transition-transform duration-500 hover:rotate-[360deg]">
                 <Package className="h-5 w-5" />
-              </motion.div>
+              </div>
             </div>
           </div>
         </div>
       </Link>
-    </motion.div>
+    </CSSFadeIn>
   );
 };
 
@@ -200,7 +183,7 @@ function AllProductsContent() {
         {/* Animated Background Figures */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-size-[14px_24px] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-50"></div>
-          <motion.div
+          <SafeMotionDiv
             animate={{
               scale: [1, 1.2, 1],
               x: [0, 50, 0],
@@ -213,7 +196,7 @@ function AllProductsContent() {
             }}
             className="absolute -top-[20%] -left-[10%] w-[50%] h-[70%] rounded-full bg-primary/10 blur-[100px]"
           />
-          <motion.div
+          <SafeMotionDiv
             animate={{
               scale: [1, 1.5, 1],
               x: [0, -40, 0],
@@ -228,52 +211,36 @@ function AllProductsContent() {
           />
         </div>
 
-        <motion.div
+        <SafeMotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="relative container mx-auto px-4 z-10"
         >
           <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-border/50 text-slate-600 px-4 py-1.5 rounded-full mb-6 shadow-sm"
-            >
+            <CSSFadeIn delay={100}>
               <Sparkles className="h-3.5 w-3.5 text-primary" />
               <span className="text-[10px] font-bold uppercase tracking-widest">
                 {totalProducts} Premium Products Available
               </span>
-            </motion.div>
+            </CSSFadeIn>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight"
-            >
-              Our Collection
-            </motion.h1>
+            <CSSFadeIn delay={200}>
+              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
+                Our Collection
+              </h1>
+            </CSSFadeIn>
 
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-sm md:text-base text-slate-500 mb-8 max-w-xl font-medium leading-relaxed"
-            >
-              Explore our complete range of premium printing solutions.
-              <br className="hidden md:block" /> Engineered for quality, scaled
-              for your business success.
-            </motion.p>
+            <CSSFadeIn delay={300}>
+              <p className="text-sm md:text-base text-slate-500 mb-8 max-w-xl font-medium leading-relaxed">
+                Explore our complete range of premium printing solutions.
+                <br className="hidden md:block" /> Engineered for quality, scaled
+                for your business success.
+              </p>
+            </CSSFadeIn>
 
             {/* Search Bar */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="relative w-full max-w-xl group"
-            >
+            <CSSFadeIn delay={400}>
               <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-xl transition-opacity opacity-0 group-hover:opacity-100 duration-500"></div>
               <div className="relative flex items-center">
                 <Search className="absolute left-5 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors duration-300 pointer-events-none" />
@@ -285,16 +252,16 @@ function AllProductsContent() {
                   className="w-full pl-12 pr-6 py-4 bg-white border border-border/60 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-sm transition-all duration-300 shadow-sm"
                 />
               </div>
-            </motion.div>
+            </CSSFadeIn>
           </div>
-        </motion.div>
+        </SafeMotionDiv>
       </section>
 
       {/* Main Content */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           {/* Controls Bar */}
-          <motion.div
+          <SafeMotionDiv
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -333,33 +300,29 @@ function AllProductsContent() {
 
               {/* View Mode Toggle */}
               <div className="bg-background border border-border rounded-lg flex">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-3 transition-colors ${
+                  className={`p-3 transition-all duration-200 hover:scale-105 active:scale-95 ${
                     viewMode === "grid"
                       ? "bg-primary text-primary-foreground"
                       : ""
                   }`}
                 >
                   <Grid className="h-5 w-5" />
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                </button>
+                <button
                   onClick={() => setViewMode("list")}
-                  className={`p-3 transition-colors ${
+                  className={`p-3 transition-all duration-200 hover:scale-105 active:scale-95 ${
                     viewMode === "list"
                       ? "bg-primary text-primary-foreground"
                       : ""
                   }`}
                 >
                   <List className="h-5 w-5" />
-                </motion.button>
+                </button>
               </div>
             </div>
-          </motion.div>
+          </SafeMotionDiv>
 
           {/* Loading State */}
           {isLoading && (
@@ -406,11 +369,7 @@ function AllProductsContent() {
 
           {/* Empty State */}
           {!isLoading && !error && products && products.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-20"
-            >
+            <CSSFadeIn className="text-center py-20">
               <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-2xl font-bold text-foreground mb-2">
                 No products found
@@ -418,7 +377,7 @@ function AllProductsContent() {
               <p className="text-muted-foreground">
                 Try adjusting your search query or category filter.
               </p>
-            </motion.div>
+            </CSSFadeIn>
           )}
         </div>
       </section>

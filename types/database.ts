@@ -205,6 +205,7 @@ export type Database = {
           payment_completed_at: string | null;
           payment_method: string | null;
           payment_provider: string | null;
+          payment_receipt: Json | null;
           payment_status: string | null;
           special_instructions: string | null;
           status: string;
@@ -236,6 +237,7 @@ export type Database = {
           payment_completed_at?: string | null;
           payment_method?: string | null;
           payment_provider?: string | null;
+          payment_receipt?: Json | null;
           payment_status?: string | null;
           special_instructions?: string | null;
           status?: string;
@@ -267,6 +269,7 @@ export type Database = {
           payment_completed_at?: string | null;
           payment_method?: string | null;
           payment_provider?: string | null;
+          payment_receipt?: Json | null;
           payment_status?: string | null;
           special_instructions?: string | null;
           status?: string;
@@ -441,6 +444,7 @@ export type Database = {
           display_order: number | null;
           features: Json | null;
           form_type: string;
+          hire_designer_fee: number | null;
           id: string;
           in_stock: boolean | null;
           is_active: boolean | null;
@@ -465,6 +469,7 @@ export type Database = {
           display_order?: number | null;
           features?: Json | null;
           form_type?: string;
+          hire_designer_fee?: number | null;
           id?: string;
           in_stock?: boolean | null;
           is_active?: boolean | null;
@@ -489,6 +494,7 @@ export type Database = {
           display_order?: number | null;
           features?: Json | null;
           form_type?: string;
+          hire_designer_fee?: number | null;
           id?: string;
           in_stock?: boolean | null;
           is_active?: boolean | null;

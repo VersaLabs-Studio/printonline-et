@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ProductWithCategory } from "@/types";
 import { PriceDisplay } from "./PriceDisplay";
-import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -16,10 +15,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   return (
-    <motion.div
-      whileHover={{ y: -8 }}
-      className="group relative flex flex-col h-full bg-card rounded-4xl border border-border/40 overflow-hidden transition-all hover:shadow-2xl hover:shadow-primary/5"
-    >
+    <div className="group relative flex flex-col h-full bg-card rounded-4xl border border-border/40 overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-lg">
       <Link
         href={`/products/${product.slug}`}
         className="absolute inset-0 z-30"
@@ -92,6 +88,6 @@ export function ProductCard({ product }: ProductCardProps) {
           </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

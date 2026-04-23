@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { OrderSummaryDetails } from "@/components/order/OrderSummaryDetails";
 import { OrderReviewStep } from "@/components/order/OrderReviewStep";
 import { OrderProfileSection } from "@/components/order/OrderProfileSection";
-import { motion, AnimatePresence } from "framer-motion";
+import { SafeMotionDiv, SafeAnimatePresence } from "@/components/shared/SafeMotion";
 import { useCart } from "@/context/CartContext";
 import { authClient } from "@/lib/auth-client";
 import { createClient } from "@/lib/supabase/client";
@@ -20,7 +20,7 @@ function OrderSummaryContent() {
   const searchParams = useSearchParams();
   const initialStep = parseInt(searchParams.get("step") || "1");
   
-  const { cart, getCartTotal, localFiles } = useCart();
+  const { cart, getCartTotal, localFiles, deliveryInfo, setDeliveryInfo, getDeliveryFee } = useCart();
   const [step, setStep] = useState(initialStep);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -32,9 +32,14 @@ function OrderSummaryContent() {
   >(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
 
-  // New state for unified checkout
-  const [deliveryMethod, setDeliveryMethod] = useState("home"); // "home" | "pickup"
+  // Sync delivery method with cart context
+  const [localDeliveryMethod, setLocalDeliveryMethod] = useState(deliveryInfo.deliveryMethod);
   const [specialInstructions, setSpecialInstructions] = useState("");
+
+  const handleDeliveryMethodChange = (method: string) => {
+    setLocalDeliveryMethod(method);
+    setDeliveryInfo({ ...deliveryInfo, deliveryMethod: method as 'home' | 'pickup' });
+  };
 
   useEffect(() => {
     async function fetchProfile() {
@@ -47,6 +52,10 @@ function OrderSummaryContent() {
           .single();
         if (data) {
           setProfile(data);
+          // Sync sub-city from profile to delivery info
+          if (data.sub_city && !deliveryInfo.subCity) {
+            setDeliveryInfo({ ...deliveryInfo, subCity: data.sub_city });
+          }
         } else {
           // Fallback if no profile is completely registered
           setProfile({
@@ -86,12 +95,17 @@ function OrderSummaryContent() {
     try {
       setIsSubmitting(true);
 
-      const isHome = deliveryMethod === "home";
+      const isHome = localDeliveryMethod === "home";
       const address = isHome
         ? profile.address_line1
         : "PrintOnline HQ (Pickup)";
       const city = isHome ? profile.city : "Addis Ababa";
       const subCity = isHome ? profile.sub_city : "Bole";
+
+      // Use cart context's delivery fee calculation
+      const deliveryFee = getDeliveryFee();
+      const subtotal = getCartTotal();
+      const totalAmount = subtotal + deliveryFee;
 
       // 1. Upload files for each cart item
       const itemAssetsMap: Record<string, UploadedFile[]> = {};
@@ -113,8 +127,9 @@ function OrderSummaryContent() {
         delivery_city: city,
         delivery_sub_city: subCity,
         special_instructions: specialInstructions,
-        subtotal: getCartTotal(),
-        total_amount: getCartTotal(),
+        subtotal: subtotal,
+        delivery_fee: deliveryFee,
+        total_amount: totalAmount,
         terms_accepted: termsAccepted,
         items: cart.map((item) => {
           const uploadedAssets = itemAssetsMap[item.cartLineId] || [];
@@ -275,9 +290,9 @@ function OrderSummaryContent() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20">
             <div className="lg:col-span-7 xl:col-span-8">
-              <AnimatePresence mode="wait">
+              <SafeAnimatePresence mode="wait">
                 {step === 1 ? (
-                  <motion.div
+                  <SafeMotionDiv
                     key="step-1"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -286,15 +301,15 @@ function OrderSummaryContent() {
                     <OrderProfileSection
                       profile={profile}
                       session={session}
-                      deliveryMethod={deliveryMethod}
-                      setDeliveryMethod={setDeliveryMethod}
+                      deliveryMethod={localDeliveryMethod}
+                      setDeliveryMethod={handleDeliveryMethodChange}
                       specialInstructions={specialInstructions}
                       setSpecialInstructions={setSpecialInstructions}
                       onNext={() => setStep(2)}
                     />
-                  </motion.div>
+                  </SafeMotionDiv>
                 ) : step === 2 ? (
-                  <motion.div
+                  <SafeMotionDiv
                     key="step-2"
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -303,15 +318,15 @@ function OrderSummaryContent() {
                     <OrderReviewStep
                       profile={profile}
                       session={session}
-                      deliveryMethod={deliveryMethod}
+                      deliveryMethod={localDeliveryMethod}
                       specialInstructions={specialInstructions}
                       onBack={() => setStep(1)}
                       onSubmit={() => setStep(3)}
                       isSubmitting={isSubmitting}
                     />
-                  </motion.div>
+                  </SafeMotionDiv>
                 ) : (
-                  <motion.div
+                  <SafeMotionDiv
                     key="step-3"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -323,13 +338,18 @@ function OrderSummaryContent() {
                       isSubmitting={isSubmitting}
                       total={getCartTotal()}
                     />
-                  </motion.div>
+                  </SafeMotionDiv>
                 )}
-              </AnimatePresence>
+              </SafeAnimatePresence>
             </div>
 
             <div className="lg:col-span-5 xl:col-span-4">
-              <OrderSummaryDetails cartItems={cart} total={getCartTotal()} />
+              <OrderSummaryDetails 
+                cartItems={cart} 
+                total={getCartTotal() + getDeliveryFee()} 
+                deliveryFee={getDeliveryFee()}
+                deliveryMethod={localDeliveryMethod as "home" | "pickup"}
+              />
             </div>
           </div>
         </div>

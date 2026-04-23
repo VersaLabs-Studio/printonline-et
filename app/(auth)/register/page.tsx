@@ -34,7 +34,7 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { SafeMotionDiv } from "@/components/shared/SafeMotion";
 
 function RegisterFormContent() {
   const router = useRouter();
@@ -91,7 +91,7 @@ function RegisterFormContent() {
   };
 
   return (
-    <motion.div
+    <SafeMotionDiv
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4 }}
@@ -297,7 +297,7 @@ function RegisterFormContent() {
         </Link>
         .
       </div>
-    </motion.div>
+    </SafeMotionDiv>
   );
 }
 

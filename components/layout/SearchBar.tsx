@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Search, X, Command, ArrowRight, Loader2, Sparkles } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { SafeMotionDiv, SafeAnimatePresence } from "@/components/shared/SafeMotion";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/ui/useDebounce";
 import { useSearchSuggestions } from "@/hooks/data/useSearch";
@@ -97,13 +97,14 @@ export function SearchBar({ onSearch }: { onSearch?: () => void }) {
           />
 
           <div className="absolute right-3 flex items-center gap-2">
-            <AnimatePresence>
+            <SafeAnimatePresence>
               {query && (
-                <motion.button
-                  type="button"
+                <SafeMotionDiv
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
+                  as="button"
+                  type="button"
                   onClick={() => {
                     setQuery("");
                     setIsDropdownOpen(false);
@@ -111,9 +112,9 @@ export function SearchBar({ onSearch }: { onSearch?: () => void }) {
                   className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
                 >
                   <X size={14} />
-                </motion.button>
+                </SafeMotionDiv>
               )}
-            </AnimatePresence>
+            </SafeAnimatePresence>
             
             <div className={`hidden sm:flex items-center gap-1 px-2 py-1 rounded-md border border-border/40 bg-muted/20 text-[10px] font-bold text-muted-foreground/50 transition-opacity duration-300 ${isFocused ? "opacity-0" : "opacity-100"}`}>
               <Command size={10} />
@@ -124,9 +125,9 @@ export function SearchBar({ onSearch }: { onSearch?: () => void }) {
       </form>
 
       {/* Live Results Dropdown */}
-      <AnimatePresence>
+      <SafeAnimatePresence>
         {isDropdownOpen && query.trim().length >= 2 && (
-          <motion.div
+          <SafeMotionDiv
             initial={{ opacity: 0, y: -10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.98 }}
@@ -215,9 +216,9 @@ export function SearchBar({ onSearch }: { onSearch?: () => void }) {
                 </div>
               )}
             </div>
-          </motion.div>
+          </SafeMotionDiv>
         )}
-      </AnimatePresence>
+      </SafeAnimatePresence>
 
       {/* Subtle bottom glow when focused */}
       <div

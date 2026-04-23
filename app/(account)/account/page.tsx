@@ -18,13 +18,13 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Loader2, Save, ShieldCheck } from "lucide-react";
+import { Loader2, Save, ShieldCheck, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function AccountDashboardPage() {
   const {
@@ -34,7 +34,9 @@ export default function AccountDashboardPage() {
   } = authClient.useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [isDataFetching, setIsDataFetching] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const supabase = createClient();
+  const router = useRouter();
 
   const {
     register,
@@ -97,7 +99,6 @@ export default function AccountDashboardPage() {
 
       if (authError) throw authError;
 
-      // 2. Update Supabase customer_profile (for address and extended data)
       const { error: profileError } = await supabase
         .from("customer_profiles")
         .update({
@@ -117,7 +118,6 @@ export default function AccountDashboardPage() {
       if (profileError) throw profileError;
 
       toast.success("Profile updated successfully!");
-      // Force refresh session to show new name in sidebar etc.
       await refetch();
     } catch (err) {
       const error = err as Error;
@@ -125,6 +125,35 @@ export default function AccountDashboardPage() {
       console.error("[PROFILE_UPDATE_ERROR]:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!confirm("Are you sure you want to deactivate your account? This action cannot be undone.")) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch("/api/account/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to delete account");
+      }
+
+      toast.success("Account deactivated successfully");
+      await authClient.signOut();
+      router.push("/");
+    } catch (err) {
+      const error = err as Error;
+      toast.error(error.message || "Failed to delete account");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -158,7 +187,7 @@ export default function AccountDashboardPage() {
               </CardTitle>
             </div>
             <CardDescription>
-              Update your basic account details.
+              Update your personal and business details.
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-6 space-y-6">
@@ -180,7 +209,26 @@ export default function AccountDashboardPage() {
               errors={errors}
             />
           </CardContent>
-          <CardFooter className="bg-muted/10 border-t border-border/50 p-6 flex justify-end">
+          <CardFooter className="bg-muted/10 border-t border-border/50 p-6 flex justify-between">
+            <Button
+              type="button"
+              variant="destructive"
+              className="min-w-[120px]"
+              disabled={isDeleting}
+              onClick={handleDeleteAccount}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Account
+                </>
+              )}
+            </Button>
             <Button
               type="submit"
               className="btn-pana min-w-[120px]"

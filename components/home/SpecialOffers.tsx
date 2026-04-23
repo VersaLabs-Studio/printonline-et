@@ -3,7 +3,7 @@
 import { Clock, Tag, TrendingUp, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { CSSFadeIn } from "@/components/shared/SafeMotion";
 
 const SpecialOffers = () => {
   const offers = [
@@ -61,13 +61,9 @@ const SpecialOffers = () => {
         {/* Offers */}
         <div className="grid grid-cols-3 gap-8">
           {offers.map((offer) => (
-            <motion.div
-              key={offer.id}
-              whileHover={{ scale: 1.02, rotate: 0.3 }}
-              transition={{ type: "spring", stiffness: 250 }}
-            >
+            <CSSFadeIn key={offer.id}>
               <Link href={offer.link} className="block">
-                <div className="relative group rounded-2xl overflow-hidden shadow-lg cursor-pointer">
+                <div className="relative group rounded-2xl overflow-hidden shadow-lg cursor-pointer transition-transform duration-200 hover:scale-[1.02]">
                   <div className="relative h-72 rounded-2xl overflow-hidden mb-4">
                     <Image
                       src={offer.image}
@@ -78,17 +74,13 @@ const SpecialOffers = () => {
                     <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
                     {/* Badge */}
-                    <motion.div
-                      initial={{ y: -20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.1 * offer.id }}
-                    >
+                    <CSSFadeIn delay={offer.id * 100}>
                       <div
                         className={`absolute top-4 left-4 ${offer.bgColor} text-white px-4 py-2 rounded-lg`}
                       >
                         <p className="text-lg font-bold">Special Offer</p>
                       </div>
-                    </motion.div>
+                    </CSSFadeIn>
 
                     {/* Timer */}
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg">
@@ -110,17 +102,13 @@ const SpecialOffers = () => {
                     </div>
                   </div>
 
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                    className="w-full btn-pana text-lg py-3 inline-flex items-center justify-center gap-2"
-                  >
+                  <div className="w-full btn-pana text-lg py-3 inline-flex items-center justify-center gap-2 transition-transform duration-200 hover:scale-105">
                     View Offer
                     <ArrowRight className="h-5 w-5" />
-                  </motion.div>
+                  </div>
                 </div>
               </Link>
-            </motion.div>
+            </CSSFadeIn>
           ))}
         </div>
 

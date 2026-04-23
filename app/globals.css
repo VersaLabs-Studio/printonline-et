@@ -166,17 +166,31 @@
     );
     background-size: 20px 20px;
   }
+
+  /* Performance: Respect user's motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 @layer components {
   /* Pana-specific button styles */
   .btn-pana {
     @apply bg-primary text-primary-foreground hover:bg-primary/90 rounded-[var(--radius)] transition-all duration-200 shadow-sm hover:shadow-md;
+    will-change: transform, box-shadow;
   }
 
   /* Pana card with subtle border */
   .card-pana {
     @apply border border-border/50 shadow-sm hover:shadow-md transition-all duration-200;
+    will-change: transform, box-shadow;
   }
 
   /* Pana gradient background */
@@ -216,5 +230,34 @@
     height: 2px;
     background: oklch(var(--primary));
     border-radius: 1px;
+  }
+
+  /* Performance: GPU-accelerated animations */
+  .animate-gpu {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* Performance: Reduce paint complexity for animated elements */
+  .motion-safe-animate {
+    @media (prefers-reduced-motion: no-preference) {
+      will-change: transform, opacity;
+    }
+  }
+}
+
+/* Performance: Contain layout shifts */
+@layer utilities {
+  .contain-layout {
+    contain: layout;
+  }
+
+  .contain-paint {
+    contain: paint;
+  }
+
+  .contain-strict {
+    contain: strict;
   }
 }

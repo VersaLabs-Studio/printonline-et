@@ -70,13 +70,14 @@ export async function GET(req: Request) {
     const verification = await chapa.verify(tx_ref);
 
     if (verification.status === "success" && verification.data.status === "success") {
-      // 3. Update Order in DB
+      // 3. Update Order in DB with receipt data
       const { data: updatedOrder, error: updateError } = await supabaseAdmin
         .from("orders")
         .update({
           payment_status: "paid",
           status: "confirmed",
           payment_completed_at: new Date().toISOString(),
+          payment_receipt: verification.data, // Store full Chapa response
           status_history: [
             ...((existingOrder as any).status_history || []),
             {

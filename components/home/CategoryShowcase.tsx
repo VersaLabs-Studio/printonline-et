@@ -1,7 +1,7 @@
 // components/home/CategoryShowcase.tsx
 "use client";
 
-import { motion } from "framer-motion";
+import { CSSFadeIn } from "@/components/shared/SafeMotion";
 import { ArrowRight, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,13 +24,7 @@ const CategoryShowcase = () => {
   return (
     <section className="py-20 bg-secondary/20 overflow-hidden">
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
+        <CSSFadeIn className="text-center mb-16">
           <span className="text-primary font-semibold tracking-wider text-sm uppercase mb-3 block">
             Our Catalog
           </span>
@@ -42,7 +36,7 @@ const CategoryShowcase = () => {
             Explore our comprehensive range of printing and branding solutions
             suited for every business need.
           </p>
-        </motion.div>
+        </CSSFadeIn>
 
         {/* Loading State */}
         {isLoading && (
@@ -68,14 +62,7 @@ const CategoryShowcase = () => {
                 "/product-images/Business-Card-Design-1.webp";
 
               return (
-                <motion.div
-                  key={category.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: idx * 0.1, duration: 0.5 }}
-                  whileHover={{ y: -10 }}
-                >
+                <CSSFadeIn key={category.id} delay={idx * 100}>
                   <Link
                     href={`/all-products?category=${category.slug}`}
                     className="group relative bg-card rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-border/40 block"
@@ -119,7 +106,7 @@ const CategoryShowcase = () => {
                       </div>
                     </div>
                   </Link>
-                </motion.div>
+                </CSSFadeIn>
               );
             })}
           </div>

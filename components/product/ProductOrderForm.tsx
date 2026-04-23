@@ -100,7 +100,8 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
 
   const unitPrice = calculateUnitPrice(selections);
   const priorityPrice = productionPriority === "rush" ? 500 : 0;
-  const totalPrice = unitPrice * quantity + priorityPrice;
+  const designerFee = hireDesigner ? (Number((product as any).hire_designer_fee) || 0) : 0;
+  const totalPrice = unitPrice * quantity + priorityPrice + designerFee;
   // ----------------------------------------
 
   const handleOptionChange = (optionId: string, value: string) => {
@@ -207,6 +208,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
       selectedOptions: humanReadableOptions,
       designFileNames: designFiles.map((f) => f.name),
       priorityPrice,
+      designerFee,
       hireDesigner,
     };
 

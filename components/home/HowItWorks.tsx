@@ -1,7 +1,7 @@
 "use client";
 
 import { FileUp, Palette, Printer, Truck } from "lucide-react";
-import { motion } from "framer-motion";
+import { CSSFadeIn } from "@/components/shared/SafeMotion";
 
 const HowItWorks = () => {
   const steps = [
@@ -38,13 +38,7 @@ const HowItWorks = () => {
   return (
     <section className="py-24 bg-background relative overflow-hidden">
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
+        <CSSFadeIn className="text-center mb-16">
           <span className="text-primary font-semibold tracking-wider text-sm uppercase mb-3 block">
             Simple Process
           </span>
@@ -56,21 +50,14 @@ const HowItWorks = () => {
             From file upload to final delivery, we make printing easy and
             hassle-free.
           </p>
-        </motion.div>
+        </CSSFadeIn>
 
         <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Connector Line (Desktop) */}
           <div className="hidden lg:block absolute top-12 left-[12%] right-[12%] h-0.5 bg-linear-to-r from-transparent via-border to-transparent z-0"></div>
 
           {steps.map((step, idx) => (
-            <motion.div
-              key={step.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.15, duration: 0.5 }}
-              className="relative z-10 flex flex-col items-center text-center group"
-            >
+            <CSSFadeIn key={step.id} delay={idx * 150} className="relative z-10 flex flex-col items-center text-center group">
               <div className="w-24 h-24 bg-card rounded-2xl border-2 border-border/50 shadow-sm flex items-center justify-center mb-6 group-hover:border-primary/50 group-hover:shadow-primary/20 group-hover:scale-110 transition-all duration-300">
                 <div className="text-primary bg-primary/10 p-4 rounded-xl">
                   {step.icon}
@@ -87,7 +74,7 @@ const HowItWorks = () => {
               <p className="text-muted-foreground text-sm leading-relaxed px-4">
                 {step.description}
               </p>
-            </motion.div>
+            </CSSFadeIn>
           ))}
         </div>
       </div>

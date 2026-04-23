@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { Mail, Gift, CheckCircle, Sparkles } from "lucide-react";
-import { motion } from "framer-motion";
+import { CSSFadeIn } from "@/components/shared/SafeMotion";
 
 const NewsletterSignup = () => {
   const [email, setEmail] = useState("");
@@ -30,13 +30,7 @@ const NewsletterSignup = () => {
       <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-white/20 rounded-full blur-3xl opacity-30"></div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="max-w-4xl mx-auto text-center"
-        >
+        <CSSFadeIn className="max-w-4xl mx-auto text-center">
           <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 md:p-16 border border-white/20 shadow-2xl relative overflow-hidden">
             {/* Background pattern overlay */}
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-5 pointer-events-none"></div>
@@ -60,13 +54,11 @@ const NewsletterSignup = () => {
               </p>
 
               {!isSubmitted ? (
-                <motion.form
-                  onSubmit={handleSubmit}
-                  className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                >
+                <CSSFadeIn delay={200}>
+                  <form
+                    onSubmit={handleSubmit}
+                    className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto"
+                  >
                   <div className="flex-1 relative">
                     <input
                       type="email"
@@ -77,13 +69,11 @@ const NewsletterSignup = () => {
                       required
                     />
                   </div>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    type="submit"
-                    disabled={isLoading}
-                    className="bg-foreground text-background px-8 py-4 rounded-xl font-bold hover:bg-black/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl flex items-center justify-center w-full sm:w-auto"
-                  >
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="bg-foreground text-background px-8 py-4 rounded-xl font-bold hover:bg-black/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl flex items-center justify-center w-full sm:w-auto hover:scale-105 active:scale-95"
+                    >
                     {isLoading ? (
                       <span className="flex items-center">
                         <span className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin mr-2"></span>
@@ -92,14 +82,11 @@ const NewsletterSignup = () => {
                     ) : (
                       "Subscribe Now"
                     )}
-                  </motion.button>
-                </motion.form>
+                    </button>
+                  </form>
+                </CSSFadeIn>
               ) : (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="bg-white/20 backdrop-blur-md rounded-2xl p-8 max-w-md mx-auto border border-white/30"
-                >
+                <CSSFadeIn className="bg-white/20 backdrop-blur-md rounded-2xl p-8 max-w-md mx-auto border border-white/30">
                   <div className="flex flex-col items-center justify-center space-y-4 text-white">
                     <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
                       <CheckCircle className="h-6 w-6 text-white" />
@@ -111,7 +98,7 @@ const NewsletterSignup = () => {
                       Keep an eye on your inbox for your welcome gift.
                     </p>
                   </div>
-                </motion.div>
+                </CSSFadeIn>
               )}
 
               <div className="flex flex-wrap items-center justify-center gap-6 mt-10 text-white/80 text-sm font-bold">
@@ -130,7 +117,7 @@ const NewsletterSignup = () => {
               </div>
             </div>
           </div>
-        </motion.div>
+        </CSSFadeIn>
       </div>
     </section>
   );

@@ -3,7 +3,7 @@
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductWithDetails } from "@/types";
-import { motion } from "framer-motion";
+import { CSSFadeIn } from "@/components/shared/SafeMotion";
 import {
   Settings,
   ShieldCheck,
@@ -55,11 +55,7 @@ export function ProductTabs({ product }: ProductTabsProps) {
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32" />
 
           <TabsContent value="overview" className="mt-0 focus-visible:ring-0">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-8"
-            >
+            <CSSFadeIn className="space-y-8">
               <div className="space-y-4">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-primary">
                   Product Description
@@ -88,15 +84,11 @@ export function ProductTabs({ product }: ProductTabsProps) {
                   ))}
                 </div>
               )}
-            </motion.div>
+            </CSSFadeIn>
           </TabsContent>
 
           <TabsContent value="specs" className="mt-0 focus-visible:ring-0">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-6"
-            >
+            <CSSFadeIn className="space-y-6">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-primary">
                 Specifications
               </h3>
@@ -133,15 +125,11 @@ export function ProductTabs({ product }: ProductTabsProps) {
                   </div>
                 )}
               </div>
-            </motion.div>
+            </CSSFadeIn>
           </TabsContent>
 
           <TabsContent value="delivery" className="mt-0 focus-visible:ring-0">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-8"
-            >
+            <CSSFadeIn className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <DeliveryCard
                 icon={Clock}
                 title="Turnaround"
@@ -160,7 +148,7 @@ export function ProductTabs({ product }: ProductTabsProps) {
                 value="Quality Shield"
                 desc="Triple-point inspection for color accuracy and finish integrity."
               />
-            </motion.div>
+            </CSSFadeIn>
           </TabsContent>
         </div>
       </Tabs>

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { ArrowRight, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { SafeMotionDiv, SafeAnimatePresence } from "@/components/shared/SafeMotion";
 
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -49,11 +49,11 @@ const HeroSection = () => {
       onMouseLeave={() => setIsPaused(false)}
     >
       <div className="absolute inset-0">
-        <AnimatePresence initial={false} mode="wait">
+        <SafeAnimatePresence initial={false} mode="wait">
           {slides.map(
             (slide, idx) =>
               idx === currentSlide && (
-                <motion.div
+                <SafeMotionDiv
                   key={slide.id}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -70,15 +70,15 @@ const HeroSection = () => {
                     />
                     <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/50 to-transparent" />
                   </div>
-                </motion.div>
+                </SafeMotionDiv>
               ),
           )}
-        </AnimatePresence>
+        </SafeAnimatePresence>
       </div>
 
       {/* Content with micro interactions */}
       <div className="relative container mx-auto px-4 h-full flex items-center">
-        <motion.div
+        <SafeMotionDiv
           key={currentSlide}
           initial={{ x: -30, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -95,23 +95,25 @@ const HeroSection = () => {
               <span className="ml-2 text-sm">4.9/5 from 2,000+ reviews</span>
             </div>
 
-            <motion.h1
+            <SafeMotionDiv
               layout
               transition={{ type: "spring", stiffness: 90 }}
+              as="h1"
               className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 leading-tight"
             >
               {slides[currentSlide].title}
-            </motion.h1>
+            </SafeMotionDiv>
 
-            <motion.p
+            <SafeMotionDiv
               animate={{ opacity: 1 }}
+              as="p"
               className="text-lg sm:text-xl md:text-2xl mb-8 text-gray-200"
             >
               {slides[currentSlide].subtitle}
-            </motion.p>
+            </SafeMotionDiv>
 
             {/* Order Now Button */}
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+            <SafeMotionDiv whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
               <Link
                 href="/all-products"
                 className="btn-pana py-4 px-8 text-lg font-semibold inline-flex items-center justify-center gap-3 shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all duration-300"
@@ -122,9 +124,9 @@ const HeroSection = () => {
                 </span>
                 <ArrowRight className="h-6 w-6" />
               </Link>
-            </motion.div>
+            </SafeMotionDiv>
           </div>
-        </motion.div>
+        </SafeMotionDiv>
       </div>
 
       {/* Indicators */}

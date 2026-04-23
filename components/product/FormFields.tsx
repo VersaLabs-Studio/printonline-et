@@ -1,7 +1,6 @@
 // components/product/FormFields.tsx
 "use client";
 
-import { motion } from "framer-motion";
 import { FormField, FormFieldOption } from "./ProductFormTypes";
 import { Check, ChevronDown } from "lucide-react";
 
@@ -89,19 +88,18 @@ export function RadioField({
       </label>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5">
         {field.options?.map((option, index) => (
-          <motion.button
+          <button
             key={`${field.key}-${option.value}-${index}`}
-            whileTap={{ scale: 0.98 }}
             onClick={() => onChange(option.value)}
             disabled={disabled || option.disabled}
-            className={`px-2 py-1.5 rounded-md border text-xs font-bold text-center transition-all ${
+            className={`px-2 py-1.5 rounded-md border text-xs font-bold text-center transition-all active:scale-[0.98] ${
               value === option.value
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-border hover:border-primary/50"
             } ${disabled || option.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             {option.label}
-          </motion.button>
+          </button>
         ))}
       </div>
     </div>
@@ -122,12 +120,11 @@ export function RadioVisualField({
       </label>
       <div className="grid grid-cols-6 sm:grid-cols-8 gap-1.5">
         {field.options?.map((option, index) => (
-          <motion.button
+          <button
             key={`${field.key}-${option.value}-${index}`}
-            whileTap={{ scale: 0.95 }}
             onClick={() => onChange(option.value)}
             disabled={disabled || option.disabled}
-            className={`relative p-1.5 rounded-md border transition-all ${
+            className={`relative p-1.5 rounded-md border transition-all active:scale-[0.95] ${
               value === option.value
                 ? "border-primary ring-1 ring-primary/30"
                 : "border-border hover:border-primary/50"
@@ -146,8 +143,9 @@ export function RadioVisualField({
                 <Check className="h-2 w-2 text-primary-foreground" />
               </div>
             )}
-          </motion.button>
-        ))}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

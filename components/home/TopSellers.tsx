@@ -3,7 +3,7 @@
 import { Heart, Eye, ArrowRight, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { SafeMotionDiv } from "@/components/shared/SafeMotion";
 import { useFeaturedProducts } from "@/hooks/data";
 import { PriceDisplay } from "@/components/shared/PriceDisplay";
 
@@ -13,7 +13,7 @@ const TopSellers = () => {
   return (
     <section className="py-24 bg-secondary/5">
       <div className="container mx-auto px-4">
-        <motion.div
+        <SafeMotionDiv
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -28,7 +28,7 @@ const TopSellers = () => {
             Discover our most popular printing solutions trusted by thousands of
             businesses for their quality and impact.
           </p>
-        </motion.div>
+        </SafeMotionDiv>
 
         {/* Loading State */}
         {isLoading && (
@@ -58,7 +58,7 @@ const TopSellers = () => {
               const categoryName = product.category?.name || "";
 
               return (
-                <motion.article
+                <SafeMotionDiv
                   key={product.id}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -139,14 +139,14 @@ const TopSellers = () => {
                       </div>
                     </div>
                   </Link>
-                </motion.article>
+                </SafeMotionDiv>
               );
             })}
           </div>
         )}
 
         <div className="text-center mt-16">
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <SafeMotionDiv whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Link
               href="/all-products"
               className="btn-pana inline-flex items-center px-8 py-3 rounded-full text-base font-semibold shadow-lg shadow-primary/20"
@@ -154,7 +154,7 @@ const TopSellers = () => {
               View All Products
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
-          </motion.div>
+          </SafeMotionDiv>
         </div>
       </div>
     </section>

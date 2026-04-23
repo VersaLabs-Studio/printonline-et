@@ -3,7 +3,7 @@
 
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { SafeMotionDiv, SafeAnimatePresence } from "@/components/shared/SafeMotion";
 import { 
   Search, 
   Package, 
@@ -94,7 +94,7 @@ function SearchResultsContent() {
             ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" 
             : "max-w-4xl mx-auto space-y-6"
           }>
-            <AnimatePresence mode="popLayout">
+            <SafeAnimatePresence mode="popLayout">
               {results.map((product, index) => (
                 <SearchResultCard 
                   key={product.id} 
@@ -103,10 +103,10 @@ function SearchResultsContent() {
                   viewMode={viewMode} 
                 />
               ))}
-            </AnimatePresence>
+            </SafeAnimatePresence>
           </div>
         ) : (
-          <motion.div 
+          <SafeMotionDiv 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="py-32 text-center"
@@ -126,7 +126,7 @@ function SearchResultsContent() {
                 Custom Quote
               </Link>
             </div>
-          </motion.div>
+          </SafeMotionDiv>
         )}
       </section>
     </div>
@@ -139,7 +139,7 @@ function SearchResultCard({ product, index, viewMode }: { product: ProductWithCa
                        "/placeholder.jpg";
 
   return (
-    <motion.div
+    <SafeMotionDiv
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
@@ -196,7 +196,7 @@ function SearchResultCard({ product, index, viewMode }: { product: ProductWithCa
           </div>
         </div>
       </Link>
-    </motion.div>
+    </SafeMotionDiv>
   );
 }
 

@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { CSSFadeIn, SafeMotionDiv } from "@/components/shared/SafeMotion";
 import {
   Search,
   Grid,
@@ -33,11 +33,7 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
     primaryImage?.image_url || "/product-images/Business-Card-Design-1.webp";
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.03 }}
-    >
+    <CSSFadeIn>
       <Link href={`/products/${product.slug}`} className="block h-full">
         <div
           className={`group relative bg-card border border-border/50 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer ${
@@ -48,11 +44,7 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
           <div
             className={`relative ${viewMode === "list" ? "w-64 h-64" : "h-64"} overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/20`}
           >
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="relative w-full h-full"
-            >
+            <div className="relative w-full h-full transition-transform duration-500 group-hover:scale-110">
               <Image
                 src={imageUrl}
                 alt={product.name}
@@ -60,7 +52,7 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </motion.div>
+            </div>
 
             {/* Badge */}
             {product.badge && (
@@ -72,17 +64,12 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
             )}
 
             {/* Hover Overlay */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              whileHover={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
+            <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
               <span className="w-full btn-pana text-sm py-3 inline-flex items-center justify-center">
                 View Details
                 <ChevronRight className="h-4 w-4 ml-2" />
               </span>
-            </motion.div>
+            </div>
           </div>
 
           {/* Product Info */}
@@ -128,18 +115,14 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
                 </span>
               </div>
 
-              <motion.div
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.5 }}
-                className="p-2 rounded-full bg-primary/10 text-primary"
-              >
+              <div className="p-2 rounded-full bg-primary/10 text-primary transition-transform duration-500 hover:rotate-[360deg]">
                 <Package className="h-5 w-5" />
-              </motion.div>
+              </div>
             </div>
           </div>
         </div>
       </Link>
-    </motion.div>
+    </CSSFadeIn>
   );
 };
 
@@ -176,40 +159,34 @@ export default function CategoryProductsPage() {
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
         </div>
 
-        <motion.div
+        <SafeMotionDiv
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="relative container mx-auto px-4 z-10"
         >
           <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-white/90 to-white/70 mb-4 tracking-tight capitalize"
-            >
-              {categoryName}
-            </motion.h1>
+            <CSSFadeIn delay={300}>
+              <h1 className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-white/90 to-white/70 mb-4 tracking-tight capitalize">
+                {categoryName}
+              </h1>
+            </CSSFadeIn>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-lg text-white/60 mb-8 max-w-2xl font-bold"
-            >
-              {activeCategory?.description ||
-                `Explore our high-quality ${categoryName} printing solutions.`}
-            </motion.p>
+            <CSSFadeIn delay={400}>
+              <p className="text-lg text-white/60 mb-8 max-w-2xl font-bold">
+                {activeCategory?.description ||
+                  `Explore our high-quality ${categoryName} printing solutions.`}
+              </p>
+            </CSSFadeIn>
           </div>
-        </motion.div>
+        </SafeMotionDiv>
       </section>
 
       {/* Main Content */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           {/* Controls Bar */}
-          <motion.div
+          <SafeMotionDiv
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -240,33 +217,29 @@ export default function CategoryProductsPage() {
 
               {/* View Mode Toggle */}
               <div className="bg-background border border-border rounded-lg flex">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 transition-colors ${
+                  className={`p-2 transition-all duration-200 hover:scale-105 active:scale-95 ${
                     viewMode === "grid"
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <Grid className="h-4 w-4" />
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                </button>
+                <button
                   onClick={() => setViewMode("list")}
-                  className={`p-2 transition-colors ${
+                  className={`p-2 transition-all duration-200 hover:scale-105 active:scale-95 ${
                     viewMode === "list"
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <List className="h-4 w-4" />
-                </motion.button>
+                </button>
               </div>
             </div>
-          </motion.div>
+          </SafeMotionDiv>
 
           {isLoading && (
             <div className="flex items-center justify-center py-20">
@@ -309,11 +282,7 @@ export default function CategoryProductsPage() {
           )}
 
           {!isLoading && !error && products && products.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-20"
-            >
+            <CSSFadeIn className="text-center py-20">
               <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-2xl font-bold text-foreground mb-2">
                 No products found
@@ -327,7 +296,7 @@ export default function CategoryProductsPage() {
               >
                 Back to All Products
               </Link>
-            </motion.div>
+            </CSSFadeIn>
           )}
         </div>
       </section>

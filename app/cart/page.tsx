@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { EmptyCart } from "@/components/cart/EmptyCart";
 import { CartItem } from "@/components/cart/CartItem";
 import { CartSummary } from "@/components/cart/CartSummary";
-import { motion } from "framer-motion";
+import { SafeMotionDiv } from "@/components/shared/SafeMotion";
 import { Button } from "@/components/ui/button";
 import { PriceDisplay } from "@/components/shared/PriceDisplay";
 
@@ -88,7 +88,7 @@ export default function CartPage() {
             {/* Cart Items List */}
             <div className="lg:col-span-2 space-y-6">
               {cart.map((item, idx) => (
-                <motion.div
+                <SafeMotionDiv
                   key={item.cartLineId || `cart-item-${idx}`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -100,7 +100,7 @@ export default function CartPage() {
                     onRemove={handleRemoveItem}
                     isUpdating={isUpdating === item.cartLineId}
                   />
-                </motion.div>
+                </SafeMotionDiv>
               ))}
             </div>
 

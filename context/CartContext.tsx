@@ -40,6 +40,13 @@ export interface CartItem {
   priorityPrice?: number;
   /** Whether user wants to hire Pana designer */
   hireDesigner?: boolean;
+  /** Designer service fee (if hireDesigner is true) */
+  designerFee?: number;
+}
+
+export interface DeliveryInfo {
+  subCity: string | null;
+  deliveryMethod: 'home' | 'pickup';
 }
 
 interface CartContextType {
@@ -53,6 +60,13 @@ interface CartContextType {
   /** Access local File objects (not persisted) */
   localFiles: Record<string, File[]>;
   setLocalFiles: React.Dispatch<React.SetStateAction<Record<string, File[]>>>;
+  /** Delivery information */
+  deliveryInfo: DeliveryInfo;
+  setDeliveryInfo: (info: DeliveryInfo) => void;
+  /** Get delivery fee */
+  getDeliveryFee: () => number;
+  /** Get cart total with delivery */
+  getCartTotalWithDelivery: () => number;
 }
 
 const STORAGE_KEY = "printonline-cart";
@@ -94,11 +108,31 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   // This does NOT persist to localStorage.
   const [localFiles, setLocalFiles] = useState<Record<string, File[]>>({});
 
+  // Delivery information
+  const [deliveryInfo, setDeliveryInfoState] = useState<DeliveryInfo>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("printonline-delivery");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {
+          return { subCity: null, deliveryMethod: 'home' };
+        }
+      }
+    }
+    return { subCity: null, deliveryMethod: 'home' };
+  });
+
   // Persist cart to localStorage
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
     window.dispatchEvent(new Event("storage"));
   }, [cart]);
+
+  // Persist delivery info to localStorage
+  useEffect(() => {
+    localStorage.setItem("printonline-delivery", JSON.stringify(deliveryInfo));
+  }, [deliveryInfo]);
 
   const addToCart = useCallback(
     (item: Omit<CartItem, "cartLineId">, files?: File[]) => {
@@ -170,7 +204,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const getCartTotal = useCallback(() => {
     return cart.reduce(
       (total, item) =>
-        total + item.unitPrice * item.quantity + (item.priorityPrice || 0),
+        total + item.unitPrice * item.quantity + (item.priorityPrice || 0) + (item.designerFee || 0),
       0,
     );
   }, [cart]);
@@ -178,6 +212,32 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const getCartCount = useCallback(() => {
     return cart.reduce((total, item) => total + item.quantity, 0);
   }, [cart]);
+
+  const getDeliveryFee = useCallback(() => {
+    // Import dynamically to avoid server/client issues
+    if (typeof window === 'undefined') return 0;
+    
+    const { calculateDeliveryFee } = require('@/lib/delivery/calculator');
+    const cartTotal = getCartTotal();
+    const totalQuantity = getCartCount();
+    
+    const result = calculateDeliveryFee({
+      subCity: deliveryInfo.subCity,
+      cartTotal,
+      totalQuantity,
+      deliveryMethod: deliveryInfo.deliveryMethod,
+    });
+    
+    return result.finalFee;
+  }, [deliveryInfo, getCartTotal, getCartCount]);
+
+  const getCartTotalWithDelivery = useCallback(() => {
+    return getCartTotal() + getDeliveryFee();
+  }, [getCartTotal, getDeliveryFee]);
+
+  const setDeliveryInfo = useCallback((info: DeliveryInfo) => {
+    setDeliveryInfoState(info);
+  }, []);
 
   return (
     <CartContext.Provider
@@ -191,6 +251,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         getCartCount,
         localFiles,
         setLocalFiles,
+        deliveryInfo,
+        setDeliveryInfo,
+        getDeliveryFee,
+        getCartTotalWithDelivery,
       }}
     >
       {children}

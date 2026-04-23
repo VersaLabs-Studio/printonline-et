@@ -1,5 +1,5 @@
 // lib/validations/auth.ts — Zod validation schemas for authentication forms
-// Used in Login, Register, and Forgot Password pages
+// Used in Login, Register, Forgot Password, and Account Deletion pages
 
 import { z } from "zod";
 
@@ -115,3 +115,13 @@ export const profileUpdateSchema = z.object({
 });
 
 export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;
+
+// ── Account Deletion Schema ─────────────────────────────────────
+export const deleteAccountSchema = z.object({
+  password: z.string().min(1, "Password confirmation is required"),
+  confirmDelete: z
+    .boolean()
+    .refine((val) => val === true, "You must confirm account deletion"),
+});
+
+export type DeleteAccountInput = z.infer<typeof deleteAccountSchema>;

@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { z } from "zod";
 import { chapa } from "@/lib/chapa";
+import { calculateDeliveryFee, FREE_DELIVERY_THRESHOLD } from "@/lib/delivery/calculator";
 
 const orderItemSchema = z.object({
   product_id: z.string().uuid().optional().nullable(),
@@ -69,6 +70,19 @@ export async function POST(req: Request) {
       .eq("auth_user_id", user.id)
       .single();
 
+    const calculatedDeliveryFee = validatedData.delivery_address === "PrintOnline HQ (Pickup)"
+      ? 0
+      : validatedData.subtotal >= FREE_DELIVERY_THRESHOLD
+      ? 0
+      : calculateDeliveryFee({
+          subCity: validatedData.delivery_sub_city || null,
+          cartTotal: validatedData.subtotal,
+          totalQuantity: validatedData.items.reduce((sum, item) => sum + item.quantity, 0),
+          deliveryMethod: "home",
+        }).finalFee;
+
+    const totalAmount = validatedData.subtotal + calculatedDeliveryFee;
+
     const { data: order, error: orderError } = await supabaseAdmin
       .from("orders")
       .insert({
@@ -81,13 +95,13 @@ export async function POST(req: Request) {
         delivery_address: validatedData.delivery_address,
         delivery_city: validatedData.delivery_city,
         delivery_sub_city: validatedData.delivery_sub_city,
-        status: "pending", // Initial status before payment
+        status: "pending",
         payment_status: "pending_payment",
         payment_provider: "chapa",
         subtotal: validatedData.subtotal,
-        delivery_fee: validatedData.delivery_fee,
+        delivery_fee: calculatedDeliveryFee,
         tax_amount: validatedData.tax_amount,
-        total_amount: validatedData.total_amount,
+        total_amount: totalAmount,
         currency: validatedData.currency,
         special_instructions: validatedData.special_instructions,
         terms_accepted: validatedData.terms_accepted,
@@ -170,7 +184,7 @@ export async function POST(req: Request) {
 
     try {
       const chapaResponse = await chapa.initialize({
-        amount: validatedData.total_amount.toString(),
+        amount: totalAmount.toString(),
         currency: "ETB",
         email: validatedData.customer_email,
         first_name: firstName,

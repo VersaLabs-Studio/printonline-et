@@ -5,11 +5,21 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 60 * 1000, // 1 minute
+        // Increase stale time to reduce refetches
+        staleTime: 5 * 60 * 1000, // 5 minutes (was 1 minute)
+        // Reduce unnecessary refetches
         refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+        refetchOnMount: false,
+        // Cache data longer
+        gcTime: 10 * 60 * 1000, // 10 minutes (garbage collection time)
+        // Reduce retry attempts to fail faster
+        retry: 1,
+        retryDelay: 1000,
       },
       mutations: {
         retry: 1,
+        retryDelay: 1000,
       },
     },
   });

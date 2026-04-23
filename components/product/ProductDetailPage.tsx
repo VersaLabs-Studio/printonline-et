@@ -8,7 +8,7 @@ import { ProductInfo } from "./ProductInfo";
 import { ProductOrderForm } from "./ProductOrderForm";
 import { ProductTabs } from "./ProductTabs";
 import { RelatedProducts } from "./RelatedProducts";
-import { motion } from "framer-motion";
+import { SafeMotionDiv } from "@/components/shared/SafeMotion";
 
 interface ProductDetailPageProps {
   product: ProductWithDetails;
@@ -28,17 +28,17 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 xl:gap-12 mb-16">
           {/* Left Column: Visuals & Details */}
-          <motion.section
+          <SafeMotionDiv
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="space-y-8 lg:space-y-12 flex flex-col"
           >
             <ProductGallery product={product} />
-          </motion.section>
+          </SafeMotionDiv>
 
           {/* Right Column: Interaction & Specs */}
-          <motion.section
+          <SafeMotionDiv
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
@@ -46,7 +46,7 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
           >
             <ProductInfo product={product} />
             <ProductOrderForm product={product} />
-          </motion.section>
+          </SafeMotionDiv>
         </div>
 
         {/* Full Width Sections */}

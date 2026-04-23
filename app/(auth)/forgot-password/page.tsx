@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, Mail, ArrowLeft, CheckCircle2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { SafeMotionDiv, SafeAnimatePresence } from "@/components/shared/SafeMotion";
 
 export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -63,9 +63,9 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <AnimatePresence mode="wait">
+    <SafeAnimatePresence mode="wait">
       {!isSubmitted ? (
-        <motion.div
+        <SafeMotionDiv
           key="form"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -142,9 +142,9 @@ export default function ForgotPasswordPage() {
               </Link>
             </CardFooter>
           </Card>
-        </motion.div>
+        </SafeMotionDiv>
       ) : (
-        <motion.div
+        <SafeMotionDiv
           key="success"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -190,8 +190,8 @@ export default function ForgotPasswordPage() {
               </Link>
             </CardFooter>
           </Card>
-        </motion.div>
+        </SafeMotionDiv>
       )}
-    </AnimatePresence>
+    </SafeAnimatePresence>
   );
 }

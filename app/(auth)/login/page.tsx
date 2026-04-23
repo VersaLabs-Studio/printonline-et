@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
-import { motion } from "framer-motion";
+import { SafeMotionDiv } from "@/components/shared/SafeMotion";
 import { Suspense } from "react";
 
 function LoginFormContent() {
@@ -72,7 +72,7 @@ function LoginFormContent() {
   };
 
   return (
-    <motion.div
+    <SafeMotionDiv
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
@@ -194,7 +194,7 @@ function LoginFormContent() {
           </Link>
         </CardFooter>
       </Card>
-    </motion.div>
+    </SafeMotionDiv>
   );
 }
 

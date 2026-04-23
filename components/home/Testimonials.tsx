@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { Star, Quote } from "lucide-react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { SafeMotionDiv, SafeAnimatePresence } from "@/components/shared/SafeMotion";
 
 const Testimonials = () => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -46,7 +46,7 @@ const Testimonials = () => {
         <div className="absolute top-0 left-0 -ml-20 -mt-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl opacity-50"></div>
         <div className="absolute bottom-0 right-0 -mr-20 -mb-20 w-80 h-80 bg-secondary/20 rounded-full blur-3xl opacity-50"></div>
 
-        <motion.div
+        <SafeMotionDiv
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -64,7 +64,7 @@ const Testimonials = () => {
             Trusted by thousands of businesses across Ethiopia for our
             reliability, quality, and exceptional service.
           </p>
-        </motion.div>
+        </SafeMotionDiv>
 
         <div className="max-w-5xl mx-auto relative z-10">
           {/* Main testimonial */}
@@ -74,8 +74,8 @@ const Testimonials = () => {
             </div>
 
             <div className="p-6 md:p-16 min-h-[400px] flex flex-col justify-center">
-              <AnimatePresence mode="wait">
-                <motion.div
+              <SafeAnimatePresence mode="wait">
+                <SafeMotionDiv
                   key={activeTestimonial}
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -122,8 +122,8 @@ const Testimonials = () => {
                       </div>
                     </div>
                   </div>
-                </motion.div>
-              </AnimatePresence>
+                </SafeMotionDiv>
+              </SafeAnimatePresence>
             </div>
           </div>
 
@@ -145,7 +145,7 @@ const Testimonials = () => {
         </div>
 
         {/* Stats */}
-        <motion.div
+        <SafeMotionDiv
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -184,7 +184,7 @@ const Testimonials = () => {
               Return Customers
             </p>
           </div>
-        </motion.div>
+        </SafeMotionDiv>
       </div>
     </section>
   );

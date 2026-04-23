@@ -17,6 +17,7 @@ export const emailTemplateOrderConfirmation = (
         <br/><small>${Object.entries(item.selected_options || {})
           .map(([k, v]) => `${k}: ${v}`)
           .join(", ")}</small>
+        ${item.design_preference === "hire_designer" ? '<br/><small style="color: #f59e0b;">+ Hire Designer Service</small>' : ""}
       </li>
     `,
       )
@@ -25,6 +26,7 @@ export const emailTemplateOrderConfirmation = (
 
   <hr/>
   <p><strong>Subtotal:</strong> ETB ${orderData.subtotal}</p>
+  ${orderData.delivery_fee > 0 ? `<p><strong>Delivery:</strong> ETB ${orderData.delivery_fee}</p>` : ""}
   <p><strong>Total:</strong> ETB ${orderData.total_amount}</p>
 
   <p>We will notify you when the status of your order changes. If you have any questions, please contact us at order@printonline.et.</p>

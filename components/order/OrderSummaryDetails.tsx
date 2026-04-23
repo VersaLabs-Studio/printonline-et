@@ -3,20 +3,22 @@
 import React from "react";
 import Image from "next/image";
 import { PriceDisplay } from "@/components/shared/PriceDisplay";
-import { FileText, Package } from "lucide-react";
+import { FileText, Package, Truck, Store } from "lucide-react";
 
 interface OrderSummaryDetailsProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cartItems?: any[];
   total?: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   orderItem?: any;
+  deliveryFee?: number;
+  deliveryMethod?: "home" | "pickup";
 }
 
 export function OrderSummaryDetails({
   cartItems,
   total,
   orderItem,
+  deliveryFee = 0,
+  deliveryMethod = "home",
 }: OrderSummaryDetailsProps) {
   const getDisplayOptions = (options: Record<string, unknown>) => {
     return Object.entries(options)
@@ -69,13 +71,18 @@ export function OrderSummaryDetails({
                     .join(", ")}
                 </p>
                 <PriceDisplay
-                  amount={item.unitPrice * item.quantity + (item.priorityPrice || 0)}
+                  amount={item.unitPrice * item.quantity + (item.priorityPrice || 0) + (item.designerFee || 0)}
                   size="sm"
                   className="mt-1"
                 />
                 {item.priorityPrice > 0 && (
                   <p className="text-[10px] font-bold text-emerald-500 uppercase mt-1">
                     + Rush Production: {item.priorityPrice} ETB
+                  </p>
+                )}
+                {item.designerFee > 0 && (
+                  <p className="text-[10px] font-bold text-primary uppercase mt-1">
+                    + Hire Designer: {item.designerFee} ETB
                   </p>
                 )}
                 {item.designFileNames && item.designFileNames.length > 0 && (
@@ -167,19 +174,51 @@ export function OrderSummaryDetails({
       )}
 
       <div className="pt-6 border-t border-border/20">
-        <div className="flex items-end justify-between">
-          <div className="space-y-1">
-            <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-              Order Total
+        <div className="space-y-3 mb-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground uppercase">
+              Subtotal
             </span>
-            <p className="text-xs font-medium text-muted-foreground uppercase italic leading-none">
-              VAT Inclusive (15%)
-            </p>
+            <PriceDisplay
+              amount={(total || 0) - deliveryFee}
+              className="text-sm font-semibold text-foreground"
+            />
           </div>
-          <PriceDisplay
-            amount={total !== undefined ? total : orderItem?.totalPrice || 0}
-            className="text-2xl font-semibold text-primary tracking-tight drop-shadow-sm"
-          />
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1.5">
+              {deliveryMethod === "pickup" ? (
+                <Store size={12} className="text-amber-500" />
+              ) : (
+                <Truck size={12} className="text-emerald-500" />
+              )}
+              {deliveryMethod === "pickup" ? "Pickup" : "Delivery"}
+            </span>
+            <PriceDisplay
+              amount={deliveryFee}
+              className="text-sm font-semibold text-foreground"
+            />
+          </div>
+          {deliveryFee === 0 && deliveryMethod === "home" && (
+            <p className="text-[10px] font-bold text-emerald-500 uppercase text-right">
+              Free delivery (order over 5000 ETB)
+            </p>
+          )}
+        </div>
+        <div className="pt-4 border-t border-border/20">
+          <div className="flex items-end justify-between">
+            <div className="space-y-1">
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+                Order Total
+              </span>
+              <p className="text-xs font-medium text-muted-foreground uppercase italic leading-none">
+                VAT Inclusive (15%)
+              </p>
+            </div>
+            <PriceDisplay
+              amount={total !== undefined ? total : orderItem?.totalPrice || 0}
+              className="text-2xl font-semibold text-primary tracking-tight drop-shadow-sm"
+            />
+          </div>
         </div>
       </div>
     </div>

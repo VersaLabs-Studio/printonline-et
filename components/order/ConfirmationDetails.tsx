@@ -2,9 +2,10 @@
 
 import React from "react";
 import Image from "next/image";
-import { User, MapPin, Mail, Phone, Info, File, ExternalLink, Download } from "lucide-react";
+import { User, MapPin, Mail, Phone, Info, File, ExternalLink, Download, Receipt, CreditCard, Calendar, Hash } from "lucide-react";
 import { PriceDisplay } from "@/components/shared/PriceDisplay";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { OrderWithItems, OrderItemDesignAsset } from "@/types/database";
 
 interface ConfirmationDetailsProps {
@@ -298,6 +299,85 @@ export function ConfirmationDetails({
               deposit/transfer.
             </p>
           </div>
+
+          {/* Payment Receipt Section */}
+          {orderDetails.payment_receipt && (
+            <div className="mt-8 pt-6 border-t border-border/10 space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-primary flex items-center gap-2">
+                  <Receipt size={14} /> Payment Receipt
+                </h4>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.print()}
+                  className="h-8 text-[10px] font-bold uppercase tracking-widest gap-1.5"
+                >
+                  <Download size={12} /> Print
+                </Button>
+              </div>
+              <div className="space-y-3 p-4 rounded-xl bg-muted/20 border border-border/10">
+                {/* Transaction Reference */}
+                {orderDetails.payment_receipt.tx_ref && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center gap-1.5">
+                      <Hash size={10} /> Reference
+                    </span>
+                    <span className="text-xs font-mono font-bold text-foreground">
+                      {orderDetails.payment_receipt.tx_ref}
+                    </span>
+                  </div>
+                )}
+                {/* Amount */}
+                {orderDetails.payment_receipt.amount && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center gap-1.5">
+                      <CreditCard size={10} /> Amount Paid
+                    </span>
+                    <span className="text-xs font-bold text-foreground">
+                      {orderDetails.payment_receipt.currency || "ETB"} {Number(orderDetails.payment_receipt.amount).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+                {/* Method */}
+                {orderDetails.payment_receipt.method && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase">
+                      Method
+                    </span>
+                    <span className="text-xs font-semibold text-foreground uppercase">
+                      {orderDetails.payment_receipt.method}
+                    </span>
+                  </div>
+                )}
+                {/* Status */}
+                {orderDetails.payment_receipt.status && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase">
+                      Status
+                    </span>
+                    <Badge
+                      variant="secondary"
+                      className="text-[9px] font-bold bg-emerald-500/10 text-emerald-600 border-emerald-200"
+                    >
+                      {orderDetails.payment_receipt.status}
+                    </Badge>
+                  </div>
+                )}
+                {/* Date */}
+                {orderDetails.payment_receipt.created_at && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center gap-1.5">
+                      <Calendar size={10} /> Date
+                    </span>
+                    <span className="text-xs font-semibold text-foreground">
+                      {new Date(orderDetails.payment_receipt.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@
 import { ArrowRight, Sparkles, Shield, Truck, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { SafeMotionDiv } from "@/components/shared/SafeMotion";
 import { useProducts } from "@/hooks/data";
 import { PriceDisplay } from "@/components/shared/PriceDisplay";
 
@@ -22,7 +22,7 @@ const FeaturedProducts = () => {
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
-        <motion.div
+        <SafeMotionDiv
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -42,7 +42,7 @@ const FeaturedProducts = () => {
             Hand-picked products designed to meet your specific business needs
             with premium quality and speed.
           </p>
-        </motion.div>
+        </SafeMotionDiv>
 
         {/* Loading */}
         {isLoading && (
@@ -60,7 +60,7 @@ const FeaturedProducts = () => {
                 : [];
 
               return (
-                <motion.div
+                <SafeMotionDiv
                   key={product.id}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -134,14 +134,14 @@ const FeaturedProducts = () => {
                       </div>
                     </div>
                   </Link>
-                </motion.div>
+                </SafeMotionDiv>
               );
             })}
           </div>
         )}
 
         {/* Benefits */}
-        <motion.div
+        <SafeMotionDiv
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -192,7 +192,7 @@ const FeaturedProducts = () => {
               </p>
             </div>
           </div>
-        </motion.div>
+        </SafeMotionDiv>
       </div>
     </section>
   );

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { SafeMotionDiv, SafeAnimatePresence } from "@/components/shared/SafeMotion";
 import { ProductWithDetails } from "@/types";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -27,12 +27,12 @@ export function ProductGallery({ product }: ProductGalleryProps) {
 
   return (
     <div className="space-y-4">
-      <motion.div
+      <SafeMotionDiv
         layoutId={`product-image-${product.id}`}
         className="relative aspect-square w-full rounded-2xl bg-muted/10 border border-border/40 overflow-hidden shadow-sm group"
       >
-        <AnimatePresence mode="wait">
-          <motion.div
+        <SafeAnimatePresence mode="wait">
+          <SafeMotionDiv
             key={selectedIdx}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -47,15 +47,15 @@ export function ProductGallery({ product }: ProductGalleryProps) {
               className="object-cover transition-transform duration-700 group-hover:scale-105"
               priority
             />
-          </motion.div>
-        </AnimatePresence>
+            </SafeMotionDiv>
+        </SafeAnimatePresence>
 
         {product.badge && (
           <Badge className="absolute top-6 left-6 bg-primary text-primary-foreground font-semibold uppercase tracking-wider text-xs h-7 px-4 shadow-xl border-none">
             {product.badge}
           </Badge>
         )}
-      </motion.div>
+        </SafeMotionDiv>
 
       {images.length > 1 && (
         <div className="flex gap-4 overflow-x-auto pb-4 px-1 scrollbar-hide">

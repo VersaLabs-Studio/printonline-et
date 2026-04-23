@@ -4,9 +4,9 @@ import React, { use } from "react";
 import { OrderStatusTracker } from "@/components/order/OrderStatusTracker";
 import { ConfirmationDetails } from "@/components/order/ConfirmationDetails";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, RefreshCcw, PackageOpen } from "lucide-react";
+import { ArrowLeft, RefreshCcw, PackageOpen, MessageSquare } from "lucide-react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { SafeMotionDiv } from "@/components/shared/SafeMotion";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 
@@ -114,9 +114,19 @@ export default function OrderDetailPage({
             >
               <RefreshCcw size={14} className="opacity-40" /> Sync Status
             </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="gap-2 h-10 w-fit rounded-xl font-bold tracking-widest uppercase text-[10px] border-border/40 hover:bg-muted/50 transition-all"
+            >
+              <Link href={`/messages/${orderDetails.id}`}>
+                <MessageSquare size={14} className="opacity-40" /> Message Team
+              </Link>
+            </Button>
           </div>
 
-          <motion.div
+          <SafeMotionDiv
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.5 }}
@@ -125,16 +135,16 @@ export default function OrderDetailPage({
               date={new Date(orderDetails.created_at).toLocaleDateString()}
               status={orderDetails.status}
             />
-          </motion.div>
+          </SafeMotionDiv>
 
           {/* We reuse the newly refactored ConfirmationDetails block to visualize data beautifully */}
-          <motion.div
+          <SafeMotionDiv
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
             <ConfirmationDetails orderDetails={orderDetails} />
-          </motion.div>
+          </SafeMotionDiv>
         </div>
       </main>
     </div>

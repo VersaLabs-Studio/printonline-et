@@ -1,7 +1,7 @@
 // app/contact/page.tsx
 "use client";
 
-import { motion } from "framer-motion";
+import { CSSFadeIn } from "@/components/shared/SafeMotion";
 import { Mail, Phone, MapPin, Send, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -24,11 +24,7 @@ export default function ContactPage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
-          >
+          <CSSFadeIn className="text-center mb-12">
             <h1 className="text-4xl font-bold text-foreground mb-4">
               Contact Our Design Team
             </h1>
@@ -36,7 +32,7 @@ export default function ContactPage() {
               Need professional help with your design? Our experts are here to
               bring your vision to life.
             </p>
-          </motion.div>
+          </CSSFadeIn>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-1 space-y-6">

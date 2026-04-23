@@ -4,11 +4,11 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { User, Package, LogOut, ChevronRight, UserCircle } from "lucide-react";
+import { User, Package, LogOut, ChevronRight, UserCircle, MessageSquare } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { SafeMotionDiv } from "@/components/shared/SafeMotion";
 
 const navItems = [
   {
@@ -20,6 +20,11 @@ const navItems = [
     title: "Order History",
     href: "/orders",
     icon: Package,
+  },
+  {
+    title: "Messages",
+    href: "/messages",
+    icon: MessageSquare,
   },
 ];
 
@@ -138,13 +143,13 @@ export default function AccountLayout({
 
           {/* Main Content Area */}
           <main className="flex-1 min-w-0">
-            <motion.div
+            <SafeMotionDiv
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
               {children}
-            </motion.div>
+            </SafeMotionDiv>
           </main>
         </div>
       </div>
