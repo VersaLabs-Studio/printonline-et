@@ -136,10 +136,15 @@ export function CustomerOrderHistory({ customerId }: CustomerOrderHistoryProps) 
 }
 
 function getStatusColor(status: string) {
-  switch (status) {
+  switch (status.toLowerCase()) {
     case "pending": return "bg-amber-100 text-amber-700 border-amber-200";
-    case "confirmed": return "bg-blue-100 text-blue-700 border-blue-200";
-    case "ready": return "bg-emerald-100 text-emerald-700 border-emerald-200";
+    case "order_confirmed": return "bg-blue-100 text-blue-700 border-blue-200";
+    case "design_under_review": return "bg-indigo-100 text-indigo-700 border-indigo-200";
+    case "on_hold": return "bg-amber-100 text-amber-700 border-amber-200";
+    case "approved_for_production": return "bg-emerald-100 text-emerald-700 border-emerald-200";
+    case "printing_in_progress": return "bg-orange-100 text-orange-700 border-orange-200";
+    case "ready_for_delivery": return "bg-cyan-100 text-cyan-700 border-cyan-200";
+    case "out_for_delivery": return "bg-purple-100 text-purple-700 border-purple-200";
     case "delivered": return "bg-emerald-500 text-white";
     case "cancelled": return "bg-destructive/10 text-destructive border-destructive/20";
     default: return "bg-primary/10 text-primary border-primary/20";

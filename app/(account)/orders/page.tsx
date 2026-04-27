@@ -16,8 +16,10 @@ import {
   Filter,
   FileText,
   Printer,
+  ShieldCheck,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { isAwaitingPayment } from "@/lib/order/status";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -85,17 +87,17 @@ export default function OrdersPage() {
     switch (status.toLowerCase()) {
       case "pending":
         return <Clock className="h-4 w-4 text-slate-500" />;
-      case "confirmed":
+      case "order_confirmed":
         return <CheckCircle2 className="h-4 w-4 text-blue-500" />;
-      case "design_review":
+      case "design_under_review":
         return <FileText className="h-4 w-4 text-indigo-500" />;
       case "on_hold":
         return <AlertCircle className="h-4 w-4 text-amber-500" />;
-      case "approved":
-        return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
-      case "printing":
+      case "approved_for_production":
+        return <ShieldCheck className="h-4 w-4 text-emerald-500" />;
+      case "printing_in_progress":
         return <Printer className="h-4 w-4 text-orange-500" />;
-      case "ready":
+      case "ready_for_delivery":
         return <Package className="h-4 w-4 text-cyan-500" />;
       case "out_for_delivery":
         return <Truck className="h-4 w-4 text-purple-500" />;
@@ -120,7 +122,7 @@ export default function OrdersPage() {
             Pending Receipt
           </Badge>
         );
-      case "confirmed":
+      case "order_confirmed":
         return (
           <Badge
             variant="outline"
@@ -129,7 +131,7 @@ export default function OrdersPage() {
             Confirmed
           </Badge>
         );
-      case "design_review":
+      case "design_under_review":
         return (
           <Badge
             variant="outline"
@@ -147,7 +149,7 @@ export default function OrdersPage() {
             On Hold
           </Badge>
         );
-      case "approved":
+      case "approved_for_production":
         return (
           <Badge
             variant="outline"
@@ -156,7 +158,7 @@ export default function OrdersPage() {
             Production Approved
           </Badge>
         );
-      case "printing":
+      case "printing_in_progress":
         return (
           <Badge
             variant="outline"
@@ -165,13 +167,13 @@ export default function OrdersPage() {
             Printing
           </Badge>
         );
-      case "ready":
+      case "ready_for_delivery":
         return (
           <Badge
             variant="outline"
             className="bg-cyan-50 text-cyan-700 border-cyan-200 uppercase text-[9px] tracking-widest font-bold"
           >
-            Ready for Pickup
+            Ready for Delivery
           </Badge>
         );
       case "out_for_delivery":
@@ -253,18 +255,19 @@ export default function OrdersPage() {
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-muted-foreground hidden sm:block" />
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-[150px]">
+                <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="confirmed">Confirmed</SelectItem>
-                  <SelectItem value="design_review">Design Review</SelectItem>
+                  <SelectItem value="order_confirmed">Confirmed</SelectItem>
+                  <SelectItem value="design_under_review">Design Review</SelectItem>
                   <SelectItem value="on_hold">On Hold</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="printing">Printing</SelectItem>
-                  <SelectItem value="ready">Ready</SelectItem>
+                  <SelectItem value="approved_for_production">Production Approved</SelectItem>
+                  <SelectItem value="printing_in_progress">Printing</SelectItem>
+                  <SelectItem value="ready_for_delivery">Ready</SelectItem>
+                  <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
                   <SelectItem value="delivered">Delivered</SelectItem>
                 </SelectContent>
               </Select>
@@ -293,51 +296,69 @@ export default function OrdersPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredOrders.map((order) => (
-                <div
-                  key={order.id}
-                  className="group relative flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-border/50 hover:bg-muted/50 transition-all duration-200"
-                >
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-lg bg-primary/5 text-primary border border-primary/10 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
-                      <Package size={24} />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-foreground">
-                          {order.order_number}
-                        </span>
-                        {getStatusBadge(order.status)}
+              {filteredOrders.map((order) => {
+                const needsPayment = isAwaitingPayment(order.payment_status);
+                return (
+                  <div
+                    key={order.id}
+                    className="group relative flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-border/50 hover:bg-muted/50 transition-all duration-200"
+                  >
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-lg bg-primary/5 text-primary border border-primary/10 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
+                        <Package size={24} />
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Clock size={12} />
-                          {order.created_at
-                            ? format(new Date(order.created_at), "MMM d, yyyy")
-                            : "N/A"}
-                        </span>
-                        <span className="w-1 h-1 rounded-full bg-border" />
-                        <span className="font-bold text-foreground">
-                          ETB {order.total_amount.toLocaleString()}
-                        </span>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-bold text-foreground">
+                            {order.order_number}
+                          </span>
+                          {getStatusBadge(order.status)}
+                          {needsPayment && (
+                            <Badge
+                              variant="outline"
+                              className="bg-amber-50 text-amber-700 border-amber-200 uppercase text-[8px] tracking-widest font-bold"
+                            >
+                              {order.payment_status === "failed" ? "Payment Failed" : "Awaiting Payment"}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Clock size={12} />
+                            {order.created_at
+                              ? format(new Date(order.created_at), "MMM d, yyyy")
+                              : "N/A"}
+                          </span>
+                          <span className="w-1 h-1 rounded-full bg-border" />
+                          <span className="font-bold text-foreground">
+                            ETB {order.total_amount.toLocaleString()}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="mt-4 sm:mt-0 flex items-center justify-between sm:justify-end gap-3">
-                    <div className="sm:hidden text-xs text-muted-foreground flex items-center gap-1">
-                      {getStatusIcon(order.status)}
-                      <span>{order.status}</span>
+                    <div className="mt-4 sm:mt-0 flex items-center justify-between sm:justify-end gap-3">
+                      <div className="sm:hidden text-xs text-muted-foreground flex items-center gap-1">
+                        {getStatusIcon(order.status)}
+                        <span>{order.status}</span>
+                      </div>
+                      {needsPayment && (
+                        <Link href={`/orders/${order.order_number}`}>
+                          <Button size="sm" className="gap-2 h-9 btn-pana text-[10px] font-bold uppercase tracking-widest">
+                            Retry Payment
+                          </Button>
+                        </Link>
+                      )}
+                      <Link href={`/orders/${order.order_number}`}>
+                        <Button variant="ghost" size="sm" className="gap-2 h-9">
+                          Details
+                          <ExternalLink size={14} />
+                        </Button>
+                      </Link>
                     </div>
-                    <Link href={`/orders/${order.order_number}`}>
-                      <Button variant="ghost" size="sm" className="gap-2 h-9">
-                        Details
-                        <ExternalLink size={14} />
-                      </Button>
-                    </Link>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>

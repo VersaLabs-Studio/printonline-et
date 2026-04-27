@@ -26,33 +26,41 @@ CREATE INDEX IF NOT EXISTS idx_messages_created ON messages(created_at DESC);
 -- Enable Row Level Security
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
--- RLS Policy: Users can view messages they sent or received
-CREATE POLICY "Users can view their own messages"
+-- NOTE: This app uses better-auth (not Supabase Auth).
+-- RLS policies below are permissive because all data access is gated
+-- through authenticated Next.js API routes that verify sessions server-side.
+-- Do NOT use auth.uid() here — it will always be NULL with better-auth.
+
+-- RLS Policy: Allow all selects (API route validates auth)
+CREATE POLICY "Allow select via API"
   ON messages
   FOR SELECT
-  USING (
-    auth.uid()::text = sender_id 
-    OR auth.uid()::text = recipient_id
-  );
+  USING (true);
 
--- RLS Policy: Users can insert messages they send
-CREATE POLICY "Users can send messages"
+-- RLS Policy: Allow all inserts (API route validates auth)
+CREATE POLICY "Allow insert via API"
   ON messages
   FOR INSERT
-  WITH CHECK (
-    auth.uid()::text = sender_id
-  );
+  WITH CHECK (true);
 
--- RLS Policy: Users can update their own messages (for marking as read)
-CREATE POLICY "Users can update their own messages"
+-- RLS Policy: Allow all updates (API route validates auth)
+CREATE POLICY "Allow update via API"
   ON messages
   FOR UPDATE
-  USING (
-    auth.uid()::text = recipient_id
-  );
+  USING (true);
 
--- Enable realtime for messages table
-ALTER PUBLICATION supabase_realtime ADD TABLE messages;
+-- Enable realtime for messages table (idempotent)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime'
+    AND tablename = 'messages'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE messages;
+  END IF;
+END
+$$;
 
 -- Comment for documentation
 COMMENT ON TABLE messages IS 'User-admin messaging system for order-related communication';

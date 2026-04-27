@@ -13,8 +13,14 @@ import { Button } from "@/components/ui/button";
 import { PriceDisplay } from "@/components/shared/PriceDisplay";
 
 export default function CartPage() {
-  const { cart, removeFromCart, updateQuantity, clearCart, getCartTotal } =
-    useCart();
+  const {
+    cart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    getCartTotal,
+    getDeliveryFee,
+  } = useCart();
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
 
   const handleQuantityChange = (cartLineId: string, quantity: number) => {
@@ -34,7 +40,7 @@ export default function CartPage() {
   };
 
   const subtotal = getCartTotal();
-  const shipping = 0; // Forced free promotional delivery
+  const shipping = getDeliveryFee();
   const total = subtotal + shipping;
 
   if (cart.length === 0) {

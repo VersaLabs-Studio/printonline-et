@@ -13,6 +13,7 @@ import {
   FileText,
   Printer,
   Package,
+  ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
@@ -42,12 +43,12 @@ const statusConfig: Record<
     label: "Pending",
     className: "bg-yellow-50 text-yellow-700 border-yellow-200",
   },
-  confirmed: {
+  order_confirmed: {
     icon: CheckCircle2,
     label: "Order Confirmed",
     className: "bg-blue-50 text-blue-700 border-blue-200",
   },
-  design_review: {
+  design_under_review: {
     icon: FileText,
     label: "Design Under Review",
     className: "bg-indigo-50 text-indigo-700 border-indigo-200",
@@ -57,17 +58,17 @@ const statusConfig: Record<
     label: "On Hold",
     className: "bg-amber-50 text-amber-700 border-amber-200",
   },
-  approved: {
-    icon: CheckCircle2,
+  approved_for_production: {
+    icon: ShieldCheck,
     label: "Approved for Production",
     className: "bg-emerald-50 text-emerald-700 border-emerald-200",
   },
-  printing: {
+  printing_in_progress: {
     icon: Printer,
     label: "Printing in Progress",
     className: "bg-orange-50 text-orange-700 border-orange-200",
   },
-  ready: {
+  ready_for_delivery: {
     icon: Package,
     label: "Ready for Delivery",
     className: "bg-cyan-50 text-cyan-700 border-cyan-200",
@@ -181,6 +182,31 @@ export const columns: ColumnDef<OrderWithItems>[] = [
     },
   },
   {
+    accessorFn: (row) => row.payment_status,
+    id: "payment_status",
+    header: "Payment",
+    cell: ({ row }) => {
+      const ps = row.original.payment_status?.toLowerCase() || "unknown";
+      const isPaid = ps === "paid";
+      const isFailed = ps === "failed";
+      return (
+        <Badge
+          variant="outline"
+          className={cn(
+            "text-[9px] font-medium uppercase tracking-wider gap-1.5 px-2.5 py-1 rounded-lg shadow-sm",
+            isPaid
+              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+              : isFailed
+                ? "bg-red-50 text-red-700 border-red-200"
+                : "bg-amber-50 text-amber-700 border-amber-200",
+          )}
+        >
+          {isPaid ? "Paid" : isFailed ? "Failed" : ps.replace(/_/g, " ")}
+        </Badge>
+      );
+    },
+  },
+  {
     id: "actions",
     cell: function ActionCell({ row }) {
       const order = row.original;
@@ -241,7 +267,7 @@ export const columns: ColumnDef<OrderWithItems>[] = [
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="opacity-50" />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 className="rounded-lg text-destructive focus:text-destructive cursor-pointer font-semibold text-xs gap-3 py-2"
                 onClick={() => setIsCancelConfirmOpen(true)}
               >

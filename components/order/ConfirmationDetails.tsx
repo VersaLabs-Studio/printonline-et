@@ -12,10 +12,20 @@ interface ConfirmationDetailsProps {
   orderDetails: OrderWithItems;
 }
 
+interface PaymentReceipt {
+  tx_ref?: string;
+  amount?: number;
+  currency?: string;
+  method?: string;
+  status?: string;
+  created_at?: string;
+}
+
 export function ConfirmationDetails({
   orderDetails,
 }: ConfirmationDetailsProps) {
   const items = orderDetails.order_items || [];
+  const receipt = (orderDetails.payment_receipt as PaymentReceipt | null) || {};
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20">
@@ -318,40 +328,40 @@ export function ConfirmationDetails({
               </div>
               <div className="space-y-3 p-4 rounded-xl bg-muted/20 border border-border/10">
                 {/* Transaction Reference */}
-                {orderDetails.payment_receipt.tx_ref && (
+                {receipt.tx_ref && (
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center gap-1.5">
                       <Hash size={10} /> Reference
                     </span>
                     <span className="text-xs font-mono font-bold text-foreground">
-                      {orderDetails.payment_receipt.tx_ref}
+                      {receipt.tx_ref}
                     </span>
                   </div>
                 )}
                 {/* Amount */}
-                {orderDetails.payment_receipt.amount && (
+                {receipt.amount && (
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center gap-1.5">
                       <CreditCard size={10} /> Amount Paid
                     </span>
                     <span className="text-xs font-bold text-foreground">
-                      {orderDetails.payment_receipt.currency || "ETB"} {Number(orderDetails.payment_receipt.amount).toLocaleString()}
+                      {receipt.currency || "ETB"} {Number(receipt.amount).toLocaleString()}
                     </span>
                   </div>
                 )}
                 {/* Method */}
-                {orderDetails.payment_receipt.method && (
+                {receipt.method && (
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-semibold text-muted-foreground uppercase">
                       Method
                     </span>
                     <span className="text-xs font-semibold text-foreground uppercase">
-                      {orderDetails.payment_receipt.method}
+                      {receipt.method}
                     </span>
                   </div>
                 )}
                 {/* Status */}
-                {orderDetails.payment_receipt.status && (
+                {receipt.status && (
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-semibold text-muted-foreground uppercase">
                       Status
@@ -360,18 +370,18 @@ export function ConfirmationDetails({
                       variant="secondary"
                       className="text-[9px] font-bold bg-emerald-500/10 text-emerald-600 border-emerald-200"
                     >
-                      {orderDetails.payment_receipt.status}
+                      {receipt.status}
                     </Badge>
                   </div>
                 )}
                 {/* Date */}
-                {orderDetails.payment_receipt.created_at && (
+                {receipt.created_at && (
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center gap-1.5">
                       <Calendar size={10} /> Date
                     </span>
                     <span className="text-xs font-semibold text-foreground">
-                      {new Date(orderDetails.payment_receipt.created_at).toLocaleDateString()}
+                      {new Date(receipt.created_at).toLocaleDateString()}
                     </span>
                   </div>
                 )}

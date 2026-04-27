@@ -5,12 +5,16 @@ import Image from "next/image";
 import { PriceDisplay } from "@/components/shared/PriceDisplay";
 import { FileText, Package, Truck, Store } from "lucide-react";
 
+import { getDeliveryZone, FREE_DELIVERY_THRESHOLD, getQuantityMultiplier } from "@/lib/delivery/zones";
+
 interface OrderSummaryDetailsProps {
   cartItems?: any[];
   total?: number;
   orderItem?: any;
   deliveryFee?: number;
   deliveryMethod?: "home" | "pickup";
+  subCity?: string | null;
+  cartCount?: number;
 }
 
 export function OrderSummaryDetails({
@@ -19,6 +23,8 @@ export function OrderSummaryDetails({
   orderItem,
   deliveryFee = 0,
   deliveryMethod = "home",
+  subCity,
+  cartCount = 0,
 }: OrderSummaryDetailsProps) {
   const getDisplayOptions = (options: Record<string, unknown>) => {
     return Object.entries(options)
@@ -192,15 +198,41 @@ export function OrderSummaryDetails({
                 <Truck size={12} className="text-emerald-500" />
               )}
               {deliveryMethod === "pickup" ? "Pickup" : "Delivery"}
+              {deliveryMethod === "home" && subCity && (
+                <span className="text-[10px] normal-case opacity-60">
+                  ({subCity})
+                </span>
+              )}
             </span>
             <PriceDisplay
               amount={deliveryFee}
               className="text-sm font-semibold text-foreground"
             />
           </div>
-          {deliveryFee === 0 && deliveryMethod === "home" && (
+          {deliveryMethod === "home" && deliveryFee === 0 && (total || 0) >= FREE_DELIVERY_THRESHOLD && (
             <p className="text-[10px] font-bold text-emerald-500 uppercase text-right">
-              Free delivery (order over 5000 ETB)
+              Free delivery (order over {FREE_DELIVERY_THRESHOLD.toLocaleString()} ETB)
+            </p>
+          )}
+          {deliveryMethod === "home" && deliveryFee === 0 && (total || 0) < FREE_DELIVERY_THRESHOLD && subCity && (
+            <p className="text-[10px] font-bold text-amber-500 uppercase text-right">
+              {getDeliveryZone(subCity)
+                ? "Enter a valid sub-city for delivery fee"
+                : "Sub-city not in delivery zone"}
+            </p>
+          )}
+          {deliveryMethod === "home" && deliveryFee > 0 && subCity && getDeliveryZone(subCity) && cartCount > 0 && (
+            <p className="text-[10px] text-muted-foreground uppercase text-right">
+              {(() => {
+                const zone = getDeliveryZone(subCity);
+                const baseFee = zone?.baseFee ?? 0;
+                const multiplier = getQuantityMultiplier(cartCount);
+                const discount = baseFee - deliveryFee;
+                if (discount > 0) {
+                  return `Base ${baseFee} ETB · Bulk discount -${discount} ETB (${cartCount} items)`;
+                }
+                return `Base ${baseFee} ETB · ${zone?.description}`;
+              })()}
             </p>
           )}
         </div>

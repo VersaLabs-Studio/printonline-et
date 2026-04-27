@@ -144,8 +144,7 @@ export function RadioVisualField({
               </div>
             )}
             </button>
-          );
-        })}
+        ))}
       </div>
     </div>
   );

@@ -55,11 +55,16 @@ export function getDeliveryZone(subCity: string): DeliveryZone | null {
 }
 
 // Helper function to get quantity multiplier
-export function getQuantityMultiplier(quantity: number): number {
-  const tier = DELIVERY_QUANTITY_MATRIX.find(
-    t => quantity >= t.minQuantity && quantity <= (t.maxQuantity === Infinity ? Number.MAX_SAFE_INTEGER : t.maxQuantity)
-  );
-  return tier ? tier.multiplier : 1.0;
+// TEMPORARILY DISABLED (2026-04-25) — returns 1.0 for all quantities.
+// Re-enable by uncommenting the tier lookup below and removing the early return.
+export function getQuantityMultiplier(_quantity: number): number {
+  return 1.0;
+
+  // Original tier-based logic (disabled):
+  // const tier = DELIVERY_QUANTITY_MATRIX.find(
+  //   t => _quantity >= t.minQuantity && _quantity <= (t.maxQuantity === Infinity ? Number.MAX_SAFE_INTEGER : t.maxQuantity)
+  // );
+  // return tier ? tier.multiplier : 1.0;
 }
 
 // Helper function to check if order qualifies for free delivery

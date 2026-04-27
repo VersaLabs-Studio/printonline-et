@@ -5,6 +5,9 @@ import { FileText, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TermsCheckbox } from "@/components/checkout/TermsCheckbox";
 
+import { PriceDisplay } from "@/components/shared/PriceDisplay";
+import { getDeliveryZone, FREE_DELIVERY_THRESHOLD } from "@/lib/delivery/zones";
+
 interface OrderReviewStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   profile: any;
@@ -15,6 +18,8 @@ interface OrderReviewStepProps {
   onBack: () => void;
   onSubmit: (termsAccepted: boolean) => void;
   isSubmitting: boolean;
+  deliveryFee?: number;
+  cartTotal?: number;
 }
 
 export function OrderReviewStep({
@@ -25,6 +30,8 @@ export function OrderReviewStep({
   onBack,
   onSubmit,
   isSubmitting,
+  deliveryFee = 0,
+  cartTotal = 0,
 }: OrderReviewStepProps) {
   const [termsAccepted, setTermsAccepted] = useState(false);
 
@@ -82,9 +89,25 @@ export function OrderReviewStep({
                 <p className="text-[10px] font-semibold text-muted-foreground uppercase opacity-80">
                   {profile?.city}, {profile?.sub_city}
                 </p>
-                <p className="text-[10px] font-semibold text-emerald-500 uppercase opacity-80 tracking-widest">
-                  Free / Included
-                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  {cartTotal >= FREE_DELIVERY_THRESHOLD ? (
+                    <p className="text-[10px] font-semibold text-emerald-500 uppercase opacity-80 tracking-widest">
+                      Free delivery (over {FREE_DELIVERY_THRESHOLD.toLocaleString()} ETB)
+                    </p>
+                  ) : (
+                    <>
+                      <p className="text-[10px] font-semibold text-foreground uppercase opacity-80 tracking-widest">
+                        Delivery Fee:
+                      </p>
+                      <PriceDisplay amount={deliveryFee} size="sm" className="font-bold" />
+                      {profile?.sub_city && getDeliveryZone(profile.sub_city) && (
+                        <p className="text-[10px] text-muted-foreground uppercase">
+                          ({getDeliveryZone(profile.sub_city)?.description})
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
               </>
             ) : (
               <>

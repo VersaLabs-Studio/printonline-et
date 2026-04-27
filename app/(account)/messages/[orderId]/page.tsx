@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
-import { getMessagesByOrder, sendMessage, markOrderMessagesAsRead, subscribeToOrderMessages } from "@/lib/supabase/messages";
+import { getMessagesByOrder, sendMessage, markOrderMessagesAsRead, subscribeToOrderMessages, uploadMessageFile, type MessageAttachment } from "@/lib/supabase/messages";
 import { format } from "date-fns";
 import { ArrowLeft, Loader2, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -115,7 +115,10 @@ export default function MessageThreadPage() {
 
     // Subscribe to new messages
     const { unsubscribe } = subscribeToOrderMessages(orderId, (newMessage) => {
-      setMessages((prev) => [...prev, newMessage]);
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === newMessage.id)) return prev;
+        return [...prev, newMessage];
+      });
     });
 
     return () => {
@@ -123,7 +126,7 @@ export default function MessageThreadPage() {
     };
   }, [orderId, session?.user?.id]);
 
-  const handleSend = async (message: string) => {
+  const handleSend = async (message: string, attachments: MessageAttachment[]) => {
     if (!session?.user?.id) return;
 
     setIsSending(true);
@@ -132,7 +135,6 @@ export default function MessageThreadPage() {
       let senderIsAdmin = false;
 
       if (isAdminUser) {
-        // Admin is replying — send to customer
         if (!customerId) {
           toast.error("Customer not found for this order");
           return;
@@ -140,7 +142,6 @@ export default function MessageThreadPage() {
         recipientId = customerId;
         senderIsAdmin = true;
       } else {
-        // Customer is messaging — send to first available admin
         if (admins.length === 0) {
           toast.error("No admins available to receive messages");
           return;
@@ -148,26 +149,28 @@ export default function MessageThreadPage() {
         recipientId = admins[0].id;
         senderIsAdmin = false;
       }
-      
-      const { data, error } = await sendMessage({
+
+      const { error } = await sendMessage({
         senderId: session.user.id,
         recipientId,
         orderId,
         message,
         isAdmin: senderIsAdmin,
+        attachments,
       });
 
       if (error) throw error;
-
-      if (data) {
-        setMessages((prev) => [...prev, data]);
-      }
     } catch (error) {
-      console.error("Failed to send message:", error);
-      toast.error("Failed to send message");
+      const errMsg = error instanceof Error ? error.message : JSON.stringify(error);
+      console.error("Failed to send message:", errMsg, error);
+      toast.error(`Failed to send message: ${errMsg}`);
     } finally {
       setIsSending(false);
     }
+  };
+
+  const handleUploadFile = async (file: File) => {
+    return uploadMessageFile(file, orderId);
   };
 
   if (isSessionPending || isLoading) {
@@ -247,9 +250,10 @@ export default function MessageThreadPage() {
 
           {/* Input */}
           <div className="border-t border-border/20 px-6 py-4 bg-muted/10">
-            <MessageInput 
-              onSend={handleSend} 
+            <MessageInput
+              onSend={handleSend}
               isLoading={isSending}
+              onUploadFile={handleUploadFile}
               placeholder="Type your message about this order..."
             />
           </div>

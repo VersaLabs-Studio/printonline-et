@@ -4,11 +4,13 @@ import React, { use } from "react";
 import { OrderStatusTracker } from "@/components/order/OrderStatusTracker";
 import { ConfirmationDetails } from "@/components/order/ConfirmationDetails";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, RefreshCcw, PackageOpen, MessageSquare } from "lucide-react";
+import { ArrowLeft, RefreshCcw, PackageOpen, MessageSquare, CreditCard, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { SafeMotionDiv } from "@/components/shared/SafeMotion";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { isAwaitingPayment } from "@/lib/order/status";
 
 export default function OrderDetailPage({
   params,
@@ -69,12 +71,56 @@ export default function OrderDetailPage({
     );
   }
 
+  const paymentIsBlocking = isAwaitingPayment(orderDetails.payment_status);
+
+  const handleRetryPayment = async () => {
+    try {
+      const res = await fetch("/api/payments/retry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: orderDetails.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Retry failed");
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Retry failed";
+      toast.error(msg);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/2 rounded-full blur-[140px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
 
       <main className="container mx-auto px-4 py-16 relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col gap-12">
+          {/* Payment Alert Banner */}
+          {paymentIsBlocking && (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <AlertCircle className="text-amber-500 shrink-0" size={24} />
+              <div className="flex-1">
+                <p className="text-sm font-bold text-amber-800">
+                  Payment {orderDetails.payment_status === "failed" ? "Failed" : "Pending"}
+                </p>
+                <p className="text-xs text-amber-700 mt-0.5">
+                  {orderDetails.payment_status === "failed"
+                    ? "Your previous payment attempt was unsuccessful. Click below to retry."
+                    : "Your order is awaiting payment. Complete checkout to proceed."}
+                </p>
+              </div>
+              <Button
+                onClick={handleRetryPayment}
+                className="btn-pana gap-2 h-10 rounded-xl text-[10px] font-bold uppercase tracking-widest"
+              >
+                <CreditCard size={14} />
+                {orderDetails.payment_status === "failed" ? "Retry Payment" : "Complete Payment"}
+              </Button>
+            </div>
+          )}
+
           {/* Header Action Bar */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
             <div className="space-y-4">
@@ -106,24 +152,26 @@ export default function OrderDetailPage({
                 </div>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => refetch()}
-              className="gap-2 h-10 w-fit rounded-xl font-bold tracking-widest uppercase text-[10px] border-border/40 hover:bg-muted/50 transition-all"
-            >
-              <RefreshCcw size={14} className="opacity-40" /> Sync Status
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-              className="gap-2 h-10 w-fit rounded-xl font-bold tracking-widest uppercase text-[10px] border-border/40 hover:bg-muted/50 transition-all"
-            >
-              <Link href={`/messages/${orderDetails.id}`}>
-                <MessageSquare size={14} className="opacity-40" /> Message Team
-              </Link>
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetch()}
+                className="gap-2 h-10 w-fit rounded-xl font-bold tracking-widest uppercase text-[10px] border-border/40 hover:bg-muted/50 transition-all"
+              >
+                <RefreshCcw size={14} className="opacity-40" /> Sync Status
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="gap-2 h-10 w-fit rounded-xl font-bold tracking-widest uppercase text-[10px] border-border/40 hover:bg-muted/50 transition-all"
+              >
+                <Link href={`/messages/${orderDetails.id}`}>
+                  <MessageSquare size={14} className="opacity-40" /> Message Team
+                </Link>
+              </Button>
+            </div>
           </div>
 
           <SafeMotionDiv

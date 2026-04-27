@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "@/hooks/ui/useReducedMotion";
 
 interface SafeMotionProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initial?: any;
@@ -32,12 +32,26 @@ interface SafeMotionProps {
   style?: React.CSSProperties;
   onClick?: () => void;
   id?: string;
+  layout?: boolean;
+  layoutId?: string;
+  as?: "h1" | "h2" | "h3" | "p" | "span" | "button" | "div";
+  type?: string;
 }
 
 /**
  * SafeMotionDiv — replaces motion.div with reduced-motion awareness.
  * When reduced motion is preferred, skips animations entirely.
  */
+const motionComponents: Record<string, React.ElementType> = {
+  div: motion.div,
+  h1: motion.h1,
+  h2: motion.h2,
+  h3: motion.h3,
+  p: motion.p,
+  span: motion.span,
+  button: motion.button,
+};
+
 export function SafeMotionDiv({
   children,
   className,
@@ -53,26 +67,34 @@ export function SafeMotionDiv({
   style,
   onClick,
   id,
+  layout,
+  layoutId,
+  as,
+  type,
 }: SafeMotionProps) {
   const reducedMotion = useReducedMotion();
+  const MotionComponent = motionComponents[as || "div"] || motion.div;
 
   if (reducedMotion) {
     return (
-      <motion.div
+      <MotionComponent
         className={className}
         style={style}
         whileHover={whileHover}
         whileTap={whileTap}
         onClick={onClick}
         id={id}
+        layout={layout}
+        layoutId={layoutId}
+        type={type}
       >
         {children}
-      </motion.div>
+      </MotionComponent>
     );
   }
 
   return (
-    <motion.div
+    <MotionComponent
       className={className}
       initial={initial}
       animate={animate}
@@ -86,9 +108,12 @@ export function SafeMotionDiv({
       style={style}
       onClick={onClick}
       id={id}
+      layout={layout}
+      layoutId={layoutId}
+      type={type}
     >
       {children}
-    </motion.div>
+    </MotionComponent>
   );
 }
 
@@ -99,9 +124,11 @@ export function SafeMotionDiv({
 export function SafeAnimatePresence({
   children,
   mode,
+  initial,
 }: {
   children: React.ReactNode;
   mode?: "sync" | "popLayout" | "wait";
+  initial?: boolean;
 }) {
   const reducedMotion = useReducedMotion();
 
@@ -109,7 +136,11 @@ export function SafeAnimatePresence({
     return <>{children}</>;
   }
 
-  return <AnimatePresence mode={mode}>{children}</AnimatePresence>;
+  return (
+    <AnimatePresence mode={mode} initial={initial}>
+      {children}
+    </AnimatePresence>
+  );
 }
 
 /**

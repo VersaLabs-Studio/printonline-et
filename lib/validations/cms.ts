@@ -131,12 +131,12 @@ export type ProductOptionValueFormData = z.infer<
 export const orderStatusUpdateSchema = z.object({
   status: z.enum([
     "pending",
-    "confirmed",
-    "design_review",
+    "order_confirmed",
+    "design_under_review",
     "on_hold",
-    "approved",
-    "printing",
-    "ready",
+    "approved_for_production",
+    "printing_in_progress",
+    "ready_for_delivery",
     "out_for_delivery",
     "delivered",
     "cancelled",
@@ -150,18 +150,5 @@ export const orderStatusUpdateSchema = z.object({
 
 export type OrderStatusUpdateFormData = z.infer<typeof orderStatusUpdateSchema>;
 
-/**
- * Strict status transition rules for CMS Order Pipeline
- */
-export const ORDER_STATUS_TRANSITIONS: Record<string, string[]> = {
-  pending: ["confirmed", "cancelled"],
-  confirmed: ["design_review", "on_hold", "cancelled"],
-  design_review: ["on_hold", "approved", "cancelled"],
-  on_hold: ["design_review", "cancelled"],
-  approved: ["printing", "cancelled"],
-  printing: ["ready", "cancelled"],
-  ready: ["out_for_delivery", "cancelled"],
-  out_for_delivery: ["delivered", "cancelled"],
-  delivered: [], // Terminal
-  cancelled: [], // Terminal
-};
+// Re-export transitions from shared source of truth
+export { ORDER_STATUS_TRANSITIONS } from "@/lib/order/status";

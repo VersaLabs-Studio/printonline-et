@@ -150,4 +150,5 @@ export {
   getDeliveryZone,
   getQuantityMultiplier,
   isFreeDeliveryEligible,
+  type DeliveryZone,
 } from './zones';

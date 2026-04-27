@@ -66,12 +66,12 @@ export async function GET(
 const updateStatusSchema = z.object({
   status: z.enum([
     "pending",
-    "confirmed",
-    "design_review",
+    "order_confirmed",
+    "design_under_review",
     "on_hold",
-    "approved",
-    "printing",
-    "ready",
+    "approved_for_production",
+    "printing_in_progress",
+    "ready_for_delivery",
     "out_for_delivery",
     "delivered",
     "cancelled",
@@ -98,7 +98,7 @@ export async function PUT(
 
     const { data: order, error: fetchError } = await supabaseAdmin
       .from("orders")
-      .select("status_history, customer_id, status")
+      .select("status_history, customer_id, status, payment_status")
       .eq("id", id)
       .single();
 
@@ -115,12 +115,22 @@ export async function PUT(
 
     const isOrderOwner = order.customer_id === customerProfile?.id;
     const isOrderAdmin = isAdmin(session.user);
-    
+
     // Only admins can change to anything other than 'cancelled'
     // Customers can only 'cancel' their own orders
     if (!isOrderAdmin && !(isOrderOwner && status === "cancelled")) {
       console.warn(`[API PUT /api/orders/${id}] 403 Forbidden for user ${session.user.email}`);
       return NextResponse.json({ error: "Forbidden: Administrative privileges required for this transition." }, { status: 403 });
+    }
+
+    // Prevent manual confirmation of unpaid orders
+    const normalizedCurrent = order.status?.toLowerCase() || "pending";
+    const isUnpaid = order.payment_status !== "paid";
+    if (normalizedCurrent === "pending" && status === "order_confirmed" && isUnpaid) {
+      return NextResponse.json(
+        { error: "Cannot confirm an unpaid order manually. Customer must complete payment." },
+        { status: 400 }
+      );
     }
 
     const currentHistory = Array.isArray(order.status_history)

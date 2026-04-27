@@ -7,6 +7,7 @@ import {
   Printer,
   PackageCheck,
   FileSearch,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,17 +23,17 @@ export function OrderStatusTracker({
   const s = status.toLowerCase();
 
   const getStepStatus = (stepIdx: number) => {
-    // Current mapping to 5 milestones
+    // Map each OrderStatus to its step index in the visual tracker
     const statusMap: Record<string, number> = {
       pending: 0,
-      confirmed: 0,
-      design_review: 1,
+      order_confirmed: 0,
+      design_under_review: 1,
       on_hold: 1,
-      approved: 2,
-      printing: 3,
-      ready: 4,
+      approved_for_production: 2,
+      printing_in_progress: 3,
+      ready_for_delivery: 4,
       out_for_delivery: 4,
-      delivered: 5, // All steps completed
+      delivered: 5,
       cancelled: -1,
     };
 
@@ -46,31 +47,31 @@ export function OrderStatusTracker({
 
   const steps = [
     {
-      label: "Received",
-      desc: s === "pending" ? "Pending Receipt" : "Order Confirmed",
-      date: s === "pending" || s === "confirmed" ? date : "Completed",
+      label: "Confirmed",
+      desc: s === "pending" ? "Awaiting Payment" : "Order Confirmed",
+      date: s === "pending" || s === "order_confirmed" ? date : "Completed",
       icon: CheckCircle2,
       ...getStepStatus(0),
     },
     {
       label: "Review",
-      desc: s === "on_hold" ? "On Hold" : "Design Review",
+      desc: s === "on_hold" ? "On Hold" : "Design Under Review",
       date:
-        s === "design_review" || s === "on_hold" ? "In Progress" : "Pending",
-      icon: FileSearch,
+        s === "design_under_review" || s === "on_hold" ? "In Progress" : "Pending",
+      icon: s === "on_hold" ? AlertCircle : FileSearch,
       ...getStepStatus(1),
     },
     {
       label: "Approved",
-      desc: "Ready for Print",
-      date: s === "approved" ? "Scheduled" : "Pending",
+      desc: "Approved for Production",
+      date: s === "approved_for_production" ? "Scheduled" : "Pending",
       icon: PackageCheck,
       ...getStepStatus(2),
     },
     {
       label: "Production",
-      desc: "Printing Now",
-      date: s === "printing" ? "In Progress" : "Pending",
+      desc: "Printing in Progress",
+      date: s === "printing_in_progress" ? "In Progress" : "Pending",
       icon: Printer,
       ...getStepStatus(3),
     },
@@ -81,9 +82,9 @@ export function OrderStatusTracker({
           ? "Delivered"
           : s === "out_for_delivery"
             ? "Out for Delivery"
-            : "Ready for Pickup",
+            : "Ready for Delivery",
       date:
-        s === "ready" || s === "out_for_delivery" || s === "delivered"
+        s === "ready_for_delivery" || s === "out_for_delivery" || s === "delivered"
           ? "Active"
           : "Pending",
       icon: Truck,

@@ -75,13 +75,14 @@ export async function GET(req: Request) {
         .from("orders")
         .update({
           payment_status: "paid",
-          status: "confirmed",
+          status: "order_confirmed",
           payment_completed_at: new Date().toISOString(),
-          payment_receipt: verification.data, // Store full Chapa response
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          payment_receipt: verification.data as any, // Store full Chapa response
           status_history: [
             ...((existingOrder as any).status_history || []),
             {
-              status: "confirmed",
+              status: "order_confirmed",
               timestamp: new Date().toISOString(),
               note: "Payment verified via Chapa",
             },

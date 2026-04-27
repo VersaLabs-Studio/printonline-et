@@ -2,24 +2,26 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Loader2, Send } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
-import { 
-  getMessagesByOrder, 
-  sendMessage, 
+import {
+  getMessagesByOrder,
+  sendMessage,
   markOrderMessagesAsRead,
-  subscribeToOrderMessages 
+  subscribeToOrderMessages,
+  uploadMessageFile,
+  type MessageAttachment,
 } from "@/lib/supabase/messages";
 import { toast } from "sonner";
 
 interface MessagePortalProps {
   orderId: string;
   currentUserId: string;
-  adminId: string;
+  recipientId: string;
 }
 
-export function MessagePortal({ orderId, currentUserId, adminId }: MessagePortalProps) {
+export function MessagePortal({ orderId, currentUserId, recipientId }: MessagePortalProps) {
   const [messages, setMessages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
@@ -32,7 +34,7 @@ export function MessagePortal({ orderId, currentUserId, adminId }: MessagePortal
         const { data, error } = await getMessagesByOrder(orderId);
         if (error) throw error;
         setMessages(data || []);
-        
+
         // Mark messages as read
         await markOrderMessagesAsRead(orderId, currentUserId);
       } catch (error) {
@@ -49,8 +51,11 @@ export function MessagePortal({ orderId, currentUserId, adminId }: MessagePortal
   // Subscribe to new messages
   useEffect(() => {
     const { unsubscribe } = subscribeToOrderMessages(orderId, (newMessage) => {
-      setMessages((prev) => [...prev, newMessage]);
-      
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === newMessage.id)) return prev;
+        return [...prev, newMessage];
+      });
+
       // Auto-scroll to bottom
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -62,36 +67,30 @@ export function MessagePortal({ orderId, currentUserId, adminId }: MessagePortal
     };
   }, [orderId]);
 
-  // Auto-scroll on new messages
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  const handleSend = async (message: string) => {
+  const handleSend = async (text: string, attachments: MessageAttachment[]) => {
     setIsSending(true);
     try {
-      const { data, error } = await sendMessage({
+      const { error } = await sendMessage({
         senderId: currentUserId,
-        recipientId: adminId,
+        recipientId,
         orderId,
-        message,
+        message: text,
+        attachments,
       });
 
       if (error) throw error;
 
-      // Optimistic update
-      setMessages((prev) => [...prev, data]);
-      
-      // Scroll to bottom
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
+      // Realtime subscription will append the message
     } catch (error) {
       console.error("Failed to send message:", error);
       toast.error("Failed to send message");
     } finally {
       setIsSending(false);
     }
+  };
+
+  const handleUploadFile = async (file: File) => {
+    return uploadMessageFile(file, orderId);
   };
 
   if (isLoading) {
@@ -103,26 +102,21 @@ export function MessagePortal({ orderId, currentUserId, adminId }: MessagePortal
   }
 
   return (
-    <div className="flex flex-col h-[500px] bg-card border border-border/40 rounded-2xl overflow-hidden shadow-sm">
-      {/* Header */}
-      <div className="bg-muted/30 border-b border-border/20 px-6 py-4">
-        <h3 className="text-sm font-semibold uppercase tracking-wider">
-          Message Thread
-        </h3>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Chat with our team about this order
-        </p>
-      </div>
-
+    <div className="flex flex-col h-[500px]">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-4">
+      <div className="flex-1 overflow-y-auto -mx-2">
         <MessageList messages={messages} currentUserId={currentUserId} />
         <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}
-      <div className="border-t border-border/20 px-6 py-4 bg-muted/10">
-        <MessageInput onSend={handleSend} isLoading={isSending} />
+      <div className="mt-4 pt-4 border-t border-border/20">
+        <MessageInput
+          onSend={handleSend}
+          isLoading={isSending}
+          onUploadFile={handleUploadFile}
+          placeholder="Type a message or attach a file..."
+        />
       </div>
     </div>
   );

@@ -29,21 +29,6 @@ export function CartSummary({ cart, subtotal, total }: CartSummaryProps) {
           <ShieldCheck size={14} className="text-primary" /> Order Summary
         </h2>
 
-        {/* Promotional Banner */}
-        <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 mb-6 flex items-center gap-3 animate-in fade-in">
-          <div className="flex-1">
-            <p className="text-xs font-bold text-foreground flex items-center gap-2">
-              🔥 Free Standard Delivery
-            </p>
-            <p className="text-[10px] text-muted-foreground font-medium uppercase mt-0.5 tracking-wider">
-              Automatic promotional override applied
-            </p>
-          </div>
-          <span className="bg-foreground text-background text-[10px] uppercase font-bold px-2 py-1 rounded-md tracking-wider">
-            Active
-          </span>
-        </div>
-
         <div className="space-y-5 mb-10">
           <div className="flex flex-col gap-3 pb-4 border-b border-border/10">
             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">
@@ -85,17 +70,6 @@ export function CartSummary({ cart, subtotal, total }: CartSummaryProps) {
               <PriceDisplay amount={subtotal} />
             </span>
           </div>
-          <div className="flex justify-between items-center group">
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors">
-              Logistics
-            </span>
-            <span className="font-bold text-foreground tracking-tight">
-              <span className="text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest animate-pulse">
-                Free Delivery
-              </span>
-            </span>
-          </div>
-
           <div className="h-px bg-border/20 my-4" />
 
           <div className="flex justify-between items-end">
@@ -131,17 +105,11 @@ export function CartSummary({ cart, subtotal, total }: CartSummaryProps) {
       </div>
 
       {/* Trust Badges */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <div className="bg-muted/10 border border-border/20 rounded-2xl p-4 flex flex-col items-center text-center gap-2">
           <Truck size={18} className="text-primary opacity-60" />
           <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
             Free Delivery over 5,000 ETB
-          </p>
-        </div>
-        <div className="bg-muted/10 border border-border/20 rounded-2xl p-4 flex flex-col items-center text-center gap-2">
-          <Clock size={18} className="text-primary opacity-60" />
-          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            2-Day Production
           </p>
         </div>
       </div>

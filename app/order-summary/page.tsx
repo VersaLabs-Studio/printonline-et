@@ -20,7 +20,7 @@ function OrderSummaryContent() {
   const searchParams = useSearchParams();
   const initialStep = parseInt(searchParams.get("step") || "1");
   
-  const { cart, getCartTotal, localFiles, deliveryInfo, setDeliveryInfo, getDeliveryFee } = useCart();
+  const { cart, getCartTotal, getCartCount, localFiles, deliveryInfo, setDeliveryInfo, getDeliveryFee } = useCart();
   const [step, setStep] = useState(initialStep);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,6 +39,14 @@ function OrderSummaryContent() {
   const handleDeliveryMethodChange = (method: string) => {
     setLocalDeliveryMethod(method);
     setDeliveryInfo({ ...deliveryInfo, deliveryMethod: method as 'home' | 'pickup' });
+  };
+
+  const handleSubCityChange = (subCity: string | null) => {
+    setDeliveryInfo({ ...deliveryInfo, subCity });
+  };
+
+  const handleProfileUpdate = (updated: Record<string, unknown>) => {
+    setProfile(updated as typeof profile);
   };
 
   useEffect(() => {
@@ -306,6 +314,10 @@ function OrderSummaryContent() {
                       specialInstructions={specialInstructions}
                       setSpecialInstructions={setSpecialInstructions}
                       onNext={() => setStep(2)}
+                      onProfileUpdate={handleProfileUpdate}
+                      onSubCityChange={handleSubCityChange}
+                      cartTotal={getCartTotal()}
+                      cartCount={getCartCount()}
                     />
                   </SafeMotionDiv>
                 ) : step === 2 ? (
@@ -323,6 +335,8 @@ function OrderSummaryContent() {
                       onBack={() => setStep(1)}
                       onSubmit={() => setStep(3)}
                       isSubmitting={isSubmitting}
+                      deliveryFee={getDeliveryFee()}
+                      cartTotal={getCartTotal()}
                     />
                   </SafeMotionDiv>
                 ) : (
@@ -344,11 +358,13 @@ function OrderSummaryContent() {
             </div>
 
             <div className="lg:col-span-5 xl:col-span-4">
-              <OrderSummaryDetails 
-                cartItems={cart} 
-                total={getCartTotal() + getDeliveryFee()} 
+              <OrderSummaryDetails
+                cartItems={cart}
+                total={getCartTotal() + getDeliveryFee()}
                 deliveryFee={getDeliveryFee()}
                 deliveryMethod={localDeliveryMethod as "home" | "pickup"}
+                subCity={deliveryInfo.subCity}
+                cartCount={getCartCount()}
               />
             </div>
           </div>
