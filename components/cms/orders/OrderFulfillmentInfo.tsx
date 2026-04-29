@@ -46,6 +46,14 @@ export function OrderFulfillmentInfo({ order }: OrderFulfillmentInfoProps) {
               </p>
               
               <div className="flex flex-wrap gap-2 mt-4">
+                {order.delivery_address?.includes("(Recipient:") && (
+                  <Badge
+                    variant="outline"
+                    className="text-[9px] font-bold uppercase tracking-widest bg-blue-50 border-blue-200 text-blue-600 dark:bg-blue-950/30 dark:border-blue-800 dark:text-blue-400 px-3 py-1.5 rounded-lg"
+                  >
+                    One-Time Address
+                  </Badge>
+                )}
                 <Badge
                   variant="outline"
                   className="text-[9px] font-bold uppercase tracking-widest bg-primary/5 border-primary/20 text-primary px-3 py-1.5 rounded-lg"

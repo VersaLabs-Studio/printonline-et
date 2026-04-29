@@ -7,6 +7,7 @@ import {
   User,
   ShieldCheck,
   MapPin,
+  MapPinPlus,
   Truck,
   Pencil,
   ArrowRight,
@@ -48,6 +49,7 @@ interface OrderProfileSectionProps {
   onNext: () => void;
   onProfileUpdate: (updated: Record<string, unknown>) => void;
   onSubCityChange: (subCity: string | null) => void;
+  onAlternateAddressChange?: (addr: Record<string, string>) => void;
   cartTotal: number;
   cartCount: number;
 }
@@ -62,11 +64,19 @@ export function OrderProfileSection({
   onNext,
   onProfileUpdate,
   onSubCityChange,
+  onAlternateAddressChange,
   cartTotal,
   cartCount,
 }: OrderProfileSectionProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  // Alternate address state
+  const [altAddress, setAltAddress] = useState("");
+  const [altAddressLine2, setAltAddressLine2] = useState("");
+  const [altSubCity, setAltSubCity] = useState("");
+  const [altWoreda, setAltWoreda] = useState("");
+  const [altRecipientName, setAltRecipientName] = useState("");
+  const [altPhone, setAltPhone] = useState("");
 
   const {
     register,
@@ -92,8 +102,11 @@ export function OrderProfileSection({
   const watchedSubCity = watch("subCity");
   const watchedAddress = watch("addressLine1");
 
+  // The effective sub-city for delivery fee calculation
+  const effectiveSubCity = deliveryMethod === "other" ? altSubCity : watchedSubCity;
+
   // Live delivery preview — mirrors calculateDeliveryFee logic
-  const zone = watchedSubCity ? getDeliveryZone(watchedSubCity) : null;
+  const zone = effectiveSubCity ? getDeliveryZone(effectiveSubCity) : null;
   const isFree = cartTotal >= FREE_DELIVERY_THRESHOLD;
   const baseFee = zone?.baseFee ?? 0;
   const quantityMultiplier = getQuantityMultiplier(cartCount);
@@ -338,8 +351,18 @@ export function OrderProfileSection({
 
         <RadioGroup
           value={deliveryMethod}
-          onValueChange={setDeliveryMethod}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          onValueChange={(val) => {
+            setDeliveryMethod(val);
+            // Sync sub-city to cart context based on method
+            if (val === "other") {
+              onSubCityChange(altSubCity || null);
+            } else if (val === "home") {
+              onSubCityChange(watchedSubCity || null);
+            } else {
+              onSubCityChange("Bole");
+            }
+          }}
+          className="grid grid-cols-1 sm:grid-cols-3 gap-4"
         >
           <div className="relative">
             <RadioGroupItem value="home" id="home" className="peer sr-only" />
@@ -349,14 +372,14 @@ export function OrderProfileSection({
             >
               <div className="flex items-center gap-2 pb-2">
                 <Truck className="text-emerald-500" size={18} />
-                <span className="font-semibold tracking-tight uppercase">
-                  Deliver to my address
+                <span className="font-semibold tracking-tight uppercase text-sm">
+                  My Address
                 </span>
               </div>
               <p className="text-xs font-medium text-muted-foreground leading-relaxed line-clamp-2">
                 {watchedAddress
                   ? `${watchedAddress}${profile?.address_line2 ? `, ${profile.address_line2}` : ""}`
-                  : "No address set. Edit your profile above to add shipping details."}
+                  : "No address set. Edit your profile above."}
               </p>
               <div className="mt-auto pt-2 space-y-1">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground opacity-60">
@@ -400,6 +423,36 @@ export function OrderProfileSection({
               </div>
             </Label>
           </div>
+
+          <div className="relative">
+            <RadioGroupItem value="other" id="other" className="peer sr-only" />
+            <Label
+              htmlFor="other"
+              className="flex flex-col p-5 rounded-2xl border-2 border-border/40 bg-muted/5 hover:bg-muted/30 transition-all cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 gap-2 h-full"
+            >
+              <div className="flex items-center gap-2 pb-2">
+                <MapPinPlus className="text-blue-500" size={18} />
+                <span className="font-semibold tracking-tight uppercase text-sm">
+                  Another Address
+                </span>
+              </div>
+              <p className="text-xs font-medium text-muted-foreground leading-relaxed">
+                Deliver to a one-time address different from your account address
+              </p>
+              <div className="mt-auto pt-2">
+                {deliveryMethod === "other" && altSubCity ? (
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+                    Addis Ababa, {altSubCity}
+                  </p>
+                ) : (
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground opacity-60">
+                    Enter address below
+                  </p>
+                )}
+              </div>
+            </Label>
+          </div>
+
           <div className="relative">
             <RadioGroupItem
               value="pickup"
@@ -412,7 +465,7 @@ export function OrderProfileSection({
             >
               <div className="flex items-center gap-2 pb-2">
                 <Store className="text-amber-500" size={18} />
-                <span className="font-semibold tracking-tight uppercase">
+                <span className="font-semibold tracking-tight uppercase text-sm">
                   Office Pickup
                 </span>
               </div>
@@ -431,6 +484,110 @@ export function OrderProfileSection({
             </Label>
           </div>
         </RadioGroup>
+
+        {/* Alternate Address Form — shown only when 'other' is selected */}
+        {deliveryMethod === "other" && (
+          <div className="p-6 rounded-2xl bg-muted/5 border border-border/40 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+            <h5 className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-2">
+              <MapPinPlus size={12} /> One-Time Delivery Address
+            </h5>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-semibold uppercase tracking-wider">Recipient Name *</Label>
+                <Input
+                  value={altRecipientName}
+                  onChange={(e) => setAltRecipientName(e.target.value)}
+                  placeholder="Full name of recipient"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-semibold uppercase tracking-wider">Phone *</Label>
+                <Input
+                  value={altPhone}
+                  onChange={(e) => setAltPhone(e.target.value)}
+                  placeholder="0911..."
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] font-semibold uppercase tracking-wider">Address Line 1 *</Label>
+              <Input
+                value={altAddress}
+                onChange={(e) => setAltAddress(e.target.value)}
+                placeholder="Bole Road, Around Edna Mall"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] font-semibold uppercase tracking-wider">Address Line 2 (Optional)</Label>
+              <Input
+                value={altAddressLine2}
+                onChange={(e) => setAltAddressLine2(e.target.value)}
+                placeholder="Building Name, Floor, Office No."
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-semibold uppercase tracking-wider">City</Label>
+                <Input value="Addis Ababa" readOnly className="bg-muted/50 cursor-not-allowed" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-semibold uppercase tracking-wider">Sub-City *</Label>
+                <Select
+                  onValueChange={(val) => {
+                    setAltSubCity(val);
+                    onSubCityChange(val || null);
+                    onAlternateAddressChange?.({
+                      altAddress, altAddressLine2, altSubCity: val, altWoreda, altRecipientName, altPhone,
+                    });
+                  }}
+                  value={altSubCity || undefined}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Sub-City" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SUB_CITIES.map((sc) => (
+                      <SelectItem key={sc} value={sc}>
+                        {sc}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-semibold uppercase tracking-wider">Woreda (Optional)</Label>
+                <Input
+                  value={altWoreda}
+                  onChange={(e) => setAltWoreda(e.target.value)}
+                  placeholder="03"
+                />
+              </div>
+            </div>
+
+            {/* Live delivery fee for alternate address */}
+            {altSubCity && (
+              <div className="pt-2 space-y-1">
+                {isFree ? (
+                  <span className="text-[10px] font-bold text-emerald-500 uppercase">
+                    Free delivery (order over {FREE_DELIVERY_THRESHOLD.toLocaleString()} ETB)
+                  </span>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-foreground uppercase">
+                      Delivery Fee:
+                    </span>
+                    <PriceDisplay amount={liveDeliveryFee} size="sm" className="font-bold" />
+                    <span className="text-[10px] text-muted-foreground uppercase">({zone?.description})</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <p className="text-[10px] text-muted-foreground italic">
+              This address is used only for this order and is not saved to your account profile.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="space-y-3 pt-4 border-t border-border/40 relative z-10">
@@ -454,8 +611,30 @@ export function OrderProfileSection({
               );
             } else if (deliveryMethod === "home" && !watchedSubCity) {
               toast.error(
-                "Please select a sub-city for delivery.",
+                "Please select a sub-city for delivery fee calculation.",
               );
+            } else if (deliveryMethod === "other") {
+              if (!altAddress) {
+                toast.error("Please enter the delivery address.");
+                return;
+              }
+              if (!altSubCity) {
+                toast.error("Please select a sub-city for the alternate address.");
+                return;
+              }
+              if (!altRecipientName) {
+                toast.error("Please enter the recipient name.");
+                return;
+              }
+              if (!altPhone) {
+                toast.error("Please enter the recipient phone number.");
+                return;
+              }
+              // Sync alternate address to cart context
+              onAlternateAddressChange?.({
+                altAddress, altAddressLine2, altSubCity, altWoreda, altRecipientName, altPhone,
+              });
+              onNext();
             } else {
               onNext();
             }

@@ -11,24 +11,24 @@ export interface DeliveryZone {
 // Distance-based flat rates from PrintOnline HQ (Bole)
 export const DELIVERY_ZONES: DeliveryZone[] = [
   // Zone 1: Closest to HQ (Bole area)
-  { subCity: 'Bole', baseFee: 50, description: 'Standard delivery - HQ area' },
+  { subCity: 'Bole', baseFee: 200, description: 'Standard delivery - HQ area' },
   
   // Zone 2: Adjacent sub-cities (5-10km)
-  { subCity: 'Kirkos', baseFee: 60, description: 'Near zone delivery' },
-  { subCity: 'Arada', baseFee: 60, description: 'Near zone delivery' },
+  { subCity: 'Kirkos', baseFee: 240, description: 'Near zone delivery' },
+  { subCity: 'Arada', baseFee: 240, description: 'Near zone delivery' },
   
   // Zone 3: Medium distance (10-15km)
-  { subCity: 'Addis Ketema', baseFee: 70, description: 'Medium zone delivery' },
-  { subCity: 'Gulele', baseFee: 70, description: 'Medium zone delivery' },
-  { subCity: 'Yeka', baseFee: 70, description: 'Medium zone delivery' },
+  { subCity: 'Addis Ketema', baseFee: 280, description: 'Medium zone delivery' },
+  { subCity: 'Gulele', baseFee: 280, description: 'Medium zone delivery' },
+  { subCity: 'Yeka', baseFee: 280, description: 'Medium zone delivery' },
   
   // Zone 4: Far distance (15-20km)
-  { subCity: 'Kolfe Keranio', baseFee: 80, description: 'Far zone delivery' },
-  { subCity: 'Nifas Silk', baseFee: 80, description: 'Far zone delivery' },
+  { subCity: 'Kolfe Keranio', baseFee: 320, description: 'Far zone delivery' },
+  { subCity: 'Nifas Silk', baseFee: 320, description: 'Far zone delivery' },
   
   // Zone 5: Furthest (20km+)
-  { subCity: 'Akaki', baseFee: 100, description: 'Industrial zone delivery' },
-  { subCity: 'Lemi Kura', baseFee: 100, description: 'Outer zone delivery' },
+  { subCity: 'Akaki', baseFee: 400, description: 'Industrial zone delivery' },
+  { subCity: 'Lemi Kura', baseFee: 400, description: 'Outer zone delivery' },
 ];
 
 // Free delivery threshold

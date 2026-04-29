@@ -52,7 +52,15 @@ export interface CartItem {
 
 export interface DeliveryInfo {
   subCity: string | null;
-  deliveryMethod: 'home' | 'pickup';
+  deliveryMethod: 'home' | 'pickup' | 'other';
+  /** Alternate address fields — used when deliveryMethod === 'other' */
+  altAddress?: string;
+  altAddressLine2?: string;
+  altCity?: string;
+  altSubCity?: string;
+  altWoreda?: string;
+  altRecipientName?: string;
+  altPhone?: string;
 }
 
 interface CartContextType {
@@ -231,7 +239,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       subCity: deliveryInfo.subCity,
       cartTotal,
       totalQuantity,
-      deliveryMethod: deliveryInfo.deliveryMethod,
+      // 'other' is still a physical delivery, so treat it as 'home' for fee calculation
+      deliveryMethod: deliveryInfo.deliveryMethod === 'pickup' ? 'pickup' : 'home',
     });
     
     return result.finalFee;

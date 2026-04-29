@@ -38,11 +38,24 @@ function OrderSummaryContent() {
 
   const handleDeliveryMethodChange = (method: string) => {
     setLocalDeliveryMethod(method);
-    setDeliveryInfo({ ...deliveryInfo, deliveryMethod: method as 'home' | 'pickup' });
+    setDeliveryInfo({ ...deliveryInfo, deliveryMethod: method as 'home' | 'pickup' | 'other' });
   };
 
   const handleSubCityChange = (subCity: string | null) => {
     setDeliveryInfo({ ...deliveryInfo, subCity });
+  };
+
+  const handleAlternateAddressChange = (addr: Record<string, string>) => {
+    setDeliveryInfo({
+      ...deliveryInfo,
+      altAddress: addr.altAddress,
+      altAddressLine2: addr.altAddressLine2,
+      altSubCity: addr.altSubCity,
+      altWoreda: addr.altWoreda,
+      altRecipientName: addr.altRecipientName,
+      altPhone: addr.altPhone,
+      subCity: addr.altSubCity || deliveryInfo.subCity,
+    });
   };
 
   const handleProfileUpdate = (updated: Record<string, unknown>) => {
@@ -104,11 +117,29 @@ function OrderSummaryContent() {
       setIsSubmitting(true);
 
       const isHome = localDeliveryMethod === "home";
-      const address = isHome
-        ? profile.address_line1
-        : "PrintOnline HQ (Pickup)";
-      const city = isHome ? profile.city : "Addis Ababa";
-      const subCity = isHome ? profile.sub_city : "Bole";
+      const isOther = localDeliveryMethod === "other";
+      const isPickup = localDeliveryMethod === "pickup";
+
+      let address: string;
+      let city: string;
+      let subCity: string;
+
+      if (isPickup) {
+        address = "PrintOnline HQ (Pickup)";
+        city = "Addis Ababa";
+        subCity = "Bole";
+      } else if (isOther) {
+        // Use alternate address from deliveryInfo
+        const altLine2 = deliveryInfo.altAddressLine2 ? `, ${deliveryInfo.altAddressLine2}` : "";
+        const altRecipient = deliveryInfo.altRecipientName ? ` (Recipient: ${deliveryInfo.altRecipientName}, ${deliveryInfo.altPhone || ""})` : "";
+        address = `${deliveryInfo.altAddress || ""}${altLine2}${altRecipient}`;
+        city = deliveryInfo.altCity || "Addis Ababa";
+        subCity = deliveryInfo.altSubCity || deliveryInfo.subCity || "";
+      } else {
+        address = profile.address_line1;
+        city = profile.city;
+        subCity = profile.sub_city;
+      }
 
       // Use cart context's delivery fee calculation
       const deliveryFee = getDeliveryFee();
@@ -316,6 +347,7 @@ function OrderSummaryContent() {
                       onNext={() => setStep(2)}
                       onProfileUpdate={handleProfileUpdate}
                       onSubCityChange={handleSubCityChange}
+                      onAlternateAddressChange={handleAlternateAddressChange}
                       cartTotal={getCartTotal()}
                       cartCount={getCartCount()}
                     />
@@ -337,6 +369,7 @@ function OrderSummaryContent() {
                       isSubmitting={isSubmitting}
                       deliveryFee={getDeliveryFee()}
                       cartTotal={getCartTotal()}
+                      deliveryInfo={deliveryInfo}
                     />
                   </SafeMotionDiv>
                 ) : (

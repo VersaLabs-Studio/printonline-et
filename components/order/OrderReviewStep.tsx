@@ -20,6 +20,8 @@ interface OrderReviewStepProps {
   isSubmitting: boolean;
   deliveryFee?: number;
   cartTotal?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  deliveryInfo?: any;
 }
 
 export function OrderReviewStep({
@@ -32,10 +34,13 @@ export function OrderReviewStep({
   isSubmitting,
   deliveryFee = 0,
   cartTotal = 0,
+  deliveryInfo,
 }: OrderReviewStepProps) {
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const isHome = deliveryMethod === "home";
+  const isOther = deliveryMethod === "other";
+  const isPickup = deliveryMethod === "pickup";
 
   return (
     <div className="bg-card border border-border/50 rounded-2xl p-8 space-y-8 animate-in fade-in slide-in-from-right-4 duration-500 shadow-sm relative overflow-hidden">
@@ -79,7 +84,7 @@ export function OrderReviewStep({
           </h4>
           <div className="p-5 rounded-2xl bg-muted/10 border border-border/20 space-y-2 h-full">
             <span className="text-[9px] font-semibold uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-sm">
-              {isHome ? "Standard Delivery" : "Manual Collection"}
+              {isHome ? "Standard Delivery" : isOther ? "One-Time Address Delivery" : "Manual Collection"}
             </span>
             {isHome ? (
               <>
@@ -105,6 +110,37 @@ export function OrderReviewStep({
                           ({getDeliveryZone(profile.sub_city)?.description})
                         </p>
                       )}
+                    </>
+                  )}
+                </div>
+              </>
+            ) : isOther ? (
+              <>
+                <span className="text-[9px] font-semibold uppercase tracking-widest text-blue-600 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-sm inline-block mb-1">
+                  One-Time Address
+                </span>
+                <p className="text-sm font-semibold text-foreground tracking-tight mt-1 line-clamp-2">
+                  {deliveryInfo?.altAddress}{deliveryInfo?.altAddressLine2 ? `, ${deliveryInfo.altAddressLine2}` : ""}
+                </p>
+                {deliveryInfo?.altRecipientName && (
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase opacity-80">
+                    Recipient: {deliveryInfo.altRecipientName}{deliveryInfo?.altPhone ? ` • ${deliveryInfo.altPhone}` : ""}
+                  </p>
+                )}
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase opacity-80">
+                  Addis Ababa, {deliveryInfo?.altSubCity}{deliveryInfo?.altWoreda ? ` (Woreda ${deliveryInfo.altWoreda})` : ""}
+                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  {cartTotal >= FREE_DELIVERY_THRESHOLD ? (
+                    <p className="text-[10px] font-semibold text-emerald-500 uppercase opacity-80 tracking-widest">
+                      Free delivery (over {FREE_DELIVERY_THRESHOLD.toLocaleString()} ETB)
+                    </p>
+                  ) : (
+                    <>
+                      <p className="text-[10px] font-semibold text-foreground uppercase opacity-80 tracking-widest">
+                        Delivery Fee:
+                      </p>
+                      <PriceDisplay amount={deliveryFee} size="sm" className="font-bold" />
                     </>
                   )}
                 </div>
