@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { getMessagesByOrder, sendMessage, markOrderMessagesAsRead, subscribeToOrderMessages, uploadMessageFile, type MessageAttachment } from "@/lib/supabase/messages";
@@ -33,19 +33,16 @@ interface AdminUser {
 
 export default function MessageThreadPage() {
   const params = useParams();
-  const router = useRouter();
   const orderId = params.orderId as string;
-  
+
   const { data: session, isPending: isSessionPending } = authClient.useSession();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [orderDetails, setOrderDetails] = useState<any>(null);
   const [admins, setAdmins] = useState<AdminUser[]>([]);
-  const [isAdminUser, setIsAdminUser] = useState(false);
-  const [customerId, setCustomerId] = useState<string | null>(null);
 
-  // Load admin users and determine if current user is admin
+  // Load admin users for sending messages
   useEffect(() => {
     async function loadAdmins() {
       try {
@@ -53,12 +50,6 @@ export default function MessageThreadPage() {
         if (!res.ok) return;
         const data = await res.json();
         setAdmins(data.admins || []);
-        
-        // Check if current user is an admin
-        if (session?.user?.id) {
-          const currentIsAdmin = data.admins?.some((a: AdminUser) => a.id === session.user.id);
-          setIsAdminUser(currentIsAdmin);
-        }
       } catch (error) {
         console.error("Failed to load admins:", error);
       }
@@ -77,10 +68,6 @@ export default function MessageThreadPage() {
         if (!res.ok) throw new Error("Order not found");
         const data = await res.json();
         setOrderDetails(data.order);
-        // Store customer ID for admin replies
-        if (data.order?.customer_id) {
-          setCustomerId(data.order.customer_id);
-        }
       } catch (error) {
         console.error("Failed to load order:", error);
       }

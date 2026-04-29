@@ -143,14 +143,6 @@ export function MessageList({ messages, currentUserId, currentUserIsAdmin }: Mes
 
   return (
     <div className="space-y-1 px-2 py-4 w-full min-w-0">
-      {/* DIAGNOSTIC BANNER — remove after fix verified */}
-      <div className="mb-3 rounded-md border-2 border-red-500 bg-red-50 p-2 text-[10px] font-mono text-red-900">
-        <div><strong>DEBUG:</strong> currentUserId = <code className="bg-white px-1">{JSON.stringify(currentUserId)}</code></div>
-        <div>Total messages: {messages.length}</div>
-        <div>Own messages (sender_id === currentUserId): {messages.filter(m => m.sender_id === currentUserId).length}</div>
-        <div>Received messages: {messages.filter(m => m.sender_id !== currentUserId).length}</div>
-        <div>Unique sender_ids: {JSON.stringify(Array.from(new Set(messages.map(m => m.sender_id))))}</div>
-      </div>
       {Object.entries(grouped).map(([dateKey, msgs]) => (
         <React.Fragment key={dateKey}>
           {/* Date separator */}
@@ -178,16 +170,8 @@ export function MessageList({ messages, currentUserId, currentUserIsAdmin }: Mes
                   display: 'flex',
                   justifyContent: own ? 'flex-end' : 'flex-start',
                   width: '100%',
-                  border: own ? '2px dashed green' : '2px dashed blue',
-                  marginBottom: '4px',
-                  padding: '2px',
                 }}
               >
-                <div className="text-[9px] font-mono bg-yellow-100 px-1 mr-1 shrink-0">
-                  own={String(own)}<br/>
-                  sid={msg.sender_id?.slice(0, 6)}<br/>
-                  adm={String(msg.is_admin)}
-                </div>
                 <div className={cn("flex gap-2 max-w-[80%]", own ? "flex-row-reverse" : "flex-row")}>
                   {/* Avatar */}
                   {showAvatar ? (
