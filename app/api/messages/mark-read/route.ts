@@ -27,19 +27,23 @@ export async function POST(req: Request) {
       );
     }
 
-    const { error } = await supabaseAdmin
+    const { data, error } = await supabaseAdmin
       .from("messages")
       .update({ read_at: new Date().toISOString() })
       .eq("order_id", validated.orderId)
       .eq("recipient_id", validated.userId)
-      .is("read_at", null);
+      .is("read_at", null)
+      .select("id");
 
     if (error) {
       console.error("[POST /api/messages/mark-read] Supabase error:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true }, { status: 200 });
+    return NextResponse.json(
+      { success: true, updatedCount: data?.length || 0 },
+      { status: 200 }
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

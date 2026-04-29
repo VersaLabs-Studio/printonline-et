@@ -83,8 +83,9 @@ export function ConfirmationDetails({
                       </div>
                     )}
 
-                  {/* UX Distinction: Hire a Designer vs Upload */}
+                  {/* UX Distinction: Design Package vs Upload */}
                   {item.design_preference === "hire_designer" ||
+                  item.selected_options?.["Design Package"] ||
                   item.selected_options?.Service === "Pana Designer" ? (
                     <div className="pt-4 border-t border-border/10">
                       <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center gap-4 transition-all hover:bg-primary/10">
@@ -93,10 +94,10 @@ export function ConfirmationDetails({
                         </div>
                         <div className="space-y-0.5">
                           <p className="text-[9px] font-bold uppercase tracking-widest text-primary/60">
-                            Service Tier
+                            Design Package
                           </p>
                           <p className="text-sm font-bold uppercase tracking-tight text-foreground">
-                            Hire a Pana Designer
+                            {item.selected_options?.["Design Package"] || "Hire a Pana Designer"}
                           </p>
                         </div>
                       </div>

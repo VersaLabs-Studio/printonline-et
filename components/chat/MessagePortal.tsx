@@ -1,7 +1,7 @@
 // components/chat/MessagePortal.tsx
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Loader2 } from "lucide-react";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
@@ -19,41 +19,68 @@ interface MessagePortalProps {
   orderId: string;
   currentUserId: string;
   recipientId: string;
+  isAdmin?: boolean;
 }
 
-export function MessagePortal({ orderId, currentUserId, recipientId }: MessagePortalProps) {
+export function MessagePortal({ orderId, currentUserId, recipientId, isAdmin = false }: MessagePortalProps) {
   const [messages, setMessages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Load messages on mount
-  useEffect(() => {
-    async function loadMessages() {
-      try {
-        const { data, error } = await getMessagesByOrder(orderId);
-        if (error) throw error;
-        setMessages(data || []);
+  // Load messages on mount and after mark-as-read
+  const loadMessages = useCallback(async (shouldMarkRead = false) => {
+    try {
+      const { data, error } = await getMessagesByOrder(orderId);
+      if (error) throw error;
+      setMessages(data || []);
 
-        // Mark messages as read
-        await markOrderMessagesAsRead(orderId, currentUserId);
-      } catch (error) {
-        console.error("Failed to load messages:", error);
-        toast.error("Failed to load messages");
-      } finally {
-        setIsLoading(false);
+      if (shouldMarkRead) {
+        const { error: markError, updatedCount } = await markOrderMessagesAsRead(orderId, currentUserId);
+        if (!markError && updatedCount && updatedCount > 0) {
+          // Refetch to get the true server state after marking read
+          const { data: refreshed } = await getMessagesByOrder(orderId);
+          if (refreshed) setMessages(refreshed);
+        }
       }
+    } catch (error) {
+      console.error("Failed to load messages:", error);
+      toast.error("Failed to load messages");
+    } finally {
+      setIsLoading(false);
     }
-
-    loadMessages();
   }, [orderId, currentUserId]);
 
-  // Subscribe to new messages
   useEffect(() => {
-    const { unsubscribe } = subscribeToOrderMessages(orderId, (newMessage) => {
+    loadMessages(true);
+  }, [loadMessages]);
+
+  // Polling fallback: refetch every 30s to catch missed realtime updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadMessages(false);
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [loadMessages]);
+
+  // Refetch on window focus to catch updates while tab was backgrounded
+  useEffect(() => {
+    const handleFocus = () => {
+      loadMessages(true);
+    };
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [loadMessages]);
+
+  // Subscribe to new messages and read status updates
+  useEffect(() => {
+    const { unsubscribe } = subscribeToOrderMessages(orderId, (updatedMessage) => {
       setMessages((prev) => {
-        if (prev.some((m) => m.id === newMessage.id)) return prev;
-        return [...prev, newMessage];
+        const exists = prev.some((m) => m.id === updatedMessage.id);
+        if (exists) {
+          return prev.map((m) => (m.id === updatedMessage.id ? updatedMessage : m));
+        }
+        return [...prev, updatedMessage];
       });
 
       // Auto-scroll to bottom
@@ -75,6 +102,7 @@ export function MessagePortal({ orderId, currentUserId, recipientId }: MessagePo
         recipientId,
         orderId,
         message: text,
+        isAdmin,
         attachments,
       });
 
@@ -104,8 +132,8 @@ export function MessagePortal({ orderId, currentUserId, recipientId }: MessagePo
   return (
     <div className="flex flex-col h-[500px]">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto -mx-2">
-        <MessageList messages={messages} currentUserId={currentUserId} />
+      <div className="flex-1 overflow-y-auto -mx-2 w-full">
+        <MessageList messages={messages} currentUserId={currentUserId} currentUserIsAdmin={true} />
         <div ref={messagesEndRef} />
       </div>
 

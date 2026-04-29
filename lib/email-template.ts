@@ -17,7 +17,7 @@ export const emailTemplateOrderConfirmation = (
         <br/><small>${Object.entries(item.selected_options || {})
           .map(([k, v]) => `${k}: ${v}`)
           .join(", ")}</small>
-        ${item.design_preference === "hire_designer" ? '<br/><small style="color: #f59e0b;">+ Hire Designer Service</small>' : ""}
+        ${item.design_preference === "hire_designer" ? `<br/><small style="color: #f59e0b;">+ ${item.selected_options?.["Design Package"] || "Hire Designer Service"}</small>` : ""}
       </li>
     `,
       )

@@ -1,9 +1,9 @@
 // components/chat/MessageList.tsx
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import { format, isToday, isYesterday } from "date-fns";
-import { User, Shield, Check, CheckCheck, FileText, Download, ImageIcon, Film } from "lucide-react";
+import { User, Shield, Check, CheckCheck, FileText, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { MessageAttachment } from "@/lib/supabase/messages";
 
@@ -21,6 +21,7 @@ interface Message {
 interface MessageListProps {
   messages: Message[];
   currentUserId: string;
+  currentUserIsAdmin?: boolean;
 }
 
 function formatMessageDate(dateStr: string): string {
@@ -30,17 +31,13 @@ function formatMessageDate(dateStr: string): string {
   return format(date, "MMMM dd, yyyy");
 }
 
-function getInitials(name: string): string {
-  return name?.charAt(0)?.toUpperCase() || "?";
-}
-
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function AttachmentPreview({ attachment }: { attachment: MessageAttachment }) {
+function AttachmentPreview({ attachment, isOwn }: { attachment: MessageAttachment; isOwn: boolean }) {
   const isImage = attachment.category === "image";
   const isVideo = attachment.category === "video";
 
@@ -50,12 +47,15 @@ function AttachmentPreview({ attachment }: { attachment: MessageAttachment }) {
         href={attachment.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="block mt-2 rounded-xl overflow-hidden border border-white/20 hover:opacity-90 transition-opacity max-w-[240px]"
+        className={cn(
+          "block mt-1.5 rounded-lg overflow-hidden hover:opacity-90 transition-opacity",
+          isOwn ? "border border-white/20" : "border border-border/40"
+        )}
       >
         <img
           src={attachment.url}
           alt={attachment.name}
-          className="max-h-[200px] w-auto object-cover"
+          className="max-h-[180px] w-auto object-cover"
           loading="lazy"
         />
       </a>
@@ -64,30 +64,36 @@ function AttachmentPreview({ attachment }: { attachment: MessageAttachment }) {
 
   if (isVideo) {
     return (
-      <div className="mt-2 rounded-xl overflow-hidden border border-white/20 max-w-[280px]">
+      <div className="mt-1.5 rounded-lg overflow-hidden border border-border/40">
         <video
           src={attachment.url}
           controls
-          className="max-h-[200px] w-full"
+          className="max-h-[180px] w-full"
           preload="metadata"
         />
       </div>
     );
   }
 
-  // Document
   return (
     <a
       href={attachment.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-3 mt-2 p-3 rounded-xl bg-black/5 hover:bg-black/10 transition-colors max-w-[280px] group"
+      className={cn(
+        "flex items-center gap-2.5 mt-1.5 p-2.5 rounded-lg transition-colors group",
+        isOwn
+          ? "bg-white/10 hover:bg-white/20"
+          : "bg-muted hover:bg-muted/80 border border-border/30"
+      )}
     >
-      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-        <FileText size={18} className="text-primary" />
+      <div className="h-9 w-9 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+        <FileText size={16} className="text-primary" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-semibold truncate">{attachment.name}</p>
+        <p className={cn("text-xs font-semibold truncate", isOwn ? "text-primary-foreground" : "text-foreground")}>
+          {attachment.name}
+        </p>
         <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
           {formatFileSize(attachment.size)}
         </p>
@@ -97,19 +103,25 @@ function AttachmentPreview({ attachment }: { attachment: MessageAttachment }) {
   );
 }
 
-export function MessageList({ messages, currentUserId }: MessageListProps) {
-  const bottomRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll to bottom on new messages
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
+export function MessageList({ messages, currentUserId, currentUserIsAdmin }: MessageListProps) {
   if (messages.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center px-4">
-        <div className="h-16 w-16 bg-muted/30 rounded-2xl flex items-center justify-center mb-4">
-          <MessageSquareIcon className="text-muted-foreground/40" size={32} />
+        <div className="h-14 w-14 bg-muted/30 rounded-xl flex items-center justify-center mb-3">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-muted-foreground/40"
+          >
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
         </div>
         <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
           No messages yet
@@ -121,7 +133,7 @@ export function MessageList({ messages, currentUserId }: MessageListProps) {
     );
   }
 
-  // Group messages by date
+  // Group messages by date for date separators
   const grouped: Record<string, Message[]> = {};
   messages.forEach((msg) => {
     const dateKey = format(new Date(msg.created_at), "yyyy-MM-dd");
@@ -129,146 +141,135 @@ export function MessageList({ messages, currentUserId }: MessageListProps) {
     grouped[dateKey].push(msg);
   });
 
-  const isOwn = (msg: Message) => msg.sender_id === currentUserId;
-
   return (
-    <div className="flex flex-col gap-1 px-2 py-4">
+    <div className="space-y-1 px-2 py-4 w-full min-w-0">
+      {/* DIAGNOSTIC BANNER — remove after fix verified */}
+      <div className="mb-3 rounded-md border-2 border-red-500 bg-red-50 p-2 text-[10px] font-mono text-red-900">
+        <div><strong>DEBUG:</strong> currentUserId = <code className="bg-white px-1">{JSON.stringify(currentUserId)}</code></div>
+        <div>Total messages: {messages.length}</div>
+        <div>Own messages (sender_id === currentUserId): {messages.filter(m => m.sender_id === currentUserId).length}</div>
+        <div>Received messages: {messages.filter(m => m.sender_id !== currentUserId).length}</div>
+        <div>Unique sender_ids: {JSON.stringify(Array.from(new Set(messages.map(m => m.sender_id))))}</div>
+      </div>
       {Object.entries(grouped).map(([dateKey, msgs]) => (
-        <div key={dateKey} className="flex flex-col gap-1">
+        <React.Fragment key={dateKey}>
           {/* Date separator */}
-          <div className="flex items-center justify-center my-4">
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-3 py-1 rounded-full bg-muted/40">
+          <div className="flex items-center justify-center my-3">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-3 py-1 rounded-full bg-muted/50">
               {formatMessageDate(dateKey)}
             </span>
           </div>
 
           {msgs.map((msg, idx) => {
-            const own = isOwn(msg);
-            const prevMsg = idx > 0 ? msgs[idx - 1] : null;
-            const showAvatar = !prevMsg || prevMsg.sender_id !== msg.sender_id;
-            const unread = !msg.read_at && !own;
+            const ownBySender = msg.sender_id === currentUserId;
+            const own = currentUserIsAdmin !== undefined
+              ? ownBySender && msg.is_admin === currentUserIsAdmin
+              : ownBySender;
+            const prev = idx > 0 ? msgs[idx - 1] : null;
+            const showAvatar = !prev || prev.sender_id !== msg.sender_id;
+            const isUnread = !msg.read_at && !own;
             const hasText = msg.message?.trim().length > 0;
             const hasAttachments = msg.attachments && msg.attachments.length > 0;
 
             return (
               <div
                 key={msg.id}
-                className={cn(
-                  "flex items-end gap-2 max-w-[85%] mb-1",
-                  own ? "ml-auto flex-row-reverse" : "mr-auto flex-row"
-                )}
+                style={{
+                  display: 'flex',
+                  justifyContent: own ? 'flex-end' : 'flex-start',
+                  width: '100%',
+                  border: own ? '2px dashed green' : '2px dashed blue',
+                  marginBottom: '4px',
+                  padding: '2px',
+                }}
               >
-                {/* Avatar */}
-                {showAvatar ? (
-                  <div
-                    className={cn(
-                      "shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold select-none",
-                      msg.is_admin
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground border border-border/40"
-                    )}
-                    title={msg.is_admin ? "Admin" : "Customer"}
-                  >
-                    {msg.is_admin ? <Shield size={14} /> : <User size={14} />}
-                  </div>
-                ) : (
-                  <div className="w-8 shrink-0" />
-                )}
-
-                {/* Bubble */}
-                <div
-                  className={cn(
-                    "flex flex-col rounded-2xl px-4 py-2.5 min-w-0",
-                    own
-                      ? "bg-primary text-primary-foreground rounded-br-md"
-                      : msg.is_admin
-                      ? "bg-primary/5 text-foreground border border-primary/15 rounded-bl-md"
-                      : "bg-muted text-foreground rounded-bl-md",
-                    unread && !own && "ring-2 ring-primary/20"
-                  )}
-                >
-                  {/* Sender label for first message in group */}
-                  {showAvatar && !own && (
-                    <span className={cn(
-                      "text-[9px] font-bold uppercase tracking-wider mb-1",
-                      msg.is_admin ? "text-primary" : "text-muted-foreground"
-                    )}>
-                      {msg.is_admin ? "Admin" : "Customer"}
-                    </span>
-                  )}
-
-                  {/* Unread badge */}
-                  {unread && (
-                    <span className="self-start mb-1 px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground text-[8px] font-bold uppercase tracking-wider">
-                      New
-                    </span>
-                  )}
-
-                  {/* Text content */}
-                  {hasText && (
-                    <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
-                      {msg.message}
-                    </p>
-                  )}
-
-                  {/* Attachments */}
-                  {hasAttachments && msg.attachments!.map((att, i) => (
-                    <AttachmentPreview key={i} attachment={att} />
-                  ))}
-
-                  {/* Meta row */}
-                  <div
-                    className={cn(
-                      "flex items-center gap-1.5 mt-1.5",
-                      own ? "justify-end" : "justify-start"
-                    )}
-                  >
-                    <span
+                <div className="text-[9px] font-mono bg-yellow-100 px-1 mr-1 shrink-0">
+                  own={String(own)}<br/>
+                  sid={msg.sender_id?.slice(0, 6)}<br/>
+                  adm={String(msg.is_admin)}
+                </div>
+                <div className={cn("flex gap-2 max-w-[80%]", own ? "flex-row-reverse" : "flex-row")}>
+                  {/* Avatar */}
+                  {showAvatar ? (
+                    <div
                       className={cn(
-                        "text-[9px] font-semibold uppercase tracking-wider",
-                        own ? "text-primary-foreground/50" : "text-muted-foreground/60"
+                        "shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold select-none mt-1",
+                        msg.is_admin
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground border border-border/40"
                       )}
+                      title={msg.is_admin ? "Admin" : "Customer"}
                     >
-                      {format(new Date(msg.created_at), "h:mm a")}
-                    </span>
+                      {msg.is_admin ? <Shield size={14} /> : <User size={14} />}
+                    </div>
+                  ) : (
+                    <div className="w-8 shrink-0" />
+                  )}
 
-                    {/* Read receipt (own messages only) */}
-                    {own && (
-                      <span className="text-primary-foreground/50">
-                        {msg.read_at ? (
-                          <CheckCheck size={12} className="text-emerald-300" />
-                        ) : (
-                          <Check size={12} />
-                        )}
+                  {/* Bubble column */}
+                  <div className="flex flex-col">
+                    {/* Sender label for received messages */}
+                    {showAvatar && !own && (
+                      <span className={cn(
+                        "text-[9px] font-bold uppercase tracking-wider mb-0.5 px-1",
+                        msg.is_admin ? "text-primary" : "text-muted-foreground"
+                      )}>
+                        {msg.is_admin ? "Admin" : "Customer"}
                       </span>
                     )}
+
+                    {/* Unread badge */}
+                    {isUnread && (
+                      <span className="self-start mb-1 px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground text-[8px] font-bold uppercase tracking-wider">
+                        New
+                      </span>
+                    )}
+
+                    {/* Bubble */}
+                    <div
+                      className={cn(
+                        "rounded-2xl px-4 py-2.5",
+                        own
+                          ? "bg-primary text-primary-foreground rounded-br-md"
+                          : msg.is_admin
+                          ? "bg-amber-50 text-foreground border border-amber-200 rounded-bl-md"
+                          : "bg-muted text-foreground rounded-bl-md",
+                        isUnread && !own && "ring-2 ring-primary/30"
+                      )}
+                    >
+                      {hasText && (
+                        <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
+                          {msg.message}
+                        </p>
+                      )}
+
+                      {hasAttachments && msg.attachments!.map((att, i) => (
+                        <AttachmentPreview key={i} attachment={att} isOwn={own} />
+                      ))}
+                    </div>
+
+                    {/* Meta row */}
+                    <div className={cn("flex items-center gap-1 mt-0.5", own ? "justify-end" : "justify-start")}>
+                      <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                        {format(new Date(msg.created_at), "h:mm a")}
+                      </span>
+                      {own && (
+                        <span className="text-muted-foreground/50">
+                          {msg.read_at ? (
+                            <CheckCheck size={11} className="text-emerald-500" />
+                          ) : (
+                            <Check size={11} />
+                          )}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
             );
           })}
-        </div>
+        </React.Fragment>
       ))}
-      <div ref={bottomRef} />
     </div>
-  );
-}
-
-function MessageSquareIcon({ className, size }: { className?: string; size?: number }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={size || 24}
-      height={size || 24}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
   );
 }

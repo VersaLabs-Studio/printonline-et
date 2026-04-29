@@ -85,6 +85,11 @@ export function CartItem({
                     Rush Production: +{item.priorityPrice} ETB
                   </div>
                 )}
+                {item.designPackageName && (
+                  <div className="px-3 py-1.5 rounded-lg bg-primary/5 text-xs font-bold uppercase tracking-wider text-primary border border-primary/10">
+                    {item.designPackageName}: +{(item.designPackagePrice || 0).toLocaleString()} ETB
+                  </div>
+                )}
               </div>
             )}
 
@@ -98,7 +103,7 @@ export function CartItem({
               </span>
             </div>
             <div className="text-2xl font-bold text-primary tracking-tight">
-              <PriceDisplay amount={item.unitPrice * item.quantity} />
+              <PriceDisplay amount={item.unitPrice * item.quantity + (item.priorityPrice || 0) + (item.designPackagePrice || item.designerFee || 0)} />
             </div>
           </div>
         </div>

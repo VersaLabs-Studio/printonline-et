@@ -35,7 +35,6 @@ const productSchema = z.object({
   slug: z.string().min(2, "Slug must be at least 2 characters"),
   category_id: z.string().uuid("Please select a category"),
   base_price: z.coerce.number().min(0, "Price must be positive"),
-  hire_designer_fee: z.coerce.number().min(0, "Fee must be positive").default(0),
   short_description: z.string().optional(),
   description: z.string().optional(),
   sku: z.string().optional(),
@@ -71,7 +70,6 @@ export function ProductForm({
       slug: initialData?.slug || "",
       category_id: initialData?.category_id || "",
       base_price: initialData?.base_price || 0,
-      hire_designer_fee: (initialData as any)?.hire_designer_fee || 0,
       short_description: initialData?.short_description || "",
       description: initialData?.description || "",
       sku: initialData?.sku || "",
@@ -303,34 +301,6 @@ export function ProductForm({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="hire_designer_fee"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs font-bold uppercase tracking-tight">
-                        Hire Designer Fee (ETB)
-                      </FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-muted-foreground">
-                            ETB
-                          </span>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            className="rounded-xl pl-12"
-                            {...field}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormDescription className="text-[10px]">
-                        Fee for &quot;Hire a Designer&quot; service (0 = disabled)
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 <FormField
                   control={form.control}

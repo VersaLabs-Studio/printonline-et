@@ -38,9 +38,15 @@ export interface CartItem {
   designFileNames?: string[];
   /** Rush production surcharge (per order, not per piece) */
   priorityPrice?: number;
-  /** Whether user wants to hire Pana designer */
+  /** Design package tier ID ("starter" | "professional" | "premium") */
+  designPackageId?: string;
+  /** Design package human-readable name */
+  designPackageName?: string;
+  /** Design package price in ETB */
+  designPackagePrice?: number;
+  /** @deprecated — kept for backward compat with old localStorage carts */
   hireDesigner?: boolean;
-  /** Designer service fee (if hireDesigner is true) */
+  /** @deprecated — kept for backward compat with old localStorage carts */
   designerFee?: number;
 }
 
@@ -204,7 +210,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const getCartTotal = useCallback(() => {
     return cart.reduce(
       (total, item) =>
-        total + item.unitPrice * item.quantity + (item.priorityPrice || 0) + (item.designerFee || 0),
+        total + item.unitPrice * item.quantity + (item.priorityPrice || 0) + (item.designPackagePrice || item.designerFee || 0),
       0,
     );
   }, [cart]);

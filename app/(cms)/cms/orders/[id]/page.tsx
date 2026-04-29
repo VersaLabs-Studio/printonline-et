@@ -291,6 +291,7 @@ export default function CMSOrderDetailPage() {
                   orderId={order.id}
                   currentUserId={adminUserId}
                   recipientId={customerAuthId}
+                  isAdmin={true}
                 />
               </div>
             </Card>

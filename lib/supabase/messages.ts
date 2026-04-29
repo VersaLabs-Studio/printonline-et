@@ -157,7 +157,7 @@ export async function markAsRead(messageId: string): Promise<{ error: any }> {
 /**
  * Mark all messages in an order as read for a user via authenticated API route
  */
-export async function markOrderMessagesAsRead(orderId: string, userId: string): Promise<{ error: any }> {
+export async function markOrderMessagesAsRead(orderId: string, userId: string): Promise<{ error: any; updatedCount?: number }> {
   try {
     const res = await fetch("/api/messages/mark-read", {
       method: "POST",
@@ -172,7 +172,7 @@ export async function markOrderMessagesAsRead(orderId: string, userId: string): 
       return { error: json.error || `HTTP ${res.status}` };
     }
 
-    return { error: null };
+    return { error: null, updatedCount: json.updatedCount };
   } catch (err) {
     console.error("[markOrderMessagesAsRead] Network error:", err);
     return { error: err instanceof Error ? err.message : "Network error" };
@@ -194,6 +194,18 @@ export function subscribeToOrderMessages(
       'postgres_changes',
       {
         event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+        filter: `order_id=eq.${orderId}`,
+      },
+      (payload) => {
+        callback(payload.new as Message);
+      }
+    )
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
         schema: 'public',
         table: 'messages',
         filter: `order_id=eq.${orderId}`,

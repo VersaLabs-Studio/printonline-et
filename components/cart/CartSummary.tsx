@@ -12,6 +12,10 @@ interface CartSummaryProps {
     quantity: number;
     unitPrice: number;
     priorityPrice?: number;
+    designPackageName?: string;
+    designPackagePrice?: number;
+    /** @deprecated backward compat */
+    designerFee?: number;
   }[];
   subtotal: number;
   delivery: number;
@@ -56,6 +60,12 @@ export function CartSummary({ cart, subtotal, total }: CartSummaryProps) {
                   <div className="flex justify-between items-center text-[10px] font-bold text-emerald-500 uppercase tracking-wider pl-0.5">
                     <span>+ Rush Production</span>
                     <span>+{item.priorityPrice} ETB</span>
+                  </div>
+                )}
+                {item.designPackageName && (item.designPackagePrice || 0) > 0 && (
+                  <div className="flex justify-between items-center text-[10px] font-bold text-primary uppercase tracking-wider pl-0.5">
+                    <span>+ {item.designPackageName}</span>
+                    <span>+{(item.designPackagePrice || 0).toLocaleString()} ETB</span>
                   </div>
                 )}
               </div>

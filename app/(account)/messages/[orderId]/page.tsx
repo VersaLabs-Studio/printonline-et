@@ -1,7 +1,7 @@
 // app/(account)/messages/[orderId]/page.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
@@ -91,71 +91,84 @@ export default function MessageThreadPage() {
     }
   }, [orderId]);
 
-  // Load messages
-  useEffect(() => {
+  // Load messages, mark as read, and refetch for true server state
+  const loadMessages = useCallback(async (shouldMarkRead = false) => {
     if (!session?.user?.id || !orderId) return;
+    try {
+      const { data, error } = await getMessagesByOrder(orderId);
+      if (error) throw error;
+      setMessages(data || []);
 
-    async function loadMessages() {
-      try {
-        const { data, error } = await getMessagesByOrder(orderId);
-        if (error) throw error;
-        setMessages(data || []);
-        
-        // Mark as read
-        await markOrderMessagesAsRead(orderId, session!.user.id);
-      } catch (error) {
-        console.error("Failed to load messages:", error);
-        toast.error("Failed to load messages");
-      } finally {
-        setIsLoading(false);
+      if (shouldMarkRead) {
+        const userId = session.user.id;
+        const { error: markError, updatedCount } = await markOrderMessagesAsRead(orderId, userId);
+        if (!markError && updatedCount && updatedCount > 0) {
+          const { data: refreshed } = await getMessagesByOrder(orderId);
+          if (refreshed) setMessages(refreshed);
+        }
       }
+    } catch (error) {
+      console.error("Failed to load messages:", error);
+      toast.error("Failed to load messages");
+    } finally {
+      setIsLoading(false);
     }
+  }, [orderId, session?.user?.id]);
 
-    loadMessages();
+  useEffect(() => {
+    loadMessages(true);
 
-    // Subscribe to new messages
-    const { unsubscribe } = subscribeToOrderMessages(orderId, (newMessage) => {
+    // Subscribe to new messages and read status updates
+    const { unsubscribe } = subscribeToOrderMessages(orderId, (updatedMessage) => {
       setMessages((prev) => {
-        if (prev.some((m) => m.id === newMessage.id)) return prev;
-        return [...prev, newMessage];
+        const exists = prev.some((m) => m.id === updatedMessage.id);
+        if (exists) {
+          return prev.map((m) => (m.id === updatedMessage.id ? updatedMessage : m));
+        }
+        return [...prev, updatedMessage];
       });
     });
 
     return () => {
       unsubscribe();
     };
-  }, [orderId, session?.user?.id]);
+  }, [loadMessages, orderId]);
+
+  // Polling fallback: refetch every 30s to catch missed realtime updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadMessages(false);
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [loadMessages]);
+
+  // Refetch on window focus to catch updates while tab was backgrounded
+  useEffect(() => {
+    const handleFocus = () => {
+      loadMessages(true);
+    };
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [loadMessages]);
 
   const handleSend = async (message: string, attachments: MessageAttachment[]) => {
     if (!session?.user?.id) return;
 
     setIsSending(true);
     try {
-      let recipientId: string;
-      let senderIsAdmin = false;
-
-      if (isAdminUser) {
-        if (!customerId) {
-          toast.error("Customer not found for this order");
-          return;
-        }
-        recipientId = customerId;
-        senderIsAdmin = true;
-      } else {
-        if (admins.length === 0) {
-          toast.error("No admins available to receive messages");
-          return;
-        }
-        recipientId = admins[0].id;
-        senderIsAdmin = false;
+      // Account messages page is always customer context — send to first admin as customer
+      if (admins.length === 0) {
+        toast.error("No admins available to receive messages");
+        setIsSending(false);
+        return;
       }
 
       const { error } = await sendMessage({
         senderId: session.user.id,
-        recipientId,
+        recipientId: admins[0].id,
         orderId,
         message,
-        isAdmin: senderIsAdmin,
+        isAdmin: false,
         attachments,
       });
 
@@ -241,10 +254,11 @@ export default function MessageThreadPage() {
       <div className="flex flex-col gap-4">
         <div className="bg-card border border-border/40 rounded-2xl overflow-hidden shadow-sm">
           {/* Messages list */}
-          <div className="h-[400px] overflow-y-auto px-6 py-4">
+          <div className="h-[400px] overflow-y-auto px-6 py-4 w-full">
             <MessageList 
               messages={messages} 
-              currentUserId={session?.user?.id || ''} 
+              currentUserId={session?.user?.id || ''}
+              currentUserIsAdmin={false} 
             />
           </div>
 

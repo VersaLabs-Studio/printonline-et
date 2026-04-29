@@ -98,14 +98,17 @@ export function OrderItemList({ order }: OrderItemListProps) {
                     
                     <div className="space-y-2">
                       {item.design_preference === "hire_designer" ||
+                      (item.selected_options as Record<string, string>)?.["Design Package"] ||
                       (item.selected_options as Record<string, string>)?.Service === "Pana Designer" ? (
                         <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 flex items-center gap-3">
                           <div className="h-8 w-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center">
                             <ShoppingCart size={14} />
                           </div>
                           <div>
-                            <p className="text-[10px] font-bold text-primary uppercase tracking-widest leading-none">Design Required</p>
-                            <p className="text-[11px] font-medium text-foreground/70 mt-1">Hire a Pana Designer selected</p>
+                            <p className="text-[10px] font-bold text-primary uppercase tracking-widest leading-none">Design Package</p>
+                            <p className="text-[11px] font-medium text-foreground/70 mt-1">
+                              {(item.selected_options as Record<string, string>)?.["Design Package"] || "Hire a Pana Designer"}
+                            </p>
                           </div>
                         </div>
                       ) : (

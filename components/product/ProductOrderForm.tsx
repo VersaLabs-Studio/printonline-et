@@ -13,6 +13,9 @@ import {
   Share2,
   Clock,
   Clock3,
+  Crown,
+  Sparkles,
+  Star,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -28,6 +31,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { PriceDisplay } from "@/components/shared/PriceDisplay";
 import { cn } from "@/lib/utils";
+import { DESIGN_PACKAGES, type DesignPackageId, getDesignPackageById, formatDesignPackageLabel } from "@/lib/design-packages";
 
 interface ProductOrderFormProps {
   product: ProductWithDetails;
@@ -44,6 +48,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
     product.min_order_quantity || 1,
   );
   const [hireDesigner, setHireDesigner] = useState<boolean>(false);
+  const [selectedPackageId, setSelectedPackageId] = useState<DesignPackageId | null>(null);
   const isOutOfStock = product.stock_status === "out_of_stock";
 
   // --- Real-time Pricing Calculations (Robust Sorted-Key Manifest) ---
@@ -100,8 +105,9 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
 
   const unitPrice = calculateUnitPrice(selections);
   const priorityPrice = productionPriority === "rush" ? 500 : 0;
-  const designerFee = hireDesigner ? (Number((product as any).hire_designer_fee) || 0) : 0;
-  const totalPrice = unitPrice * quantity + priorityPrice + designerFee;
+  const selectedPackage = selectedPackageId ? getDesignPackageById(selectedPackageId) : null;
+  const designPackagePrice = selectedPackage?.price || 0;
+  const totalPrice = unitPrice * quantity + priorityPrice + designPackagePrice;
   // ----------------------------------------
 
   const handleOptionChange = (optionId: string, value: string) => {
@@ -129,6 +135,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
     if (incomingFiles.length > 0) {
       setDesignFiles((prev) => [...prev, ...incomingFiles]);
       setHireDesigner(false);
+      setSelectedPackageId(null);
       toast.success(`${incomingFiles.length} file(s) added.`);
     }
   };
@@ -163,6 +170,13 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
       return;
     }
 
+    if (hireDesigner && !selectedPackageId) {
+      toast.error("Design Package Required", {
+        description: "Please select a design package tier.",
+      });
+      return;
+    }
+
     const loadingToast = toast.loading("Adding to cart...");
 
     // Format human readable options for the cart layout
@@ -186,8 +200,8 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
       humanReadableOptions["Production Speed"] = "Standard (2-4 Days)";
     }
 
-    if (hireDesigner) {
-      humanReadableOptions["Design Service"] = "Hire Pana Designer";
+    if (hireDesigner && selectedPackage) {
+      humanReadableOptions["Design Package"] = formatDesignPackageLabel(selectedPackage.id);
     }
 
     const primaryImage =
@@ -208,7 +222,9 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
       selectedOptions: humanReadableOptions,
       designFileNames: designFiles.map((f) => f.name),
       priorityPrice,
-      designerFee,
+      designPackageId: selectedPackageId || undefined,
+      designPackageName: selectedPackage?.name || undefined,
+      designPackagePrice: designPackagePrice || undefined,
       hireDesigner,
     };
 
@@ -490,7 +506,11 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
             type="button"
             onClick={() => {
               setHireDesigner(!hireDesigner);
-              if (!hireDesigner) setDesignFiles([]); // Clear files if switching to hire
+              if (!hireDesigner) {
+                setDesignFiles([]); // Clear files if switching to hire
+              } else {
+                setSelectedPackageId(null); // Clear package if toggling off
+              }
             }}
             className={cn(
               "flex flex-col items-center justify-center p-3 h-20 rounded-2xl border-2 transition-all group relative overflow-hidden",
@@ -513,7 +533,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
               I don&apos;t have a Design
             </span>
             <p className="text-[8px] text-muted-foreground font-bold mt-0.5">
-              Hire our graphic team
+              Select a design package
             </p>
             {hireDesigner && (
               <div className="absolute top-2 right-2 animate-in fade-in zoom-in">
@@ -522,6 +542,72 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
             )}
           </button>
         </div>
+
+        {/* Design Package Tier Selector */}
+        {hireDesigner && (
+          <div className="space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-300">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+              <Crown size={12} className="text-primary" /> Select Design Package
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {DESIGN_PACKAGES.map((pkg) => {
+                const isSelected = selectedPackageId === pkg.id;
+                const IconComponent = pkg.id === "starter" ? Star : pkg.id === "professional" ? Sparkles : Crown;
+                return (
+                  <button
+                    key={pkg.id}
+                    type="button"
+                    onClick={() => setSelectedPackageId(pkg.id)}
+                    className={cn(
+                      "relative flex flex-col items-center p-4 rounded-2xl border-2 transition-all group/pkg text-center",
+                      isSelected
+                        ? "border-primary bg-primary/10 shadow-lg shadow-primary/10 ring-1 ring-primary/20"
+                        : "border-border/40 bg-card hover:bg-muted/30 hover:border-border/60",
+                    )}
+                  >
+                    {pkg.badge && (
+                      <span className={cn(
+                        "absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm",
+                        isSelected
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted-foreground/10 text-muted-foreground",
+                      )}>
+                        {pkg.badge}
+                      </span>
+                    )}
+                    <div
+                      className={cn(
+                        "w-9 h-9 rounded-xl flex items-center justify-center mb-2 transition-all",
+                        isSelected
+                          ? "bg-primary text-primary-foreground shadow-md scale-110"
+                          : "bg-muted text-muted-foreground group-hover/pkg:scale-110",
+                      )}
+                    >
+                      <IconComponent size={16} />
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-foreground leading-tight">
+                      {pkg.name}
+                    </span>
+                    <span className={cn(
+                      "text-sm font-extrabold tracking-tight mt-1",
+                      isSelected ? "text-primary" : "text-foreground",
+                    )}>
+                      {pkg.price.toLocaleString()} ETB
+                    </span>
+                    <p className="text-[8px] font-medium text-muted-foreground mt-1 leading-snug">
+                      {pkg.description}
+                    </p>
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 animate-in fade-in zoom-in">
+                        <CheckCircle2 className="h-4 w-4 text-primary fill-white" />
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Selected Files List */}
         {designFiles.length > 0 && (
