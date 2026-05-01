@@ -24,7 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Loader2, Save, ShieldCheck, Trash2 } from "lucide-react";
+import { Loader2, Save, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function AccountDashboardPage() {
@@ -35,7 +35,6 @@ export default function AccountDashboardPage() {
   } = authClient.useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [isDataFetching, setIsDataFetching] = useState(true);
-  const [isDeleting, setIsDeleting] = useState(false);
   const supabase = createClient();
   const router = useRouter();
 
@@ -129,35 +128,6 @@ export default function AccountDashboardPage() {
     }
   };
 
-  const handleDeleteAccount = async () => {
-    if (!confirm("Are you sure you want to deactivate your account? This action cannot be undone.")) {
-      return;
-    }
-
-    setIsDeleting(true);
-    try {
-      const res = await fetch("/api/account/delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to delete account");
-      }
-
-      toast.success("Account deactivated successfully");
-      await authClient.signOut();
-      router.push("/");
-    } catch (err) {
-      const error = err as Error;
-      toast.error(error.message || "Failed to delete account");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
   if (isSessionPending || isDataFetching) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
@@ -210,26 +180,7 @@ export default function AccountDashboardPage() {
               errors={errors}
             />
           </CardContent>
-          <CardFooter className="bg-muted/10 border-t border-border/50 p-6 flex justify-between">
-            <Button
-              type="button"
-              variant="destructive"
-              className="min-w-[120px]"
-              disabled={isDeleting}
-              onClick={handleDeleteAccount}
-            >
-              {isDeleting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                <>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Account
-                </>
-              )}
-            </Button>
+          <CardFooter className="bg-muted/10 border-t border-border/50 p-6 flex justify-end">
             <Button
               type="submit"
               className="btn-pana min-w-[120px]"
