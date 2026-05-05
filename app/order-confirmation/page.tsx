@@ -32,31 +32,41 @@ function OrderConfirmationContent() {
     enabled: !!orderNumber,
   });
 
-  const { data: verificationData, isLoading: isVerifying } = useQuery({
+  const { data: verificationData, isLoading: isVerifying, refetch: refetchVerification } = useQuery({
     queryKey: ["verify-payment", txRef],
     queryFn: async () => {
-      const res = await fetch(`/api/payments/verify?tx_ref=${txRef}`);
-      const data = await res.json();
-      
-      if (data.success) {
-        // Clear cart only after successful payment verification
-        clearCart();
-
-        // Trigger email once verified successfully
-        await fetch("/api/send-order-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            type: "order_confirmation",
-            order_id: data.order.id,
-          }),
-        });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+      try {
+        const res = await fetch(`/api/payments/verify?tx_ref=${txRef}`, { signal: controller.signal });
+        clearTimeout(timeout);
+        const data = await res.json();
+        
+        if (data.success) {
+          clearCart();
+          fetch("/api/send-order-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              type: "order_confirmation",
+              order_id: data.order.id,
+            }),
+          }).catch(() => {});
+        }
+        
+        return data;
+      } catch (err) {
+        clearTimeout(timeout);
+        throw err;
       }
-      
-      return data;
     },
     enabled: !!txRef,
-    retry: 1,
+    retry: 2,
+    refetchInterval: (query) => {
+      if (query.state.data?.success) return false;
+      if ((query.state.errorCount ?? 0) >= 3) return false;
+      return 5000;
+    },
   });
 
   // Use order from verification response (when coming from Chapa) or from direct query
@@ -72,9 +82,18 @@ function OrderConfirmationContent() {
             {isVerifying ? "Verifying Payment..." : "Loading Order Details..."}
           </p>
           <p className="text-xs text-muted-foreground font-medium">
-            {isVerifying ? "Securing your transaction with Chapa..." : "Retrieving your order information..."}
+            {isVerifying ? "We're confirming your payment with Chapa. This may take a moment..." : "Retrieving your order information..."}
           </p>
         </div>
+        {isVerifying && (
+          <Button
+            variant="outline"
+            onClick={() => refetchVerification()}
+            className="h-12 px-6 rounded-2xl font-bold uppercase tracking-wider text-xs border-border/40"
+          >
+            Check Again
+          </Button>
+        )}
       </div>
     );
   }

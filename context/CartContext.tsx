@@ -76,7 +76,7 @@ interface CartContextType {
   setLocalFiles: React.Dispatch<React.SetStateAction<Record<string, File[]>>>;
   /** Delivery information */
   deliveryInfo: DeliveryInfo;
-  setDeliveryInfo: (info: DeliveryInfo) => void;
+  setDeliveryInfo: (info: Partial<DeliveryInfo> | ((prev: DeliveryInfo) => DeliveryInfo)) => void;
   /** Get delivery fee */
   getDeliveryFee: () => number;
   /** Get cart total with delivery */
@@ -228,7 +228,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [cart]);
 
   const getDeliveryFee = useCallback(() => {
-    // Import dynamically to avoid server/client issues
+    if (deliveryInfo.deliveryMethod === 'pickup') return 0;
     if (typeof window === 'undefined') return 0;
     
     const { calculateDeliveryFee } = require('@/lib/delivery/calculator');
@@ -239,8 +239,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       subCity: deliveryInfo.subCity,
       cartTotal,
       totalQuantity,
-      // 'other' is still a physical delivery, so treat it as 'home' for fee calculation
-      deliveryMethod: deliveryInfo.deliveryMethod === 'pickup' ? 'pickup' : 'home',
+      deliveryMethod: 'home',
     });
     
     return result.finalFee;
@@ -250,8 +249,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return getCartTotal() + getDeliveryFee();
   }, [getCartTotal, getDeliveryFee]);
 
-  const setDeliveryInfo = useCallback((info: DeliveryInfo) => {
-    setDeliveryInfoState(info);
+  const setDeliveryInfo = useCallback((infoOrFn: Partial<DeliveryInfo> | ((prev: DeliveryInfo) => DeliveryInfo)) => {
+    setDeliveryInfoState(prev => {
+      return typeof infoOrFn === 'function' ? infoOrFn(prev) : { ...prev, ...infoOrFn };
+    });
   }, []);
 
   return (

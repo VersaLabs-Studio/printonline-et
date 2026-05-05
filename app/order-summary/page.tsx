@@ -38,23 +38,22 @@ function OrderSummaryContent() {
 
   const handleDeliveryMethodChange = (method: string) => {
     setLocalDeliveryMethod(method);
-    setDeliveryInfo({ ...deliveryInfo, deliveryMethod: method as 'home' | 'pickup' | 'other' });
+    setDeliveryInfo({ deliveryMethod: method as 'home' | 'pickup' | 'other' });
   };
 
   const handleSubCityChange = (subCity: string | null) => {
-    setDeliveryInfo({ ...deliveryInfo, subCity });
+    setDeliveryInfo({ subCity });
   };
 
   const handleAlternateAddressChange = (addr: Record<string, string>) => {
     setDeliveryInfo({
-      ...deliveryInfo,
       altAddress: addr.altAddress,
       altAddressLine2: addr.altAddressLine2,
       altSubCity: addr.altSubCity,
       altWoreda: addr.altWoreda,
       altRecipientName: addr.altRecipientName,
       altPhone: addr.altPhone,
-      subCity: addr.altSubCity || deliveryInfo.subCity,
+      ...(addr.altSubCity ? { subCity: addr.altSubCity } : {}),
     });
   };
 
@@ -71,11 +70,16 @@ function OrderSummaryContent() {
           .select("*")
           .eq("auth_user_id", session.user.id)
           .single();
-        if (data) {
+          if (data) {
           setProfile(data);
           // Sync sub-city from profile to delivery info
-          if (data.sub_city && !deliveryInfo.subCity) {
-            setDeliveryInfo({ ...deliveryInfo, subCity: data.sub_city });
+          if (data.sub_city) {
+            setDeliveryInfo(prev => {
+              if (!prev.subCity) {
+                return { ...prev, subCity: data.sub_city };
+              }
+              return prev;
+            });
           }
         } else {
           // Fallback if no profile is completely registered
@@ -104,7 +108,7 @@ function OrderSummaryContent() {
     if (!isSessionPending && session) {
       fetchProfile();
     }
-  }, [session, isSessionPending, supabase]);
+  }, [session, isSessionPending, supabase, setDeliveryInfo]);
 
   const handlePaymentInitiation = async (termsAccepted: boolean) => {
     if (!termsAccepted) {
@@ -116,7 +120,6 @@ function OrderSummaryContent() {
     try {
       setIsSubmitting(true);
 
-      const isHome = localDeliveryMethod === "home";
       const isOther = localDeliveryMethod === "other";
       const isPickup = localDeliveryMethod === "pickup";
 
@@ -383,7 +386,7 @@ function OrderSummaryContent() {
                       onBack={() => setStep(2)}
                       onSubmit={() => handlePaymentInitiation(true)}
                       isSubmitting={isSubmitting}
-                      total={getCartTotal()}
+                      total={getCartTotal() + getDeliveryFee()}
                     />
                   </SafeMotionDiv>
                 )}

@@ -126,6 +126,20 @@ export async function getUserMessages(userId: string): Promise<{ data: Message[]
 }
 
 /**
+ * Get all messages across all users (CMS admin view) — direct Supabase query
+ */
+export async function getAllMessages(): Promise<{ data: Message[] | null; error: any }> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from("messages")
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  return { data: data as Message[] | null, error };
+}
+
+/**
  * Get unread message count for a user — direct Supabase query
  */
 export async function getUnreadCount(userId: string): Promise<{ count: number; error: any }> {

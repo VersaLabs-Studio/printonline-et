@@ -452,6 +452,9 @@ export type Database = {
           meta_title: string | null;
           min_order_quantity: number | null;
           name: string;
+          overview: string | null;
+          quantity_thresholds: Json | null;
+          rush_eligible: boolean | null;
           short_description: string | null;
           sku: string | null;
           slug: string;
@@ -477,6 +480,9 @@ export type Database = {
           meta_title?: string | null;
           min_order_quantity?: number | null;
           name: string;
+          overview?: string | null;
+          quantity_thresholds?: Json | null;
+          rush_eligible?: boolean | null;
           short_description?: string | null;
           sku?: string | null;
           slug: string;
@@ -502,6 +508,9 @@ export type Database = {
           meta_title?: string | null;
           min_order_quantity?: number | null;
           name?: string;
+          overview?: string | null;
+          quantity_thresholds?: Json | null;
+          rush_eligible?: boolean | null;
           short_description?: string | null;
           sku?: string | null;
           slug?: string;
@@ -550,6 +559,163 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "product_pricing_matrix_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      site_settings: {
+        Row: {
+          id: string;
+          setting_key: string;
+          setting_value: Json;
+          label: string;
+          description: string | null;
+          category: string;
+          data_type: string;
+          updated_by: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          setting_key: string;
+          setting_value: Json;
+          label: string;
+          description?: string | null;
+          category?: string;
+          data_type?: string;
+          updated_by?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          setting_key?: string;
+          setting_value?: Json;
+          label?: string;
+          description?: string | null;
+          category?: string;
+          data_type?: string;
+          updated_by?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      delivery_zones: {
+        Row: {
+          id: string;
+          sub_city: string;
+          base_fee: number;
+          description: string | null;
+          zone_label: string | null;
+          display_order: number | null;
+          is_active: boolean | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          sub_city: string;
+          base_fee?: number;
+          description?: string | null;
+          zone_label?: string | null;
+          display_order?: number | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          sub_city?: string;
+          base_fee?: number;
+          description?: string | null;
+          zone_label?: string | null;
+          display_order?: number | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      delivery_quantity_tiers: {
+        Row: {
+          id: string;
+          zone_id: string | null;
+          min_quantity: number;
+          max_quantity: number | null;
+          multiplier: number;
+          label: string | null;
+          display_order: number | null;
+        };
+        Insert: {
+          id?: string;
+          zone_id?: string | null;
+          min_quantity: number;
+          max_quantity?: number | null;
+          multiplier?: number;
+          label?: string | null;
+          display_order?: number | null;
+        };
+        Update: {
+          id?: string;
+          zone_id?: string | null;
+          min_quantity?: number;
+          max_quantity?: number | null;
+          multiplier?: number;
+          label?: string | null;
+          display_order?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "delivery_quantity_tiers_zone_id_fkey";
+            columns: ["zone_id"];
+            isOneToOne: false;
+            referencedRelation: "delivery_zones";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      designer_fee_tiers: {
+        Row: {
+          id: string;
+          product_id: string;
+          min_quantity: number;
+          max_quantity: number | null;
+          fee_amount: number;
+          label: string | null;
+          display_order: number | null;
+          is_active: boolean | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          min_quantity: number;
+          max_quantity?: number | null;
+          fee_amount: number;
+          label?: string | null;
+          display_order?: number | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          min_quantity?: number;
+          max_quantity?: number | null;
+          fee_amount?: number;
+          label?: string | null;
+          display_order?: number | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "designer_fee_tiers_product_id_fkey";
             columns: ["product_id"];
             isOneToOne: false;
             referencedRelation: "products";
@@ -756,6 +922,14 @@ export type Order = Database["public"]["Tables"]["orders"]["Row"];
 export type OrderItem = Database["public"]["Tables"]["order_items"]["Row"];
 export type PricingMatrixEntry =
   Database["public"]["Tables"]["product_pricing_matrix"]["Row"];
+export type SiteSetting =
+  Database["public"]["Tables"]["site_settings"]["Row"];
+export type DeliveryZoneDB =
+  Database["public"]["Tables"]["delivery_zones"]["Row"];
+export type DeliveryQuantityTier =
+  Database["public"]["Tables"]["delivery_quantity_tiers"]["Row"];
+export type DesignerFeeTier =
+  Database["public"]["Tables"]["designer_fee_tiers"]["Row"];
 
 // Insert types (what you pass to INSERT)
 export type CategoryInsert =
@@ -772,6 +946,14 @@ export type CustomerProfileInsert =
 export type OrderInsert = Database["public"]["Tables"]["orders"]["Insert"];
 export type OrderItemInsert =
   Database["public"]["Tables"]["order_items"]["Insert"];
+export type SiteSettingInsert =
+  Database["public"]["Tables"]["site_settings"]["Insert"];
+export type DeliveryZoneInsert =
+  Database["public"]["Tables"]["delivery_zones"]["Insert"];
+export type DeliveryQuantityTierInsert =
+  Database["public"]["Tables"]["delivery_quantity_tiers"]["Insert"];
+export type DesignerFeeTierInsert =
+  Database["public"]["Tables"]["designer_fee_tiers"]["Insert"];
 
 // Update types (what you pass to UPDATE)
 export type CategoryUpdate =
@@ -780,6 +962,12 @@ export type ProductUpdate = Database["public"]["Tables"]["products"]["Update"];
 export type OrderUpdate = Database["public"]["Tables"]["orders"]["Update"];
 export type CustomerProfileUpdate =
   Database["public"]["Tables"]["customer_profiles"]["Update"];
+export type SiteSettingUpdate =
+  Database["public"]["Tables"]["site_settings"]["Update"];
+export type DeliveryZoneUpdate =
+  Database["public"]["Tables"]["delivery_zones"]["Update"];
+export type DesignerFeeTierUpdate =
+  Database["public"]["Tables"]["designer_fee_tiers"]["Update"];
 
 // ============================================================
 // COMPOSITE / JOINED TYPES (for queries with relations)
@@ -799,6 +987,7 @@ export type ProductWithDetails = Product & {
     product_option_values: ProductOptionValue[];
   })[];
   pricing_matrix?: PricingMatrixEntry[];
+  designer_fee_tiers?: DesignerFeeTier[];
 };
 
 /** Order with its line items and design assets */

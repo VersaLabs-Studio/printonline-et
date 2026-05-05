@@ -4,9 +4,10 @@
 
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import type { Category } from "@/types/database";
+import { toast } from "sonner";
 
 /**
  * Fetch all active categories, ordered by display_order.
@@ -28,6 +29,22 @@ export function useCategories() {
       return (data as Category[]) ?? [];
     },
     staleTime: 10 * 60 * 1000, // 10 minutes — categories rarely change
+  });
+}
+
+/**
+ * Fetch all categories including inactive (for CMS).
+ */
+export function useAllCategories() {
+  return useQuery({
+    queryKey: ["categories", "all"],
+    queryFn: async (): Promise<Category[]> => {
+      const res = await fetch("/api/cms/categories");
+      if (!res.ok) throw new Error("Failed to fetch categories");
+      const json = await res.json();
+      return json.categories ?? [];
+    },
+    staleTime: 2 * 60 * 1000,
   });
 }
 
@@ -100,5 +117,81 @@ export function useCategoriesWithCounts() {
       }));
     },
     staleTime: 10 * 60 * 1000,
+  });
+}
+
+export function useCreateCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: Record<string, unknown>) => {
+      const res = await fetch("/api/cms/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error || "Failed to create category");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      toast.success("Category created");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to create category");
+    },
+  });
+}
+
+export function useUpdateCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, ...data }: { id: string } & Record<string, unknown>) => {
+      const res = await fetch(`/api/cms/categories/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error || "Failed to update category");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      toast.success("Category updated");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update category");
+    },
+  });
+}
+
+export function useDeleteCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/cms/categories/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error || "Failed to delete category");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      toast.success("Category deleted");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete category");
+    },
   });
 }

@@ -6,13 +6,14 @@ import { usePathname } from "next/navigation";
 import {
   BarChart3,
   Package,
-  ShoppingCart,
+ ShoppingCart,
   Users,
   Layers,
   ChevronLeft,
   ExternalLink,
   LogOut,
   ShieldCheck,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -95,6 +96,7 @@ export function CMSSidebar({ isOpen, onClose }: CMSSidebarProps) {
   const navigation = [
     { href: "/cms", icon: BarChart3, label: "Overview" },
     { href: "/cms/orders", icon: ShoppingCart, label: "Orders" },
+    { href: "/cms/messages", icon: MessageSquare, label: "Messages" },
     {
       href: "/cms/products",
       icon: Package,

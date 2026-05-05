@@ -22,7 +22,7 @@ interface CartSummaryProps {
   total: number;
 }
 
-export function CartSummary({ cart, subtotal, total }: CartSummaryProps) {
+export function CartSummary({ cart, subtotal, delivery, total }: CartSummaryProps) {
   return (
     <div className="space-y-6 sticky top-24">
       <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-sm relative overflow-hidden">
@@ -80,6 +80,16 @@ export function CartSummary({ cart, subtotal, total }: CartSummaryProps) {
               <PriceDisplay amount={subtotal} />
             </span>
           </div>
+          {delivery > 0 && (
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Delivery
+              </span>
+              <span className="font-bold text-foreground tracking-tight">
+                <PriceDisplay amount={delivery} />
+              </span>
+            </div>
+          )}
           <div className="h-px bg-border/20 my-4" />
 
           <div className="flex justify-between items-end">

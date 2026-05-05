@@ -27,6 +27,81 @@ export function ConfirmationDetails({
   const items = orderDetails.order_items || [];
   const receipt = (orderDetails.payment_receipt as PaymentReceipt | null) || {};
 
+  const handlePrintReceipt = () => {
+    const receiptHtml = `<!DOCTYPE html>
+<html><head><title>Receipt - ${orderDetails.order_number}</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, sans-serif; padding: 40px; color: #1a1a1a; }
+  .header { text-align: center; margin-bottom: 32px; border-bottom: 2px solid #e5e5e5; padding-bottom: 24px; }
+  .header h1 { font-size: 20px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .header p { font-size: 12px; color: #666; margin-top: 4px; }
+  .section { margin-bottom: 24px; }
+  .section h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: #888; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+  .row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
+  .row .label { color: #666; }
+  .row .value { font-weight: 600; }
+  .items { margin-bottom: 24px; }
+  .item { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+  .item-name { font-weight: 600; font-size: 13px; }
+  .item-qty { font-size: 11px; color: #888; }
+  .total-row { font-size: 16px; font-weight: 700; border-top: 2px solid #1a1a1a; padding-top: 12px; margin-top: 12px; }
+  .footer { margin-top: 40px; text-align: center; font-size: 11px; color: #888; border-top: 1px solid #eee; padding-top: 16px; }
+</style></head><body>
+<div class="header">
+  <h1>PrintOnline Ethiopia</h1>
+  <p>Payment Receipt</p>
+  <p>Order: ${orderDetails.order_number}</p>
+  ${orderDetails.created_at ? `<p>Date: ${new Date(orderDetails.created_at).toLocaleDateString()}</p>` : ''}
+</div>
+<div class="section">
+  <h3>Customer</h3>
+  <div class="row"><span class="label">Name</span><span class="value">${orderDetails.customer_name}</span></div>
+  <div class="row"><span class="label">Email</span><span class="value">${orderDetails.customer_email}</span></div>
+  <div class="row"><span class="label">Phone</span><span class="value">${orderDetails.customer_phone || 'N/A'}</span></div>
+</div>
+<div class="section">
+  <h3>Delivery</h3>
+  <div class="row"><span class="label">Address</span><span class="value">${orderDetails.delivery_address}</span></div>
+  <div class="row"><span class="label">City</span><span class="value">${orderDetails.delivery_city}, ${orderDetails.delivery_sub_city}</span></div>
+</div>
+<div class="items">
+  <h3>Items</h3>
+  ${items.map((item: { product_name?: string; quantity?: number; line_total?: number }) => `
+    <div class="item">
+      <div style="display:flex;justify-content:space-between">
+        <span class="item-name">${item.product_name || 'Product'}</span>
+        <span class="item-qty">ETB ${(item.line_total || 0).toLocaleString()}</span>
+      </div>
+      <span class="item-qty">Qty: ${item.quantity || 1}</span>
+    </div>
+  `).join('')}
+</div>
+<div class="section">
+  <h3>Payment</h3>
+  <div class="row"><span class="label">Subtotal</span><span class="value">ETB ${(orderDetails.subtotal || 0).toLocaleString()}</span></div>
+  <div class="row"><span class="label">Delivery</span><span class="value">ETB ${(orderDetails.delivery_fee || 0).toLocaleString()}</span></div>
+  <div class="row total-row"><span class="label">Total</span><span class="value">ETB ${(orderDetails.total_amount || 0).toLocaleString()}</span></div>
+  ${receipt.tx_ref ? `<div class="row"><span class="label">Reference</span><span class="value">${receipt.tx_ref}</span></div>` : ''}
+  ${receipt.method ? `<div class="row"><span class="label">Method</span><span class="value">${receipt.method}</span></div>` : ''}
+  ${receipt.status ? `<div class="row"><span class="label">Status</span><span class="value">${receipt.status}</span></div>` : ''}
+</div>
+<div class="footer">
+  <p>Thank you for your order!</p>
+  <p>PrintOnline Ethiopia — Pana Promotion PLC</p>
+</div>
+</body></html>`;
+
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    if (printWindow) {
+      printWindow.document.write(receiptHtml);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-20">
       {/* Order Details */}
@@ -321,7 +396,7 @@ export function ConfirmationDetails({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => window.print()}
+                  onClick={handlePrintReceipt}
                   className="h-8 text-[10px] font-bold uppercase tracking-widest gap-1.5"
                 >
                   <Download size={12} /> Print

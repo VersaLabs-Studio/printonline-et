@@ -60,6 +60,7 @@ export const productFormSchema = z.object({
     .or(z.literal("")),
   description: z.string().max(2000).optional().or(z.literal("")),
   shortDescription: z.string().max(300).optional().or(z.literal("")),
+  overview: z.string().max(10000).optional().or(z.literal("")),
   basePrice: z.number().min(0, "Price cannot be negative"),
   formType: z
     .enum(["paper", "large-format", "apparel", "gift", "board"])
@@ -70,6 +71,7 @@ export const productFormSchema = z.object({
     .enum(["in_stock", "low_stock", "out_of_stock", "made_to_order"])
     .default("in_stock"),
   minOrderQuantity: z.number().int().min(1).default(1),
+  rushEligible: z.boolean().default(true),
   badge: z.string().max(50).optional().or(z.literal("")),
   displayOrder: z.number().int().min(0).default(0),
   metaTitle: z.string().max(70).optional().or(z.literal("")),
@@ -152,3 +154,77 @@ export type OrderStatusUpdateFormData = z.infer<typeof orderStatusUpdateSchema>;
 
 // Re-export transitions from shared source of truth
 export { ORDER_STATUS_TRANSITIONS } from "@/lib/order/status";
+
+// ============================================================
+// Site Settings CMS
+// ============================================================
+
+export const siteSettingSchema = z.object({
+  setting_key: z.string().min(1),
+  setting_value: z.any(),
+  label: z.string().min(1),
+  description: z.string().optional().or(z.literal("")),
+  category: z.enum(["pricing", "delivery", "designer", "general"]),
+  data_type: z.enum(["number", "text", "boolean", "json"]),
+});
+
+export type SiteSettingFormData = z.infer<typeof siteSettingSchema>;
+
+// ============================================================
+// Delivery Zone CMS
+// ============================================================
+
+export const deliveryZoneSchema = z.object({
+  sub_city: z.string().min(1, "Sub-city name is required"),
+  base_fee: z.number().min(0, "Fee cannot be negative"),
+  description: z.string().optional().or(z.literal("")),
+  zone_label: z.string().optional().or(z.literal("")),
+  display_order: z.number().int().min(0).default(0),
+  is_active: z.boolean().default(true),
+});
+
+export type DeliveryZoneFormData = z.infer<typeof deliveryZoneSchema>;
+
+// ============================================================
+// Designer Fee Tier CMS
+// ============================================================
+
+export const designerFeeTierSchema = z.object({
+  product_id: z.string().uuid(),
+  min_quantity: z.number().int().min(1, "Min quantity must be at least 1"),
+  max_quantity: z.number().int().min(1).optional().nullable(),
+  fee_amount: z.number().min(0, "Fee cannot be negative"),
+  label: z.string().optional().or(z.literal("")),
+  display_order: z.number().int().min(0).default(0),
+  is_active: z.boolean().default(true),
+});
+
+export type DesignerFeeTierFormData = z.infer<typeof designerFeeTierSchema>;
+
+// ============================================================
+// Pricing Matrix CMS
+// ============================================================
+
+export const pricingMatrixEntrySchema = z.object({
+  product_id: z.string().uuid(),
+  matrix_key: z.string().min(1, "Matrix key is required"),
+  matrix_label: z.string().optional().or(z.literal("")),
+  price: z.number().min(0, "Price cannot be negative"),
+  is_active: z.boolean().default(true),
+});
+
+export type PricingMatrixEntryFormData = z.infer<typeof pricingMatrixEntrySchema>;
+
+export const pricingMatrixBulkImportSchema = z.object({
+  product_id: z.string().uuid(),
+  entries: z.array(
+    z.object({
+      matrix_key: z.string().min(1),
+      matrix_label: z.string().optional().or(z.literal("")),
+      price: z.number().min(0),
+      is_active: z.boolean().default(true),
+    })
+  ),
+});
+
+export type PricingMatrixBulkImportFormData = z.infer<typeof pricingMatrixBulkImportSchema>;

@@ -353,13 +353,12 @@ export function OrderProfileSection({
           value={deliveryMethod}
           onValueChange={(val) => {
             setDeliveryMethod(val);
-            // Sync sub-city to cart context based on method
-            if (val === "other") {
+            if (val === "pickup") {
+              onSubCityChange(null);
+            } else if (val === "other") {
               onSubCityChange(altSubCity || null);
-            } else if (val === "home") {
-              onSubCityChange(watchedSubCity || null);
             } else {
-              onSubCityChange("Bole");
+              onSubCityChange(watchedSubCity || null);
             }
           }}
           className="grid grid-cols-1 sm:grid-cols-3 gap-4"
