@@ -3,12 +3,11 @@
 import React from "react";
 import {
   useProductOptions,
-  useCreateOption,
-  useUpdateOption,
   useDeleteOption,
-  useCreateOptionValue,
   useDeleteOptionValue,
+  type ProductOptionWithValues,
 } from "@/hooks/data/useProductOptions";
+import type { ProductOptionValue } from "@/types/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,9 +28,9 @@ export function OptionsManager({ productId }: OptionsManagerProps) {
   const deleteValue = useDeleteOptionValue();
 
   const [isOptionFormOpen, setIsOptionFormOpen] = React.useState(false);
-  const [editingOption, setEditingOption] = React.useState<any>(null);
+  const [editingOption, setEditingOption] = React.useState<ProductOptionWithValues | null>(null);
   const [isValueFormOpen, setIsValueFormOpen] = React.useState(false);
-  const [editingValue, setEditingValue] = React.useState<any>(null);
+  const [editingValue, setEditingValue] = React.useState<ProductOptionValue | null>(null);
   const [activeOptionId, setActiveOptionId] = React.useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = React.useState<{
     type: "option" | "value";

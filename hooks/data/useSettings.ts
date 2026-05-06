@@ -23,7 +23,7 @@ export function useSiteSettings() {
       const res = await fetch("/api/cms/settings");
       if (!res.ok) throw new Error("Failed to fetch settings");
       const json = await res.json();
-      return json.settings ?? [];
+      return json.data ?? [];
     },
     staleTime: 5 * 60 * 1000,
   });

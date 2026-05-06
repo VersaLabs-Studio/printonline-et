@@ -42,7 +42,7 @@ export function useAllCategories() {
       const res = await fetch("/api/cms/categories");
       if (!res.ok) throw new Error("Failed to fetch categories");
       const json = await res.json();
-      return json.categories ?? [];
+      return json.data ?? [];
     },
     staleTime: 2 * 60 * 1000,
   });

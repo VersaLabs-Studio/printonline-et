@@ -1,10 +1,10 @@
-# PrintOnline.et v3.6 — CMS Data Management Plan
+# PrintOnline.et v3.6 — Testing, Audit & Documentation Plan
 
 > **Version:** 3.6.0
 > **Codename:** *Control*
 > **Date:** 2026-05-05
-> **Status:** PLANNING
-> **Scope:** Full CMS CRUD interfaces for ALL product, pricing, delivery, and configuration data points
+> **Status:** TESTING & AUDIT
+> **Scope:** Full CMS CRUD interfaces for ALL product, pricing, delivery, and configuration data points — implementation complete, now entering verification phase
 
 ---
 
@@ -683,3 +683,328 @@ Phase 8 (Integration) ──── depends on all above ──┘
 - Storefront UI changes (no product page redesign)
 
 These are deferred to v3.7+ as specified in the v3 master plan.
+
+---
+
+## 14. v3.6 Implementation Audit (File Verification)
+
+All implementation phases (1–8) are **COMPLETE**. The following files were verified to exist:
+
+### Migrations (5/5) ✅
+- `supabase/migrations/019_site_settings.sql` ✅
+- `supabase/migrations/020_delivery_zones.sql` ✅
+- `supabase/migrations/021_designer_fee_tiers.sql` ✅
+- `supabase/migrations/022_product_schema_additions.sql` ✅
+- `supabase/migrations/023_rls_admin_policies.sql` ✅
+
+### Seed (1/1) ✅
+- `supabase/seed/014_site_settings_and_delivery_zones.sql` ✅
+
+### API Routes (16/16) ✅
+- `app/api/cms/settings/route.ts` ✅
+- `app/api/cms/delivery-zones/route.ts` ✅
+- `app/api/cms/delivery-zones/[id]/route.ts` ✅
+- `app/api/cms/categories/route.ts` ✅
+- `app/api/cms/categories/[id]/route.ts` ✅
+- `app/api/cms/products/[id]/options/route.ts` ✅
+- `app/api/cms/products/[id]/options/[optionId]/route.ts` ✅
+- `app/api/cms/products/[id]/options/[optionId]/values/route.ts` ✅
+- `app/api/cms/products/[id]/options/[optionId]/values/[valueId]/route.ts` ✅
+- `app/api/cms/products/[id]/pricing-matrix/route.ts` ✅
+- `app/api/cms/products/[id]/pricing-matrix/bulk/route.ts` ✅
+- `app/api/cms/products/[id]/designer-fees/route.ts` ✅
+- `app/api/cms/products/[id]/designer-fees/[tierId]/route.ts` ✅
+- `app/api/account/settings/route.ts` ✅
+- `app/api/account/password/route.ts` ✅
+
+### Hooks (5/5) ✅
+- `hooks/data/useSettings.ts` ✅
+- `hooks/data/useDeliveryZones.ts` ✅
+- `hooks/data/useDesignerFees.ts` ✅
+- `hooks/data/usePricingMatrix.ts` ✅
+- `hooks/data/useProductOptions.ts` ✅
+
+### CMS Components (12/12) ✅
+- `components/cms/categories/CategoryList.tsx` ✅
+- `components/cms/categories/CategoryForm.tsx` ✅
+- `components/cms/products/ProductList.tsx` ✅
+- `components/cms/products/OptionsManager.tsx` ✅
+- `components/cms/products/OptionForm.tsx` ✅
+- `components/cms/products/OptionValueForm.tsx` ✅
+- `components/cms/products/PricingMatrixEditor.tsx` ✅
+- `components/cms/products/PricingMatrixBulkImport.tsx` ✅
+- `components/cms/products/DesignerFeeTiers.tsx` ✅
+- `components/cms/settings/SettingsPage.tsx` ✅
+- `components/cms/settings/DeliveryZoneManager.tsx` ✅
+- `components/cms/settings/DeliveryZoneForm.tsx` ✅
+
+### CMS Pages (9/9) ✅
+- `app/(cms)/cms/categories/page.tsx` ✅
+- `app/(cms)/cms/categories/new/page.tsx` ✅
+- `app/(cms)/cms/categories/[id]/page.tsx` ✅
+- `app/(cms)/cms/products/[id]/options/page.tsx` ✅
+- `app/(cms)/cms/products/[id]/pricing/page.tsx` ✅
+- `app/(cms)/cms/products/[id]/designer-fees/page.tsx` ✅
+- `app/(cms)/cms/settings/page.tsx` ✅
+- `app/(cms)/cms/settings/delivery/page.tsx` ✅
+- `app/(account)/account/settings/page.tsx` ✅
+
+### UI Components (1/1) ✅
+- `components/ui/switch.tsx` ✅ (newly created, `@radix-ui/react-switch` installed)
+
+### Modified Files (verified) ✅
+- `types/database.ts` — 5 new table types + product columns added ✅
+- `lib/validations/cms.ts` — 7 new Zod schemas added ✅
+- `lib/delivery/calculator.ts` — Async DB-backed functions added ✅
+- `hooks/data/useProducts.ts` — Mutations + useAllProducts added ✅
+- `hooks/data/useCategories.ts` — Mutations + useAllCategories added ✅
+- `hooks/data/index.ts` — Barrel exports updated ✅
+- `app/(cms)/cms/products/page.tsx` — Replaced maintenance page ✅
+- `app/(cms)/cms/categories/page.tsx` — Replaced maintenance page ✅
+- `components/cms/layout/CMSSidebar.tsx` — Maintenance badges removed, Settings added ✅
+- `components/cms/products/ProductForm.tsx` — overview + rush_eligible fields added ✅
+- `app/(cms)/cms/products/[id]/page.tsx` — Options/Pricing/Fees nav buttons added ✅
+- `app/(account)/layout.tsx` — Settings nav item added ✅
+
+### Build Status
+- `pnpm build` — **PASS** (verified before plan mode entry)
+
+---
+
+## 15. Migration Execution Instructions (USER TASK)
+
+> **⚠️ You must run these 5 SQL scripts in the Supabase SQL Editor BEFORE starting manual testing.**
+
+### Execution Order
+
+Run these in the Supabase Dashboard (SQL Editor) **in this exact order**:
+
+| # | Migration File | What It Does | Safe to Re-run? |
+|---|----------------|--------------|-----------------|
+| 1 | `019_site_settings.sql` | Creates `site_settings` table + indexes + RLS + trigger | ✅ Uses `CREATE TABLE` (will fail if exists — run once) |
+| 2 | `020_delivery_zones.sql` | Creates `delivery_zones` + `delivery_quantity_tiers` tables + indexes + RLS + triggers | ✅ Same |
+| 3 | `021_designer_fee_tiers.sql` | Creates `designer_fee_tiers` table + indexes + RLS | ✅ Same |
+| 4 | `022_product_schema_additions.sql` | Adds `overview`, `rush_eligible`, `quantity_thresholds` columns to `products` | ✅ Uses `ADD COLUMN IF NOT EXISTS` |
+| 5 | `023_rls_admin_policies.sql` | Adds admin RLS policies for categories, products, options, values, images, pricing_matrix | ✅ Uses `IF NOT EXISTS` checks |
+
+### Seed Data
+
+After all 5 migrations, run the seed file:
+
+| # | Seed File | What It Does |
+|---|-----------|--------------|
+| 6 | `014_site_settings_and_delivery_zones.sql` | Populates `site_settings` with 5 default config rows + `delivery_zones` with 10 Addis Ababa sub-cities |
+
+### Verification Queries
+
+After running all migrations + seed, execute these verification queries:
+
+```sql
+-- 1. Verify site_settings table and seed data
+SELECT setting_key, setting_value, label, category FROM site_settings ORDER BY category, setting_key;
+-- Expected: 5 rows (rush_fee_amount, free_delivery_threshold, pickup_fee, site_name, currency)
+
+-- 2. Verify delivery_zones table and seed data
+SELECT sub_city, base_fee, zone_label, is_active FROM delivery_zones ORDER BY display_order;
+-- Expected: 10 rows (Bole=200, Kirkos=240, Arada=240, ... Lemi Kura=400)
+
+-- 3. Verify delivery_quantity_tiers table exists
+SELECT COUNT(*) FROM delivery_quantity_tiers;
+-- Expected: 0 (no seed data for tiers yet — will be populated via CMS)
+
+-- 4. Verify designer_fee_tiers table exists
+SELECT COUNT(*) FROM designer_fee_tiers;
+-- Expected: 0 (no seed data — will be populated via CMS)
+
+-- 5. Verify products table has new columns
+SELECT column_name, data_type, column_default 
+FROM information_schema.columns 
+WHERE table_name = 'products' 
+AND column_name IN ('overview', 'rush_eligible', 'quantity_thresholds')
+ORDER BY column_name;
+-- Expected: 3 rows (overview TEXT, rush_eligible BOOLEAN DEFAULT true, quantity_thresholds JSONB)
+
+-- 6. Verify RLS policies exist for new tables
+SELECT tablename, policyname 
+FROM pg_policies 
+WHERE tablename IN ('site_settings', 'delivery_zones', 'delivery_quantity_tiers', 'designer_fee_tiers')
+ORDER BY tablename, policyname;
+-- Expected: Multiple policies per table (public read + service role manage)
+
+-- 7. Verify triggers exist
+SELECT trigger_name, event_object_table 
+FROM information_schema.triggers 
+WHERE event_object_table IN ('site_settings', 'delivery_zones')
+ORDER BY event_object_table;
+-- Expected: update_site_settings_timestamp, update_delivery_zones_timestamp
+```
+
+### Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| `relation "site_settings" already exists` | Migration already ran — skip to next |
+| `function update_updated_at() does not exist` | Run `008_functions.sql` first (should already exist from v2) |
+| `permission denied for table site_settings` | Ensure you're using the SQL Editor with service_role or postgres role |
+| Seed `ON CONFLICT` errors | Data already exists — safe to ignore |
+
+---
+
+## 16. Automated Code Verification (I EXECUTE)
+
+After migrations are applied, I will run these checks:
+
+| # | Check | Command/Method | Pass Criteria |
+|---|-------|---------------|---------------|
+| 1 | **Build** | `pnpm build` | Exit 0, all pages generated |
+| 2 | **Lint** | `pnpm lint` (120s timeout) | No new errors beyond baseline |
+| 3 | **Type check** | `npx tsc --noEmit` | No new type errors beyond baseline |
+| 4 | **Migration files SQL syntax** | Read + verify each migration file | Valid PostgreSQL, no syntax errors |
+| 5 | **API route auth guards** | Grep all new API routes for `isAdmin` check | Every CMS route has auth + admin check |
+| 6 | **Hook query keys** | Verify unique query keys across all hooks | No duplicate keys |
+| 7 | **Import paths** | Verify all new files use `@/` aliases | No relative imports crossing boundaries |
+| 8 | **Console.log audit** | Grep new files for `console.log` | Only in error handlers (acceptable) |
+| 9 | **Zod schema coverage** | Verify every API route validates input | No unvalidated POST/PUT handlers |
+
+---
+
+## 17. Manual Dev Server Testing Checklist (USER EXECUTES)
+
+**Prerequisites:** `pnpm dev` running, all 5 migrations + seed applied.
+
+### T1. CMS Navigation & Sidebar (3 min)
+
+- [ ] CMS sidebar shows "Products" WITHOUT maintenance badge
+- [ ] CMS sidebar shows "Categories" WITHOUT maintenance badge
+- [ ] CMS sidebar shows "Settings" link (new)
+- [ ] Click "Settings" → loads `/cms/settings` page
+- [ ] Click "Categories" → loads `/cms/categories` page (not maintenance placeholder)
+- [ ] Click "Products" → loads `/cms/products` page (not maintenance placeholder)
+
+### T2. Categories CRUD (5 min)
+
+- [ ] `/cms/categories` — Category list loads with existing categories
+- [ ] Click "New Category" → form loads at `/cms/categories/new`
+- [ ] Fill name, slug, description → Submit → category created
+- [ ] Click edit on a category → form loads at `/cms/categories/[id]`
+- [ ] Modify name → Save → changes persist
+- [ ] Delete a category → confirm dialog → category removed
+
+### T3. Products CRUD (5 min)
+
+- [ ] `/cms/products` — Product list loads with existing products
+- [ ] Click "New Product" → form loads at `/cms/products/new`
+- [ ] Form has new fields: Overview (textarea), Rush Eligible (switch)
+- [ ] Fill required fields → Submit → product created
+- [ ] Click on a product → detail page loads
+- [ ] Detail page has "Options", "Pricing", "Fees" navigation buttons
+- [ ] Click "Edit Metadata" → form loads with all fields including new ones
+
+### T4. Product Options CRUD (5 min)
+
+- [ ] Product detail → Click "Options" → options page loads
+- [ ] Click "Add Option Group" → dialog opens
+- [ ] Fill label, key, field type → Create → option appears in list
+- [ ] Click "Add Value" on an option → value dialog opens
+- [ ] Fill label, value, price → Create → value appears as chip/tag
+- [ ] Edit an option → dialog opens with pre-filled data → Save
+- [ ] Delete an option → confirm dialog → option removed
+
+### T5. Pricing Matrix CRUD (5 min)
+
+- [ ] Product detail → Click "Pricing" → pricing page loads
+- [ ] Click "Add Entry" → inline row appears
+- [ ] Fill key, label, price → Save → entry appears in table
+- [ ] Click "Bulk Import" → modal opens
+- [ ] Paste CSV data (e.g., `key1,Label One,350`) → preview shows parsed entries
+- [ ] Click "Import" → entries created
+- [ ] Click "Clear All" → confirm dialog → all entries deleted
+
+### T6. Designer Fee Tiers (5 min)
+
+- [ ] Product detail → Click "Fees" → designer fees page loads
+- [ ] Click "Add Tier" → inline form appears
+- [ ] Fill min qty, max qty, fee amount → Save → tier appears in table
+- [ ] Edit a tier → form pre-fills → Save
+- [ ] Delete a tier → confirm dialog → tier removed
+
+### T7. Site Settings (5 min)
+
+- [ ] `/cms/settings` → Settings page loads
+- [ ] Settings grouped by category (Pricing, Delivery, General)
+- [ ] Rush Fee Amount shows 500 ETB (from seed)
+- [ ] Change Rush Fee to 600 → Click Save → toast "Setting updated"
+- [ ] Refresh page → value persists as 600
+- [ ] Free Delivery Threshold shows 5000 ETB (from seed)
+- [ ] Change to 4000 → Save → persists
+
+### T8. Delivery Zones (5 min)
+
+- [ ] `/cms/settings/delivery` → Delivery zones page loads
+- [ ] Table shows 10 zones (Bole, Kirkos, Arada, ... Lemi Kura)
+- [ ] Click "Add Zone" → dialog opens
+- [ ] Fill sub-city, base fee → Create → zone appears
+- [ ] Edit a zone → pre-filled form → Save
+- [ ] Delete a zone → confirm → zone removed
+
+### T9. Customer Account Settings (5 min)
+
+- [ ] Log in as customer → Navigate to `/account/settings`
+- [ ] Profile form loads with existing data (name, phone, company, address)
+- [ ] Change phone number → Save → toast "Profile updated"
+- [ ] Refresh → change persists
+- [ ] Password change section visible
+- [ ] Enter current + new password → Change Password → toast success
+
+### T10. Storefront Integrity (5 min)
+
+- [ ] Home page loads without console errors
+- [ ] Product detail pages load (no regression from new fields)
+- [ ] Cart flow works (add to cart → checkout → order summary)
+- [ ] Delivery fee calculation still works (uses hardcoded fallback)
+- [ ] Dark mode toggle works across all new pages
+
+---
+
+## 18. Fix Log (Post-Testing)
+
+| # | Area | Issue Found | Severity | Fix Applied | Status |
+|---|------|-------------|----------|-------------|--------|
+| | | | | | |
+
+---
+
+## 19. Documentation Deliverable
+
+After testing is complete, create `docs/v3.6_documentation.md` containing:
+
+1. **Release notes** — What's new in v3.6 (features, fixes, improvements)
+2. **Migration guide** — Step-by-step instructions for applying migrations
+3. **CMS user guide** — How to use each new CMS feature (categories, products, options, pricing, settings, delivery zones)
+4. **API reference** — List of all new API endpoints with request/response formats
+5. **Configuration reference** — All site_settings keys and their purpose
+6. **Known issues** — Any issues found during testing that are deferred
+7. **v3.7 roadmap** — What's next (deferred items from v3.6 scope)
+
+---
+
+## 20. Execution Order
+
+```
+Phase A: User runs migrations on Supabase Dashboard (Section 15)
+    │
+    ▼
+Phase B: I run automated code verification (Section 16)
+    │
+    ▼
+Phase C: User runs manual dev server testing (Section 17)
+    │
+    ▼
+Phase D: Fix any issues found (Section 18)
+    │
+    ▼
+Phase E: Create v3.6 documentation (Section 19)
+    │
+    ▼
+Phase F: Final build verification → DONE
+```

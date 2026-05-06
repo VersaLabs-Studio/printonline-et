@@ -24,7 +24,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Save, X, Package, Layers, Info } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Save, X, Package, Layers, Info, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useCategories } from "@/hooks/data/useCategories";
@@ -37,6 +38,7 @@ const productSchema = z.object({
   base_price: z.coerce.number().min(0, "Price must be positive"),
   short_description: z.string().optional(),
   description: z.string().optional(),
+  overview: z.string().optional(),
   sku: z.string().optional(),
   stock_status: z.enum([
     "in_stock",
@@ -46,6 +48,7 @@ const productSchema = z.object({
   ]),
   form_type: z.string().default("paper"),
   min_order_quantity: z.coerce.number().min(1).default(1),
+  rush_eligible: z.boolean().default(true),
   badge: z.string().optional(),
 });
 
@@ -72,10 +75,12 @@ export function ProductForm({
       base_price: initialData?.base_price || 0,
       short_description: initialData?.short_description || "",
       description: initialData?.description || "",
+      overview: initialData?.overview || "",
       sku: initialData?.sku || "",
-      stock_status: (initialData?.stock_status as any) || "in_stock",
+      stock_status: (initialData?.stock_status as "in_stock" | "low_stock" | "out_of_stock" | "made_to_order") || "in_stock",
       form_type: initialData?.form_type || "paper",
       min_order_quantity: initialData?.min_order_quantity || 50,
+      rush_eligible: initialData?.rush_eligible ?? true,
       badge: initialData?.badge || "",
     },
   });
@@ -196,6 +201,30 @@ export function ProductForm({
                         <Textarea
                           placeholder="Describe the product features, paper quality, etc."
                           className="rounded-xl min-h-[150px] resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="overview"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-bold uppercase tracking-tight flex items-center gap-1.5">
+                        <Zap size={12} className="text-primary" />
+                        Product Overview
+                      </FormLabel>
+                      <FormDescription className="text-[10px] text-muted-foreground">
+                        Rich text overview shown on the product detail page.
+                      </FormDescription>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Detailed product overview..."
+                          className="rounded-xl min-h-[100px] resize-none"
                           {...field}
                         />
                       </FormControl>
@@ -361,6 +390,29 @@ export function ProductForm({
                         />
                       </FormControl>
                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="rush_eligible"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-3 space-y-0">
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-xs font-bold uppercase tracking-tight cursor-pointer">
+                          Rush Production Eligible
+                        </FormLabel>
+                        <FormDescription className="text-[10px]">
+                          Allow expedited production for this product.
+                        </FormDescription>
+                      </div>
                     </FormItem>
                   )}
                 />

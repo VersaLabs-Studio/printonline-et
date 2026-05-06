@@ -15,7 +15,7 @@ export function useDeliveryZones() {
       const res = await fetch("/api/cms/delivery-zones");
       if (!res.ok) throw new Error("Failed to fetch delivery zones");
       const json = await res.json();
-      return json.zones ?? [];
+      return json.data ?? [];
     },
     staleTime: 5 * 60 * 1000,
   });

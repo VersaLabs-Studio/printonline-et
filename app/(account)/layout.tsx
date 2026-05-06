@@ -4,7 +4,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { User, Package, LogOut, ChevronRight, UserCircle, MessageSquare } from "lucide-react";
+import { User, Package, LogOut, ChevronRight, UserCircle, MessageSquare, Settings } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -25,6 +25,11 @@ const navItems = [
     title: "Messages",
     href: "/messages",
     icon: MessageSquare,
+  },
+  {
+    title: "Settings",
+    href: "/account/settings",
+    icon: Settings,
   },
 ];
 

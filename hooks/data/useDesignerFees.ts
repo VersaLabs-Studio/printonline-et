@@ -11,7 +11,7 @@ export function useDesignerFeeTiers(productId: string) {
       const res = await fetch(`/api/cms/products/${productId}/designer-fees`);
       if (!res.ok) throw new Error("Failed to fetch designer fee tiers");
       const json = await res.json();
-      return json.tiers ?? [];
+      return json.data ?? [];
     },
     enabled: !!productId,
     staleTime: 2 * 60 * 1000,

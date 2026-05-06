@@ -15,7 +15,7 @@ export function useProductOptions(productId: string) {
       const res = await fetch(`/api/cms/products/${productId}/options`);
       if (!res.ok) throw new Error("Failed to fetch options");
       const json = await res.json();
-      return json.options ?? [];
+      return json.data ?? [];
     },
     enabled: !!productId,
     staleTime: 2 * 60 * 1000,

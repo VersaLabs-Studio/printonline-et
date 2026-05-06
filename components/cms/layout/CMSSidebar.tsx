@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   BarChart3,
   Package,
- ShoppingCart,
+  ShoppingCart,
   Users,
   Layers,
   ChevronLeft,
@@ -14,6 +14,7 @@ import {
   LogOut,
   ShieldCheck,
   MessageSquare,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -97,20 +98,11 @@ export function CMSSidebar({ isOpen, onClose }: CMSSidebarProps) {
     { href: "/cms", icon: BarChart3, label: "Overview" },
     { href: "/cms/orders", icon: ShoppingCart, label: "Orders" },
     { href: "/cms/messages", icon: MessageSquare, label: "Messages" },
-    {
-      href: "/cms/products",
-      icon: Package,
-      label: "Products",
-      maintenance: true,
-    },
+    { href: "/cms/products", icon: Package, label: "Products" },
     { href: "/cms/customers", icon: Users, label: "Customers" },
     { href: "/cms/team", icon: ShieldCheck, label: "Team" },
-    {
-      href: "/cms/categories",
-      icon: Layers,
-      label: "Categories",
-      maintenance: true,
-    },
+    { href: "/cms/categories", icon: Layers, label: "Categories" },
+    { href: "/cms/settings", icon: Settings, label: "Settings" },
   ];
 
   const handleSignOut = async () => {
@@ -181,7 +173,6 @@ export function CMSSidebar({ isOpen, onClose }: CMSSidebarProps) {
                 href={item.href}
                 icon={item.icon}
                 label={item.label}
-                maintenance={item.maintenance}
                 active={
                   pathname === item.href ||
                   (item.href !== "/cms" && pathname.startsWith(item.href))

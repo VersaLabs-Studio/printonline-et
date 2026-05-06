@@ -5,7 +5,7 @@ import { useProduct } from "@/hooks/data/useProduct";
 import { useParams } from "next/navigation";
 import { CMSPageHeader } from "@/components/cms/shared/CMSPageHeader";
 import { Button } from "@/components/ui/button";
-import { Edit, Eye, Trash2 } from "lucide-react";
+import { Edit, Eye, Trash2, Settings, DollarSign, Palette } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { ProductDetailInfo } from "@/components/cms/products/ProductDetailInfo";
@@ -69,6 +69,39 @@ export default function CMSProductDetailPage() {
         ]}
         actions={
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-10 rounded-xl gap-2 font-bold uppercase tracking-widest text-[10px] px-5 hover:bg-muted/50 transition-all border-border/60"
+              asChild
+            >
+              <Link href={`/cms/products/${product.id}/options`}>
+                <Settings size={16} className="text-primary" />
+                Options
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-10 rounded-xl gap-2 font-bold uppercase tracking-widest text-[10px] px-5 hover:bg-muted/50 transition-all border-border/60"
+              asChild
+            >
+              <Link href={`/cms/products/${product.id}/pricing`}>
+                <DollarSign size={16} className="text-primary" />
+                Pricing
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-10 rounded-xl gap-2 font-bold uppercase tracking-widest text-[10px] px-5 hover:bg-muted/50 transition-all border-border/60"
+              asChild
+            >
+              <Link href={`/cms/products/${product.id}/designer-fees`}>
+                <Palette size={16} className="text-primary" />
+                Fees
+              </Link>
+            </Button>
             <Button
               variant="outline"
               size="sm"

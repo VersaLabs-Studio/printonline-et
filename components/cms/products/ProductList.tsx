@@ -22,7 +22,6 @@ import {
   Eye,
   ExternalLink,
   Package as PackageIcon,
-  Plus,
   Settings2,
   DollarSign,
   Palette,

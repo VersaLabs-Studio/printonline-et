@@ -13,7 +13,7 @@ export function usePricingMatrix(productId: string) {
       );
       if (!res.ok) throw new Error("Failed to fetch pricing matrix");
       const json = await res.json();
-      return json.entries ?? [];
+      return json.data ?? [];
     },
     enabled: !!productId,
     staleTime: 2 * 60 * 1000,

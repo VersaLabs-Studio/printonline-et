@@ -2,14 +2,14 @@
 
 import React from "react";
 import { useParams } from "next/navigation";
-import { useProduct } from "@/hooks/data/useProduct";
+import { useProductById } from "@/hooks/data/useProduct";
 import { CMSPageHeader } from "@/components/cms/shared/CMSPageHeader";
 import { OptionsManager } from "@/components/cms/products/OptionsManager";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProductOptionsPage() {
   const { id } = useParams();
-  const { data: product, isLoading } = useProduct(id as string);
+  const { data: product, isLoading } = useProductById(id as string);
 
   if (isLoading) {
     return (

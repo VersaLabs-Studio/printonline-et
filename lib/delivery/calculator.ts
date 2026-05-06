@@ -8,6 +8,7 @@ import {
   PICKUP_FEE,
   DELIVERY_ZONES,
 } from './zones';
+import { createClient } from '@/lib/supabase/client';
 
 export interface DeliveryCalculationParams {
   subCity: string | null;
@@ -139,6 +140,73 @@ export function getAvailableDeliveryZones() {
  */
 export function isValidDeliveryZone(subCity: string): boolean {
   return getDeliveryZone(subCity) !== null;
+}
+
+// ============================================================
+// Async DB-backed versions (v3.6)
+// These read from site_settings and delivery_zones tables.
+// Falls back to hardcoded values if DB is unavailable.
+// ============================================================
+
+interface DBDeliveryZone {
+  sub_city: string;
+  base_fee: number;
+  description: string | null;
+  zone_label: string | null;
+}
+
+/**
+ * Fetch delivery zones from database.
+ * Returns null if DB is unavailable (caller should fall back to hardcoded).
+ */
+export async function fetchDeliveryZonesFromDB(): Promise<DBDeliveryZone[] | null> {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("delivery_zones")
+      .select("sub_city, base_fee, description, zone_label")
+      .eq("is_active", true)
+      .order("display_order");
+    if (error || !data?.length) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fetch a site setting value from the database.
+ * Returns null if not found or DB unavailable.
+ */
+export async function fetchSiteSetting(key: string): Promise<unknown | null> {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("setting_value")
+      .eq("setting_key", key)
+      .single();
+    if (error || !data) return null;
+    return data.setting_value;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fetch free delivery threshold from DB, falling back to hardcoded value.
+ */
+export async function fetchFreeDeliveryThreshold(): Promise<number> {
+  const dbValue = await fetchSiteSetting("free_delivery_threshold");
+  return dbValue != null ? Number(dbValue) : FREE_DELIVERY_THRESHOLD;
+}
+
+/**
+ * Fetch rush fee amount from DB, falling back to 500 ETB.
+ */
+export async function fetchRushFeeAmount(): Promise<number> {
+  const dbValue = await fetchSiteSetting("rush_fee_amount");
+  return dbValue != null ? Number(dbValue) : 500;
 }
 
 // Re-export zones for convenience

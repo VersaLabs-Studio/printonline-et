@@ -2,14 +2,14 @@
 
 import React from "react";
 import { useParams } from "next/navigation";
-import { useProduct } from "@/hooks/data/useProduct";
+import { useProductById } from "@/hooks/data/useProduct";
 import { CMSPageHeader } from "@/components/cms/shared/CMSPageHeader";
 import { DesignerFeeTiers } from "@/components/cms/products/DesignerFeeTiers";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProductDesignerFeesPage() {
   const { id } = useParams();
-  const { data: product, isLoading } = useProduct(id as string);
+  const { data: product, isLoading } = useProductById(id as string);
 
   if (isLoading) {
     return (
