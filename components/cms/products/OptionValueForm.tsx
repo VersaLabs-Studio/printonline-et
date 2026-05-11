@@ -89,26 +89,14 @@ export function OptionValueForm({
   }, [isOpen, initialData, form]);
 
   const onSubmit = async (values: ProductOptionValueFormData) => {
-    const payload = {
-      value: values.value,
-      label: values.label,
-      price_amount: values.priceAmount || null,
-      price_type: values.priceType,
-      group_name: values.groupName || null,
-      description: values.description || null,
-      display_order: values.displayOrder,
-      is_default: values.isDefault,
-      is_active: values.isActive,
-    };
-
     if (isEditing && initialData) {
       updateValue.mutate(
-        { productId, optionId, valueId: initialData.id, ...payload },
+        { productId, optionId, valueId: initialData.id, ...values },
         { onSuccess: () => onClose() }
       );
     } else {
       createValue.mutate(
-        { productId, optionId, ...payload },
+        { productId, optionId, ...values },
         { onSuccess: () => onClose() }
       );
     }
