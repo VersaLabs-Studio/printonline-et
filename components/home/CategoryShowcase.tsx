@@ -10,17 +10,6 @@ import { useCategoriesWithCounts } from "@/hooks/data";
 const CategoryShowcase = () => {
   const { data: categories, isLoading, error } = useCategoriesWithCounts();
 
-  // Placeholder images per category (fallback until category images are uploaded)
-  const categoryImages: Record<string, string> = {
-    "business-essentials": "/product-images/Business-Card-Design-1.webp",
-    "marketing-materials": "/product-images/Flyers (1).jpg",
-    "booklets-publications": "/product-images/Booklet (1).jpg",
-    "stickers-labels": "/product-images/Business-Card-Design-2.webp",
-    "gifts-packaging":
-      "/product-images/Full_Color_Paper_Bags_Marketing_Materials_A_Updated.jpg",
-    "specialty-prints": "/product-images/Large-Posters_11x17.jpg",
-  };
-
   return (
     <section className="py-20 bg-secondary/20 overflow-hidden">
       <div className="container mx-auto px-4">
@@ -56,10 +45,7 @@ const CategoryShowcase = () => {
         {categories && categories.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {categories.map((category, idx) => {
-              const imageUrl =
-                category.image_url ||
-                categoryImages[category.slug] ||
-                "/product-images/Business-Card-Design-1.webp";
+              const imageUrl = category.image_url || "";
 
               return (
                 <CSSFadeIn key={category.id} delay={idx * 100}>
@@ -68,12 +54,20 @@ const CategoryShowcase = () => {
                     className="group relative bg-card rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-border/40 block"
                   >
                     <div className="relative h-56 md:h-72 overflow-hidden">
-                      <Image
-                        src={imageUrl}
-                        alt={category.name}
-                        fill
-                        className="object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
-                      />
+                      {imageUrl ? (
+                        <Image
+                          src={imageUrl}
+                          alt={category.name}
+                          fill
+                          className="object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/20">
+                          <span className="text-muted-foreground text-sm font-semibold">
+                            {category.name}
+                          </span>
+                        </div>
+                      )}
                       <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500"></div>
 
                       {/* Product count badge */}

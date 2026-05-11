@@ -116,7 +116,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: Request,
+  _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -129,57 +129,23 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    const url = new URL(req.url);
-    const hardDelete = url.searchParams.get("hard") === "true";
 
-    if (hardDelete) {
-      const { error } = await supabaseAdmin
-        .from("categories")
-        .delete()
-        .eq("id", id);
-
-      if (error) {
-        console.error("[CMS CATEGORIES DELETE] Error:", error);
-        return NextResponse.json(
-          { error: "Failed to delete category", details: error.message },
-          { status: 500 }
-        );
-      }
-
-      return NextResponse.json({
-        success: true,
-        message: "Category permanently deleted",
-      });
-    }
-
-    const { data: category, error } = await supabaseAdmin
+    const { error } = await supabaseAdmin
       .from("categories")
-      .update({
-        is_active: false,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", id)
-      .select()
-      .single();
+      .delete()
+      .eq("id", id);
 
     if (error) {
-      if (error.code === "PGRST116") {
-        return NextResponse.json(
-          { error: "Category not found" },
-          { status: 404 }
-        );
-      }
       console.error("[CMS CATEGORIES DELETE] Error:", error);
       return NextResponse.json(
-        { error: "Failed to deactivate category", details: error.message },
+        { error: "Failed to delete category", details: error.message },
         { status: 500 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      data: category,
-      message: "Category deactivated",
+      message: "Category permanently deleted",
     });
   } catch (error) {
     console.error("[CMS CATEGORIES DELETE] Unexpected error:", error);

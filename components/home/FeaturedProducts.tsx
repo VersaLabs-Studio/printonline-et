@@ -58,6 +58,10 @@ const FeaturedProducts = () => {
               const features = Array.isArray(product.features)
                 ? (product.features as string[]).slice(0, 3)
                 : [];
+              const imgs = (product as Record<string, unknown>).product_images as
+                | { image_url: string; is_primary: boolean }[] | undefined;
+              const primaryImg = imgs?.find((i) => i.is_primary) ?? imgs?.[0];
+              const imageUrl = primaryImg?.image_url || "";
 
               return (
                 <SafeMotionDiv
@@ -80,12 +84,20 @@ const FeaturedProducts = () => {
                   >
                     <div className="relative h-full bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-border/50 flex flex-col cursor-pointer">
                       <div className="relative h-72 overflow-hidden">
-                        <Image
-                          src={`/product-images/${product.slug === "business-cards" ? "Business-Card-Design-1.webp" : product.slug === "flyers" ? "Flyers (1).jpg" : product.slug === "premium-gift-bags" ? "Full_Color_Paper_Bags_Marketing_Materials_A_Updated.jpg" : "Business-Card-Design-1.webp"}`}
-                          alt={product.name}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
-                        />
+                        {imageUrl ? (
+                          <Image
+                            src={imageUrl}
+                            alt={product.name}
+                            fill
+                            className="object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/20">
+                            <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+                              {product.name}
+                            </span>
+                          </div>
+                        )}
                         <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
 
                         <div className="absolute bottom-4 left-4 right-4">

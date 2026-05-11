@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Save, X, Layers, Search, Globe } from "lucide-react";
+import { Save, X, Layers, Search, Globe, ImageIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -28,6 +28,7 @@ import {
   useCreateCategory,
   useUpdateCategory,
 } from "@/hooks/data/useCategories";
+import { CMSImageUploader, type UploadedImage } from "@/components/cms/shared/CMSImageUploader";
 import type { Category } from "@/types/database";
 
 interface CategoryFormProps {
@@ -57,6 +58,29 @@ export function CategoryForm({
     },
   });
 
+  const [images, setImages] = React.useState<UploadedImage[]>([]);
+
+  React.useEffect(() => {
+    if (isEditing && initialData?.id) {
+      fetch(`/api/cms/categories/${initialData.id}/images`)
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.data?.length) {
+            setImages(
+              json.data.map((img: { id: string; image_url: string; alt_text: string | null; display_order: number | null; is_primary: boolean | null }) => ({
+                id: img.id,
+                url: img.image_url,
+                alt_text: img.alt_text,
+                display_order: img.display_order ?? 0,
+                is_primary: img.is_primary ?? false,
+              }))
+            );
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isEditing, initialData?.id]);
+
   const watchedName = form.watch("name");
 
   React.useEffect(() => {
@@ -76,18 +100,29 @@ export function CategoryForm({
       const payload = {
         name: values.name,
         slug: values.slug,
-        description: values.description || null,
-        image_url: values.imageUrl || null,
-        display_order: values.displayOrder,
-        is_active: values.isActive,
-        meta_title: values.metaTitle || null,
-        meta_description: values.metaDescription || null,
+        description: values.description || "",
+        imageUrl: values.imageUrl || "",
+        displayOrder: values.displayOrder,
+        isActive: values.isActive,
+        metaTitle: values.metaTitle || "",
+        metaDescription: values.metaDescription || "",
       };
 
-      if (isEditing && initialData?.id) {
-        await updateCategory.mutateAsync({ id: initialData.id, ...payload });
+      let categoryId = initialData?.id;
+
+      if (isEditing && categoryId) {
+        await updateCategory.mutateAsync({ id: categoryId, ...payload });
       } else {
-        await createCategory.mutateAsync(payload);
+        const result = await createCategory.mutateAsync(payload);
+        categoryId = result?.data?.id;
+      }
+
+      if (categoryId && images.length > 0) {
+        await fetch(`/api/cms/categories/${categoryId}/images`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ images }),
+        });
       }
 
       toast.success(
@@ -186,7 +221,7 @@ export function CategoryForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-xs font-bold uppercase tracking-widest text-[10px]">
-                        Image URL
+                        Image URL (fallback)
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -195,10 +230,28 @@ export function CategoryForm({
                           {...field}
                         />
                       </FormControl>
+                      <FormDescription className="text-[10px] text-muted-foreground">
+                        Uploaded images take precedence over this URL.
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-[10px] flex items-center gap-1.5">
+                    <ImageIcon size={12} /> Category Images
+                  </label>
+                  <p className="text-[10px] text-muted-foreground font-medium">
+                    Upload images for this category. The primary image is used as the thumbnail.
+                  </p>
+                  <CMSImageUploader
+                    images={images}
+                    onImagesChange={setImages}
+                    folder="categories"
+                    maxImages={5}
+                  />
+                </div>
               </CardContent>
             </Card>
 

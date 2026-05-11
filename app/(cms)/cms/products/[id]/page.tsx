@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useProduct } from "@/hooks/data/useProduct";
+import { useProductById } from "@/hooks/data/useProduct";
 import { useParams } from "next/navigation";
 import { CMSPageHeader } from "@/components/cms/shared/CMSPageHeader";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 export default function CMSProductDetailPage() {
   const { id } = useParams();
-  const { data: product, isLoading, error } = useProduct(id as string);
+  const { data: product, isLoading, error } = useProductById(id as string);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
 
   if (isLoading) {
@@ -139,7 +139,16 @@ export default function CMSProductDetailPage() {
         <div className="lg:col-span-2 space-y-8">
           <ProductDetailInfo product={product} />
           <ProductOptionEditor product={product} />
-          <ProductImageManager product={product} />
+          <ProductImageManager
+            productId={product.id}
+            images={(product.product_images || []).map((img) => ({
+              id: img.id,
+              image_url: img.image_url,
+              alt_text: img.alt_text,
+              is_primary: img.is_primary,
+              display_order: img.display_order,
+            }))}
+          />
         </div>
 
         <div className="space-y-6">

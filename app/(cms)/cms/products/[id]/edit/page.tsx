@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useProduct } from "@/hooks/data/useProduct";
+import { useProductById } from "@/hooks/data/useProduct";
 import { useParams } from "next/navigation";
 import { CMSPageHeader } from "@/components/cms/shared/CMSPageHeader";
 import { ProductForm } from "@/components/cms/products/ProductForm";
@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CMSEditProductPage() {
   const { id } = useParams();
-  const { data: product, isLoading } = useProduct(id as string);
+  const { data: product, isLoading } = useProductById(id as string);
 
   if (isLoading) {
     return (

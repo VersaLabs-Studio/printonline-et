@@ -56,6 +56,44 @@ export type Database = {
         };
         Relationships: [];
       };
+      category_images: {
+        Row: {
+          alt_text: string | null;
+          category_id: string;
+          created_at: string | null;
+          display_order: number | null;
+          id: string;
+          image_url: string;
+          is_primary: boolean | null;
+        };
+        Insert: {
+          alt_text?: string | null;
+          category_id: string;
+          created_at?: string | null;
+          display_order?: number | null;
+          id?: string;
+          image_url: string;
+          is_primary?: boolean | null;
+        };
+        Update: {
+          alt_text?: string | null;
+          category_id?: string;
+          created_at?: string | null;
+          display_order?: number | null;
+          id?: string;
+          image_url?: string;
+          is_primary?: boolean | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "category_images_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "categories";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       customer_profiles: {
         Row: {
           address_line1: string | null;
@@ -930,6 +968,8 @@ export type DeliveryQuantityTier =
   Database["public"]["Tables"]["delivery_quantity_tiers"]["Row"];
 export type DesignerFeeTier =
   Database["public"]["Tables"]["designer_fee_tiers"]["Row"];
+export type CategoryImage =
+  Database["public"]["Tables"]["category_images"]["Row"];
 
 // Insert types (what you pass to INSERT)
 export type CategoryInsert =

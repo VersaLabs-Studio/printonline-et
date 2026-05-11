@@ -1,34 +1,64 @@
 // components/category/CategoryHero.tsx
 "use client";
 
-import { useState } from 'react';
-import { Search, Filter, Grid, List, ArrowRight } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Search, Filter, Grid, List } from 'lucide-react';
 import Image from 'next/image';
 
 interface CategoryHeroProps {
   title: string;
   subtitle: string;
   image: string;
+  images?: { url: string; alt_text?: string | null }[];
   productCount: number;
 }
 
-const CategoryHero = ({ title, subtitle, image, productCount }: CategoryHeroProps) => {
+const SLIDESHOW_INTERVAL = 5000;
+
+const CategoryHero = ({ title, subtitle, image, images, productCount }: CategoryHeroProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [currentIdx, setCurrentIdx] = useState(0);
+
+  const slideshowImages = images && images.length > 0
+    ? images
+    : image
+      ? [{ url: image, alt_text: title }]
+      : [];
+
+  const hasMultiple = slideshowImages.length > 1;
+
+  const nextSlide = useCallback(() => {
+    setCurrentIdx((prev) => (prev + 1) % slideshowImages.length);
+  }, [slideshowImages.length]);
+
+  useEffect(() => {
+    if (!hasMultiple) return;
+    const timer = setInterval(nextSlide, SLIDESHOW_INTERVAL);
+    return () => clearInterval(timer);
+  }, [hasMultiple, nextSlide]);
+
+  if (slideshowImages.length === 0) return null;
 
   return (
     <section className="relative h-[400px] md:h-[500px] overflow-hidden">
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0">
-        <Image
-          src={image}
-          alt={title}
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-transparent"></div>
-      </div>
+      {/* Background Image Slideshow */}
+      {slideshowImages.map((img, idx) => (
+        <div
+          key={img.url}
+          className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+          style={{ opacity: idx === currentIdx ? 1 : 0 }}
+        >
+          <Image
+            src={img.url}
+            alt={img.alt_text || title}
+            fill
+            className="object-cover"
+            priority={idx === 0}
+          />
+        </div>
+      ))}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-transparent" />
       
       {/* Content */}
       <div className="relative container mx-auto px-4 h-full flex items-center">
@@ -46,6 +76,23 @@ const CategoryHero = ({ title, subtitle, image, productCount }: CategoryHeroProp
           <p className="text-xl text-gray-200 mb-8 max-w-2xl">
             {subtitle}
           </p>
+          
+          {/* Slide Indicators */}
+          {hasMultiple && (
+            <div className="flex gap-2 mb-6">
+              {slideshowImages.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentIdx(idx)}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    idx === currentIdx
+                      ? "w-8 bg-white"
+                      : "w-3 bg-white/40 hover:bg-white/60"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
           
           {/* Search and Filter Bar */}
           <div className="flex flex-col sm:flex-row gap-4 max-w-2xl">

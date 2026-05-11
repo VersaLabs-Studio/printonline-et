@@ -54,7 +54,7 @@ const TopSellers = () => {
                 | undefined;
               const primaryImage = (
                 images?.find((img) => img.is_primary) ?? images?.[0]
-              )?.image_url;
+              )?.image_url || "";
               const categoryName = product.category?.name || "";
 
               return (

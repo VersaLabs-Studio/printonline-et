@@ -29,8 +29,7 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
     | { image_url: string; is_primary: boolean; display_order: number }[]
     | undefined;
   const primaryImage = images?.find((img) => img.is_primary) ?? images?.[0];
-  const imageUrl =
-    primaryImage?.image_url || "/product-images/Business-Card-Design-1.webp";
+  const imageUrl = primaryImage?.image_url || "";
 
   return (
     <CSSFadeIn>
@@ -45,12 +44,20 @@ const ProductCard = ({ product, index, viewMode }: ProductCardProps) => {
             className={`relative ${viewMode === "list" ? "w-64 h-64" : "h-64"} overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/20`}
           >
             <div className="relative w-full h-full transition-transform duration-500 group-hover:scale-110">
-              <Image
-                src={imageUrl}
-                alt={product.name}
-                fill
-                className="object-cover"
-              />
+              {imageUrl ? (
+                <Image
+                  src={imageUrl}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+                    No Image
+                  </span>
+                </div>
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
 

@@ -6,6 +6,14 @@ const nextConfig: NextConfig = {
     // your project has type errors.
     ignoreBuildErrors: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+      },
+    ],
+  },
   // Allow cross-origin requests from ngrok domains during development
   // This is needed when demoing the app via ngrok tunnels
   allowedDevOrigins: [

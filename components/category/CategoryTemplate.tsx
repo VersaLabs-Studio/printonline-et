@@ -13,6 +13,7 @@ interface CategoryTemplateProps {
     title: string;
     subtitle: string;
     image: string;
+    images?: { url: string; alt_text?: string | null }[];
     productCount: number;
     features: {
       icon: string;
@@ -35,6 +36,7 @@ const CategoryTemplate = ({
         title={categoryData.title}
         subtitle={categoryData.subtitle}
         image={categoryData.image}
+        images={categoryData.images}
         productCount={categoryData.productCount}
       />
 

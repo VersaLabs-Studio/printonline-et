@@ -19,7 +19,7 @@ export default function CMSEditCategoryPage() {
       const res = await fetch(`/api/cms/categories/${id}`);
       if (!res.ok) throw new Error("Failed to fetch category");
       const json = await res.json();
-      return json.category;
+      return json.data;
     },
     enabled: !!id,
   });

@@ -22,7 +22,7 @@ export const categoryFormSchema = z.object({
       "Slug must be lowercase with hyphens only",
     ),
   description: z.string().max(500).optional().or(z.literal("")),
-  imageUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  imageUrl: z.string().optional().or(z.literal("")),
   displayOrder: z.number().int().min(0).default(0),
   isActive: z.boolean().default(true),
   metaTitle: z

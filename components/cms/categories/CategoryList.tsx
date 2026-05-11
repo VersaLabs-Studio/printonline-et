@@ -154,19 +154,6 @@ export function CategoryList() {
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        <div />
-        <Button
-          asChild
-          className="rounded-xl shadow-lg shadow-primary/20 font-semibold uppercase tracking-wider text-[10px] h-10 px-6 gap-2"
-        >
-          <Link href="/cms/categories/new">
-            <Plus size={16} />
-            New Category
-          </Link>
-        </Button>
-      </div>
-
       <CMSDataTable
         columns={columns}
         data={categories}
