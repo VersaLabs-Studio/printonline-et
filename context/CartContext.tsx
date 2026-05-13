@@ -38,15 +38,15 @@ export interface CartItem {
   designFileNames?: string[];
   /** Rush production surcharge (per order, not per piece) */
   priorityPrice?: number;
-  /** Design package tier ID ("starter" | "professional" | "premium") */
+  /** @deprecated — designer feature disabled, kept for type safety with old carts */
   designPackageId?: string;
-  /** Design package human-readable name */
+  /** @deprecated — designer feature disabled, kept for type safety with old carts */
   designPackageName?: string;
-  /** Design package price in ETB */
+  /** @deprecated — designer feature disabled, kept for type safety with old carts */
   designPackagePrice?: number;
-  /** @deprecated — kept for backward compat with old localStorage carts */
+  /** @deprecated — designer feature disabled, kept for type safety with old carts */
   hireDesigner?: boolean;
-  /** @deprecated — kept for backward compat with old localStorage carts */
+  /** @deprecated — designer feature disabled, kept for type safety with old carts */
   designerFee?: number;
 }
 
@@ -109,7 +109,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const savedCart = localStorage.getItem(STORAGE_KEY);
       if (savedCart) {
         try {
-          return JSON.parse(savedCart);
+          const parsed: CartItem[] = JSON.parse(savedCart);
+          // Strip disabled designer fields from legacy carts so they don't affect pricing
+          return parsed.map((item) => ({
+            ...item,
+            designPackageId: undefined,
+            designPackageName: undefined,
+            designPackagePrice: undefined,
+            hireDesigner: undefined,
+            designerFee: undefined,
+          }));
         } catch (error) {
           console.error("Failed to parse cart from localStorage:", error);
         }
@@ -218,7 +227,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const getCartTotal = useCallback(() => {
     return cart.reduce(
       (total, item) =>
-        total + item.unitPrice * item.quantity + (item.priorityPrice || 0) + (item.designPackagePrice || item.designerFee || 0),
+        total + item.unitPrice * item.quantity + (item.priorityPrice || 0),
       0,
     );
   }, [cart]);

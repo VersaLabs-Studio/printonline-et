@@ -4,7 +4,6 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { PriceDisplay } from "@/components/shared/PriceDisplay";
 import { ArrowRight, ShieldCheck, Truck, Clock } from "lucide-react";
-import Link from "next/link";
 
 interface CartSummaryProps {
   cart: {
@@ -12,17 +11,14 @@ interface CartSummaryProps {
     quantity: number;
     unitPrice: number;
     priorityPrice?: number;
-    designPackageName?: string;
-    designPackagePrice?: number;
-    /** @deprecated backward compat */
-    designerFee?: number;
   }[];
   subtotal: number;
   delivery: number;
   total: number;
+  onCheckout: () => void;
 }
 
-export function CartSummary({ cart, subtotal, delivery, total }: CartSummaryProps) {
+export function CartSummary({ cart, subtotal, delivery, total, onCheckout }: CartSummaryProps) {
   return (
     <div className="space-y-6 sticky top-24">
       <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-sm relative overflow-hidden">
@@ -60,12 +56,6 @@ export function CartSummary({ cart, subtotal, delivery, total }: CartSummaryProp
                   <div className="flex justify-between items-center text-[10px] font-bold text-emerald-500 uppercase tracking-wider pl-0.5">
                     <span>+ Rush Production</span>
                     <span>+{item.priorityPrice} ETB</span>
-                  </div>
-                )}
-                {item.designPackageName && (item.designPackagePrice || 0) > 0 && (
-                  <div className="flex justify-between items-center text-[10px] font-bold text-primary uppercase tracking-wider pl-0.5">
-                    <span>+ {item.designPackageName}</span>
-                    <span>+{(item.designPackagePrice || 0).toLocaleString()} ETB</span>
                   </div>
                 )}
               </div>
@@ -108,19 +98,14 @@ export function CartSummary({ cart, subtotal, delivery, total }: CartSummaryProp
         </div>
 
         <Button
-          asChild
+          onClick={onCheckout}
           className="w-full h-16 rounded-3xl font-bold uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20 gap-4 group active:scale-95 transition-all btn-pana overflow-hidden relative"
         >
-          <Link
-            href="/checkout"
-            className="w-full flex items-center justify-center"
-          >
-            <div className="absolute inset-0 bg-linear-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <span className="flex-1 text-center">Proceed to Checkout</span>
-            <div className="ml-auto w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform">
-              <ArrowRight size={18} />
-            </div>
-          </Link>
+          <div className="absolute inset-0 bg-linear-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <span className="flex-1 text-center">Proceed to Checkout</span>
+          <div className="ml-auto w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+            <ArrowRight size={18} />
+          </div>
         </Button>
       </div>
 

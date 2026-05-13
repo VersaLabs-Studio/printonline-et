@@ -6,16 +6,12 @@ import { Button } from "@/components/ui/button";
 import {
   Palette,
   UploadCloud,
-  User,
   CheckCircle2,
   ShoppingCart,
   Heart,
   Share2,
   Clock,
   Clock3,
-  Crown,
-  Sparkles,
-  Star,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -31,7 +27,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { PriceDisplay } from "@/components/shared/PriceDisplay";
 import { cn } from "@/lib/utils";
-import { DESIGN_PACKAGES, type DesignPackageId, getDesignPackageById, formatDesignPackageLabel } from "@/lib/design-packages";
 
 interface ProductOrderFormProps {
   product: ProductWithDetails;
@@ -47,8 +42,6 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
   const [quantity, setQuantity] = useState<number>(
     product.min_order_quantity || 1,
   );
-  const [hireDesigner, setHireDesigner] = useState<boolean>(false);
-  const [selectedPackageId, setSelectedPackageId] = useState<DesignPackageId | null>(null);
   const isOutOfStock = product.stock_status === "out_of_stock";
 
   // --- Real-time Pricing Calculations (Robust Sorted-Key Manifest) ---
@@ -105,9 +98,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
 
   const unitPrice = calculateUnitPrice(selections);
   const priorityPrice = productionPriority === "rush" ? 500 : 0;
-  const selectedPackage = selectedPackageId ? getDesignPackageById(selectedPackageId) : null;
-  const designPackagePrice = selectedPackage?.price || 0;
-  const totalPrice = unitPrice * quantity + priorityPrice + designPackagePrice;
+  const totalPrice = unitPrice * quantity + priorityPrice;
   // ----------------------------------------
 
   const handleOptionChange = (optionId: string, value: string) => {
@@ -134,8 +125,6 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
 
     if (incomingFiles.length > 0) {
       setDesignFiles((prev) => [...prev, ...incomingFiles]);
-      setHireDesigner(false);
-      setSelectedPackageId(null);
       toast.success(`${incomingFiles.length} file(s) added.`);
     }
   };
@@ -163,16 +152,9 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
       return;
     }
 
-    if (designFiles.length === 0 && !hireDesigner) {
+    if (designFiles.length === 0) {
       toast.error("Design Required", {
-        description: "Please upload your design or select 'I don't have a Design'.",
-      });
-      return;
-    }
-
-    if (hireDesigner && !selectedPackageId) {
-      toast.error("Design Package Required", {
-        description: "Please select a design package tier.",
+        description: "Please upload your design file(s) before adding to cart.",
       });
       return;
     }
@@ -200,10 +182,6 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
       humanReadableOptions["Production Speed"] = "Standard (2-4 Days)";
     }
 
-    if (hireDesigner && selectedPackage) {
-      humanReadableOptions["Design Package"] = formatDesignPackageLabel(selectedPackage.id);
-    }
-
     const primaryImage =
       product.product_images?.find((img) => img.is_primary)?.image_url ||
       product.product_images?.[0]?.image_url ||
@@ -222,10 +200,6 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
       selectedOptions: humanReadableOptions,
       designFileNames: designFiles.map((f) => f.name),
       priorityPrice,
-      designPackageId: selectedPackageId || undefined,
-      designPackageName: selectedPackage?.name || undefined,
-      designPackagePrice: designPackagePrice || undefined,
-      hireDesigner,
     };
 
     setTimeout(() => {
@@ -480,7 +454,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
         <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
           <Palette size={12} className="text-primary" /> Workflow Data
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3">
           <label className="relative flex flex-col items-center justify-center p-3 h-20 rounded-2xl border-2 border-dashed border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all cursor-pointer group shadow-inner">
             <input 
               type="file" 
@@ -501,113 +475,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
               </p>
             )}
           </label>
-
-          <button
-            type="button"
-            onClick={() => {
-              setHireDesigner(!hireDesigner);
-              if (!hireDesigner) {
-                setDesignFiles([]); // Clear files if switching to hire
-              } else {
-                setSelectedPackageId(null); // Clear package if toggling off
-              }
-            }}
-            className={cn(
-              "flex flex-col items-center justify-center p-3 h-20 rounded-2xl border-2 transition-all group relative overflow-hidden",
-              hireDesigner
-                ? "border-primary bg-primary/10 shadow-lg shadow-primary/10 transition-all"
-                : "border-border/40 bg-muted/5 hover:bg-muted/10",
-            )}
-          >
-            <div
-              className={cn(
-                "w-8 h-8 rounded-xl flex items-center justify-center mb-1 transition-all",
-                hireDesigner
-                  ? "bg-primary text-primary-foreground scale-110 rotate-6 shadow-md"
-                  : "bg-muted-foreground/10 text-muted-foreground group-hover:scale-110 group-hover:-rotate-3",
-              )}
-            >
-              <User size={14} />
-            </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-foreground">
-              I don&apos;t have a Design
-            </span>
-            <p className="text-[8px] text-muted-foreground font-bold mt-0.5">
-              Select a design package
-            </p>
-            {hireDesigner && (
-              <div className="absolute top-2 right-2 animate-in fade-in zoom-in">
-                <CheckCircle2 className="h-4 w-4 text-primary fill-white" />
-              </div>
-            )}
-          </button>
         </div>
-
-        {/* Design Package Tier Selector */}
-        {hireDesigner && (
-          <div className="space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-300">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-              <Crown size={12} className="text-primary" /> Select Design Package
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              {DESIGN_PACKAGES.map((pkg) => {
-                const isSelected = selectedPackageId === pkg.id;
-                const IconComponent = pkg.id === "starter" ? Star : pkg.id === "professional" ? Sparkles : Crown;
-                return (
-                  <button
-                    key={pkg.id}
-                    type="button"
-                    onClick={() => setSelectedPackageId(pkg.id)}
-                    className={cn(
-                      "relative flex flex-col items-center p-4 rounded-2xl border-2 transition-all group/pkg text-center",
-                      isSelected
-                        ? "border-primary bg-primary/10 shadow-lg shadow-primary/10 ring-1 ring-primary/20"
-                        : "border-border/40 bg-card hover:bg-muted/30 hover:border-border/60",
-                    )}
-                  >
-                    {pkg.badge && (
-                      <span className={cn(
-                        "absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm",
-                        isSelected
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted-foreground/10 text-muted-foreground",
-                      )}>
-                        {pkg.badge}
-                      </span>
-                    )}
-                    <div
-                      className={cn(
-                        "w-9 h-9 rounded-xl flex items-center justify-center mb-2 transition-all",
-                        isSelected
-                          ? "bg-primary text-primary-foreground shadow-md scale-110"
-                          : "bg-muted text-muted-foreground group-hover/pkg:scale-110",
-                      )}
-                    >
-                      <IconComponent size={16} />
-                    </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-foreground leading-tight">
-                      {pkg.name}
-                    </span>
-                    <span className={cn(
-                      "text-sm font-extrabold tracking-tight mt-1",
-                      isSelected ? "text-primary" : "text-foreground",
-                    )}>
-                      {pkg.price.toLocaleString()} ETB
-                    </span>
-                    <p className="text-[8px] font-medium text-muted-foreground mt-1 leading-snug">
-                      {pkg.description}
-                    </p>
-                    {isSelected && (
-                      <div className="absolute top-2 right-2 animate-in fade-in zoom-in">
-                        <CheckCircle2 className="h-4 w-4 text-primary fill-white" />
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
 
         {/* Selected Files List */}
         {designFiles.length > 0 && (

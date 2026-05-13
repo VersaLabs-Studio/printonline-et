@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
@@ -20,8 +21,10 @@ export default function CartPage() {
     clearCart,
     getCartTotal,
     getDeliveryFee,
+    localFiles,
   } = useCart();
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleQuantityChange = (cartLineId: string, quantity: number) => {
     setIsUpdating(cartLineId);
@@ -42,6 +45,19 @@ export default function CartPage() {
   const subtotal = getCartTotal();
   const shipping = getDeliveryFee();
   const total = subtotal + shipping;
+
+  const handleCheckout = () => {
+    const missing = cart.filter(
+      (item) => !localFiles[item.cartLineId] || localFiles[item.cartLineId].length === 0
+    );
+    if (missing.length > 0) {
+      toast.error("Design files required", {
+        description: `Please upload design files for: ${missing.map((i) => i.name).join(", ")}`,
+      });
+      return;
+    }
+    router.push("/checkout");
+  };
 
   if (cart.length === 0) {
     return <EmptyCart />;
@@ -117,6 +133,7 @@ export default function CartPage() {
                 subtotal={subtotal}
                 delivery={shipping}
                 total={total}
+                onCheckout={handleCheckout}
               />
             </div>
           </div>
@@ -133,10 +150,10 @@ export default function CartPage() {
             </span>
           </div>
           <Button
-            asChild
+            onClick={handleCheckout}
             className="flex-1 h-14 rounded-2xl font-bold uppercase tracking-widest text-xs btn-pana shadow-xl shadow-primary/20"
           >
-            <Link href="/checkout">Checkout Now</Link>
+            Checkout Now
           </Button>
         </div>
       </main>

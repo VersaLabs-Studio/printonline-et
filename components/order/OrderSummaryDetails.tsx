@@ -77,24 +77,13 @@ export function OrderSummaryDetails({
                     .join(", ")}
                 </p>
                 <PriceDisplay
-                  amount={item.unitPrice * item.quantity + (item.priorityPrice || 0) + (item.designPackagePrice || item.designerFee || 0)}
+                  amount={item.unitPrice * item.quantity + (item.priorityPrice || 0)}
                   size="sm"
                   className="mt-1"
                 />
                 {item.priorityPrice > 0 && (
                   <p className="text-[10px] font-bold text-emerald-500 uppercase mt-1">
                     + Rush Production: {item.priorityPrice} ETB
-                  </p>
-                )}
-                {item.designPackageName && (item.designPackagePrice || 0) > 0 && (
-                  <p className="text-[10px] font-bold text-primary uppercase mt-1">
-                    + {item.designPackageName}: {(item.designPackagePrice || 0).toLocaleString()} ETB
-                  </p>
-                )}
-                {/* Backward compat for old carts with flat designerFee */}
-                {!item.designPackageName && item.designerFee > 0 && (
-                  <p className="text-[10px] font-bold text-primary uppercase mt-1">
-                    + Hire Designer: {item.designerFee} ETB
                   </p>
                 )}
                 {item.designFileNames && item.designFileNames.length > 0 && (

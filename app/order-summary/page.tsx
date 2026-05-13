@@ -117,6 +117,17 @@ function OrderSummaryContent() {
     }
     if (!profile) return;
 
+    // Validate every cart item has design files before uploading
+    const missingFiles = cart.filter(
+      (item) => !localFiles[item.cartLineId] || localFiles[item.cartLineId].length === 0
+    );
+    if (missingFiles.length > 0) {
+      toast.error("Design files required", {
+        description: `Please re-upload design files for: ${missingFiles.map((i) => i.name).join(", ")}`,
+      });
+      return;
+    }
+
     try {
       setIsSubmitting(true);
 
@@ -180,13 +191,12 @@ function OrderSummaryContent() {
             product_name: item.name,
             unit_price: item.unitPrice,
             quantity: item.quantity,
-            line_total: item.unitPrice * item.quantity + (item.priorityPrice || 0) + (item.designPackagePrice || item.designerFee || 0),
+            line_total: item.unitPrice * item.quantity + (item.priorityPrice || 0),
             selected_options: {
               ...item.selectedOptions,
               ...(item.priorityPrice ? { "Production Speed": "Rush" } : {}),
-              ...(item.designPackageName ? { "Design Package": item.designPackageName } : {}),
             },
-            design_preference: (item.hireDesigner || item.designPackageId) ? "hire_designer" : "upload",
+            design_preference: "upload",
             design_file_url: uploadedAssets[0]?.url || null,
             design_file_name: uploadedAssets[0]?.name || null,
             design_file_size: uploadedAssets[0]?.size || null,
