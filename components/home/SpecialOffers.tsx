@@ -4,9 +4,20 @@ import { Clock, Tag, TrendingUp, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { CSSFadeIn } from "@/components/shared/SafeMotion";
+import { useDeals } from "@/hooks/data/useDeals";
+
+const SPECIAL_OFFERS_BADGE_COLORS: Record<string, string> = {
+  red: "bg-red-500",
+  blue: "bg-blue-500",
+  green: "bg-green-500",
+  yellow: "bg-yellow-500",
+  purple: "bg-purple-500",
+};
 
 const SpecialOffers = () => {
-  const offers = [
+  const { data: deals = [] } = useDeals();
+
+  const fallbackOffers = [
     {
       id: 1,
       title: "Flash Sale",
@@ -38,6 +49,19 @@ const SpecialOffers = () => {
       link: "/flex-banners",
     },
   ];
+
+  const offers = deals.length > 0
+    ? deals.map((d) => ({
+        id: d.id,
+        title: d.title,
+        subtitle: d.subtitle,
+        description: d.description,
+        image: d.image_url,
+        expires: d.countdown_label,
+        bgColor: SPECIAL_OFFERS_BADGE_COLORS[d.badge_color] || "bg-red-500",
+        link: d.link_url,
+      }))
+    : fallbackOffers;
 
   return (
     <section className="py-16 hidden lg:block">

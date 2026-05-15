@@ -125,13 +125,12 @@ export function CategoryForm({
         });
       }
 
-      toast.success(
-        isEditing
-          ? "Category updated successfully"
-          : "Category created successfully",
-      );
-      router.push("/cms/categories");
-      router.refresh();
+      if (isEditing) {
+        router.refresh();
+      } else {
+        router.push(`/cms/categories/${categoryId}`);
+        router.refresh();
+      }
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "An error occurred";

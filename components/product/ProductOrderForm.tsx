@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { ProductWithDetails } from "@/types";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Palette,
   UploadCloud,
@@ -43,6 +44,12 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
     product.min_order_quantity || 1,
   );
   const isOutOfStock = product.stock_status === "out_of_stock";
+
+  const manualQuantityEntry = product.manual_quantity_entry ?? false;
+  const quantityInterval = product.quantity_interval ?? 1;
+  const quantityPresets = Array.isArray(product.quantity_presets)
+    ? product.quantity_presets.map((v: unknown) => Number(v))
+    : null;
 
   // --- Real-time Pricing Calculations (Robust Sorted-Key Manifest) ---
   const calculateUnitPrice = (currentSelections: Record<string, string>) => {
@@ -413,39 +420,53 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
               </span>
             )}
           </label>
-          <Select
-            value={quantity.toString()}
-            onValueChange={(val) => setQuantity(parseInt(val))}
-          >
-            <SelectTrigger className="h-10 w-full rounded-lg bg-background border border-border/40 focus:outline-none focus:ring-2 focus:ring-primary text-xs font-semibold uppercase tracking-widest px-3">
-              <SelectValue placeholder="Select Quantity" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl shadow-xl border-border/40">
-              {(() => {
-                const min = product.min_order_quantity || 1;
-                // Generate quantity options starting from min
-                const presets =
-                  product.slug === "business-cards"
-                    ? [50, 100, 250, 500, 1000, 2000, 5000]
-                    : [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2000, 5000];
-                
-                // Filter presets to only those >= min, and always include min
-                const options = Array.from(
-                  new Set([min, ...presets.filter((n) => n >= min)])
-                ).sort((a, b) => a - b);
+          {manualQuantityEntry ? (
+            <div className="space-y-1.5">
+              <Input
+                type="number"
+                step={quantityInterval}
+                min={product.min_order_quantity || 1}
+                value={quantity}
+                onChange={(e) => setQuantity(parseInt(e.target.value) || (product.min_order_quantity || 1))}
+                className="h-10 rounded-lg border-border/40 text-xs font-semibold"
+              />
+              <p className="text-[9px] text-muted-foreground font-medium">
+                Enter quantity (increments of {quantityInterval})
+              </p>
+            </div>
+          ) : (
+            <Select
+              value={quantity.toString()}
+              onValueChange={(val) => setQuantity(parseInt(val))}
+            >
+              <SelectTrigger className="h-10 w-full rounded-lg bg-background border border-border/40 focus:outline-none focus:ring-2 focus:ring-primary text-xs font-semibold uppercase tracking-widest px-3">
+                <SelectValue placeholder="Select Quantity" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl shadow-xl border-border/40">
+                {(() => {
+                  const min = product.min_order_quantity || 1;
+                  const presets = quantityPresets ?? (
+                    product.slug === "business-cards"
+                      ? [50, 100, 250, 500, 1000, 2000, 5000]
+                      : [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2000, 5000]
+                  );
+                  const options = Array.from(
+                    new Set([min, ...presets.filter((n: number) => n >= min)])
+                  ).sort((a: number, b: number) => a - b);
 
-                return options.map((num) => (
-                  <SelectItem
-                    key={num}
-                    value={num.toString()}
-                    className="font-bold py-2.5 rounded-lg"
-                  >
-                    {num} {num === 1 ? "Pc" : "Pcs"}
-                  </SelectItem>
-                ));
-              })()}
-            </SelectContent>
-          </Select>
+                  return options.map((num: number) => (
+                    <SelectItem
+                      key={num}
+                      value={num.toString()}
+                      className="font-bold py-2.5 rounded-lg"
+                    >
+                      {num} {num === 1 ? "Pc" : "Pcs"}
+                    </SelectItem>
+                  ));
+                })()}
+              </SelectContent>
+            </Select>
+          )}
         </div>
       </div>
 

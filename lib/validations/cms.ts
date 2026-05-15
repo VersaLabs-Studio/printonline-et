@@ -74,6 +74,9 @@ export const productFormSchema = z.object({
   rushEligible: z.boolean().default(true),
   badge: z.string().max(50).optional().or(z.literal("")),
   displayOrder: z.number().int().min(0).default(0),
+  manualQuantityEntry: z.boolean().default(false),
+  quantityInterval: z.number().int().min(1).default(1),
+  quantityPresets: z.string().optional().or(z.literal("")),
   metaTitle: z.string().max(70).optional().or(z.literal("")),
   metaDescription: z.string().max(160).optional().or(z.literal("")),
 });
@@ -228,3 +231,86 @@ export const pricingMatrixBulkImportSchema = z.object({
 });
 
 export type PricingMatrixBulkImportFormData = z.infer<typeof pricingMatrixBulkImportSchema>;
+
+// ============================================================
+// Hero Slides CMS
+// ============================================================
+
+export const heroSlideSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  subtitle: z.string().optional().or(z.literal("")),
+  image_url: z.string().min(1, "Image is required"),
+  cta_text: z.string().default("Order Now"),
+  cta_link: z.string().default("/all-products"),
+  display_order: z.number().int().min(0).default(0),
+  is_active: z.boolean().default(true),
+});
+
+export type HeroSlideFormData = z.infer<typeof heroSlideSchema>;
+
+// ============================================================
+// Homepage Deals CMS
+// ============================================================
+
+export const homepageDealSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  subtitle: z.string().optional().or(z.literal("")),
+  description: z.string().optional().or(z.literal("")),
+  image_url: z.string().optional().or(z.literal("")),
+  badge_text: z.string().optional().or(z.literal("")),
+  badge_color: z.string().default("red"),
+  link_url: z.string().optional().or(z.literal("")),
+  link_text: z.string().default("View Offer"),
+  countdown_label: z.string().optional().or(z.literal("")),
+  display_order: z.number().int().min(0).default(0),
+  is_active: z.boolean().default(true),
+});
+
+export type HomepageDealFormData = z.infer<typeof homepageDealSchema>;
+
+// ============================================================
+// Homepage Testimonials CMS
+// ============================================================
+
+export const homepageTestimonialSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  role: z.string().optional().or(z.literal("")),
+  company: z.string().optional().or(z.literal("")),
+  avatar_url: z.string().optional().or(z.literal("")),
+  rating: z.number().int().min(1).max(5).default(5),
+  quote: z.string().min(1, "Quote is required"),
+  project: z.string().optional().or(z.literal("")),
+  display_order: z.number().int().min(0).default(0),
+  is_active: z.boolean().default(true),
+});
+
+export type HomepageTestimonialFormData = z.infer<typeof homepageTestimonialSchema>;
+
+// ============================================================
+// Privacy Policy CMS
+// ============================================================
+
+export const privacyPolicySchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  content: z.string().min(1, "Content is required"),
+  policy_type: z.enum(["privacy", "terms", "cookie"]),
+  version: z.number().int().min(1).default(1),
+  is_active: z.boolean().default(true),
+  effective_date: z.string().optional().or(z.literal("")),
+});
+
+export type PrivacyPolicyFormData = z.infer<typeof privacyPolicySchema>;
+
+// ============================================================
+// Contact Form (Storefront)
+// ============================================================
+
+export const contactFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Valid email required"),
+  phone: z.string().optional().or(z.literal("")),
+  subject: z.string().min(1, "Subject is required"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
+});
+
+export type ContactFormData = z.infer<typeof contactFormSchema>;

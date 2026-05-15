@@ -5,10 +5,14 @@
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import { Pool } from "pg";
+import { google } from "better-auth/social-providers";
+import { facebook } from "better-auth/social-providers";
+import { tiktok } from "better-auth/social-providers";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email";
 import { emailTemplateWelcome } from "@/lib/email-templates/welcome";
 import { emailTemplatePasswordReset } from "@/lib/email-templates/password-reset";
+import { emailTemplateVerification } from "@/lib/email-templates/email-verification";
 
 // PostgreSQL pool connecting directly to Supabase's PostgreSQL
 // The connection string uses the Supabase project ref from the URL
@@ -47,6 +51,35 @@ export const auth = betterAuth({
         html: emailTemplatePasswordReset(user.name, url),
       });
     },
+  },
+
+  // ── Social Providers ──────────────────────────────────────────
+  socialProviders: {
+    google: google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    facebook: facebook({
+      clientId: process.env.FACEBOOK_CLIENT_ID!,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+    }),
+    tiktok: tiktok({
+      clientId: process.env.TIKTOK_CLIENT_ID!,
+      clientSecret: process.env.TIKTOK_CLIENT_SECRET!,
+    }),
+  },
+
+  // ── Email Verification ─────────────────────────────────────────
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendEmail({
+        to: user.email,
+        subject: "Verify your PrintOnline.et account",
+        html: emailTemplateVerification(user.name, url),
+      });
+    },
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
   },
 
   // ── Session Configuration ─────────────────────────────────────

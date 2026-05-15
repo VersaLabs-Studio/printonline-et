@@ -10,7 +10,7 @@ import {
   forgotPasswordSchema,
   type ForgotPasswordInput,
 } from "@/lib/validations";
-// import { authClient } from "@/lib/auth-client"; // will use when reset flow is fully configured
+import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,11 +47,17 @@ export default function ForgotPasswordPage() {
     setUserEmail(values.email);
 
     try {
-      // For MVP, we'll simulate the successful email trigger
-      // since the nodemailer SMTP configuration needs verification
-      // Better-auth reset flow: authClient.forgetPassword({ email: values.email })
+      const { error } = await authClient.forgetPassword({
+        email: values.email,
+      });
 
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      if (error) {
+        toast.error(
+          error.message || "Failed to send reset link. Please try again.",
+        );
+        return;
+      }
+
       setIsSubmitted(true);
       toast.success("Reset link sent!");
     } catch (err) {

@@ -33,19 +33,19 @@ const Footer = () => {
             </p>
             <div className="flex space-x-3">
               <a
-                href="#"
+                href="/contact"
                 className="text-muted-foreground hover:text-primary transition-colors"
               >
                 <Facebook className="h-5 w-5" />
               </a>
               <a
-                href="#"
+                href="/contact"
                 className="text-muted-foreground hover:text-primary transition-colors"
               >
                 <Twitter className="h-5 w-5" />
               </a>
               <a
-                href="#"
+                href="/contact"
                 className="text-muted-foreground hover:text-primary transition-colors"
               >
                 <Instagram className="h-5 w-5" />
@@ -164,12 +164,6 @@ const Footer = () => {
                 <span className="text-sm text-muted-foreground">
                   Hayahulet Rd. Infront of Worku Bld, Wakero Bld. Addis Ababa,
                   Ethiopia
-                </span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <Phone className="h-5 w-5 text-primary shrink-0" />
-                <span className="text-sm text-muted-foreground">
-                  +251 116 68 69 40
                 </span>
               </li>
               <li className="flex items-center space-x-2">

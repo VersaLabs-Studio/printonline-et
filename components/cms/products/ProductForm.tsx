@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Save, X, Package, Layers, Info, Zap, ImageIcon } from "lucide-react";
+import { Save, X, Package, Layers, Info, Zap, ImageIcon, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useCategories } from "@/hooks/data/useCategories";
@@ -54,6 +54,9 @@ const productSchema = z.object({
   min_order_quantity: z.coerce.number().min(1).default(1),
   rush_eligible: z.boolean().default(true),
   badge: z.string().optional(),
+  manual_quantity_entry: z.boolean().default(false),
+  quantity_interval: z.coerce.number().int().min(1).default(1),
+  quantity_presets: z.string().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -110,6 +113,14 @@ export function ProductForm({
       min_order_quantity: initialData?.min_order_quantity || 50,
       rush_eligible: initialData?.rush_eligible ?? true,
       badge: initialData?.badge || "",
+      manual_quantity_entry: initialData?.manual_quantity_entry ?? false,
+      quantity_interval: initialData?.quantity_interval || 1,
+      quantity_presets: (() => {
+        if (!initialData?.quantity_presets) return "";
+        if (Array.isArray(initialData.quantity_presets))
+          return initialData.quantity_presets.join("\n");
+        return String(initialData.quantity_presets);
+      })(),
     },
   });
 
@@ -159,6 +170,8 @@ export function ProductForm({
     }
   }, [watchedName, isEditing, form]);
 
+  const manualQuantityEntry = form.watch("manual_quantity_entry");
+
   const onSubmit = async (values: ProductFormValues) => {
     try {
       const features = values.features
@@ -195,6 +208,14 @@ export function ProductForm({
         min_order_quantity: values.min_order_quantity,
         rush_eligible: values.rush_eligible,
         badge: values.badge || null,
+        manual_quantity_entry: values.manual_quantity_entry,
+        quantity_interval: values.quantity_interval,
+        quantity_presets: values.quantity_presets
+          ? values.quantity_presets
+              .split("\n")
+              .map((s: string) => s.trim())
+              .filter(Boolean)
+          : null,
         is_active: true,
       };
 
@@ -215,13 +236,12 @@ export function ProductForm({
         });
       }
 
-      toast.success(
-        isEditing
-          ? "Product updated successfully"
-          : "Product created successfully",
-      );
-      router.push("/cms/products");
-      router.refresh();
+      if (isEditing) {
+        router.refresh();
+      } else {
+        router.push(`/cms/products/${productId}/edit`);
+        router.refresh();
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : "An error occurred. Please try again.";
       toast.error(message);
@@ -628,6 +648,84 @@ export function ProductForm({
                     </FormItem>
                   )}
                 />
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl border-border/40 shadow-sm bg-muted/5">
+              <CardContent className="p-6 space-y-4">
+                <div className="flex items-center gap-2 text-primary font-bold uppercase text-[10px] tracking-widest mb-2">
+                  <Settings size={14} /> Quantity Configuration
+                </div>
+                <FormField
+                  control={form.control}
+                  name="manual_quantity_entry"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-3 space-y-0">
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-xs font-bold uppercase tracking-tight cursor-pointer">
+                          Allow Manual Quantity Entry
+                        </FormLabel>
+                        <FormDescription className="text-[10px]">
+                          Let customers type any quantity instead of choosing presets.
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                {manualQuantityEntry ? (
+                  <FormField
+                    control={form.control}
+                    name="quantity_interval"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs font-bold uppercase tracking-tight">
+                          Quantity Interval
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min={1}
+                            className="rounded-xl"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-[10px] text-muted-foreground">
+                          Customers can only enter quantities in multiples of this number.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ) : (
+                  <FormField
+                    control={form.control}
+                    name="quantity_presets"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs font-bold uppercase tracking-tight">
+                          Quantity Presets (one per line)
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder={"50\n100\n250\n500"}
+                            className="rounded-xl min-h-[100px] resize-none font-mono text-xs"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-[10px] text-muted-foreground">
+                          Each line becomes an option in the quantity dropdown.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </CardContent>
             </Card>
 

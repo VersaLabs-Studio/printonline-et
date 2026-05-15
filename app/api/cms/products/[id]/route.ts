@@ -93,6 +93,14 @@ export async function PUT(
         rush_eligible: validatedData.rushEligible,
         badge: validatedData.badge || null,
         display_order: validatedData.displayOrder,
+        manual_quantity_entry: validatedData.manualQuantityEntry,
+        quantity_interval: validatedData.quantityInterval,
+        quantity_presets: validatedData.quantityPresets
+          ? validatedData.quantityPresets
+              .split("\n")
+              .map((s: string) => s.trim())
+              .filter(Boolean)
+          : null,
         meta_title: validatedData.metaTitle || null,
         meta_description: validatedData.metaDescription || null,
         updated_at: new Date().toISOString(),

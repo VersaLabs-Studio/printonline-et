@@ -25,6 +25,14 @@ const Footer = dynamic(() => import("@/components/Footer"), {
   loading: () => <div className="h-32 bg-background" />,
 });
 
+const CookieConsentBanner = dynamic(
+  () =>
+    import("@/components/shared/CookieConsentBanner").then(
+      (mod) => ({ default: mod.CookieConsentBanner })
+    ),
+  { ssr: false }
+);
+
 export default function LayoutClient({ children }: { children: ReactNode }) {
   const queryClient = getQueryClient();
   const pathname = usePathname();
@@ -48,6 +56,7 @@ export default function LayoutClient({ children }: { children: ReactNode }) {
           </main>
           {!hidePublicLayout && <Footer />}
           <Toaster position="top-right" richColors closeButton />
+          <CookieConsentBanner />
         </CartProvider>
       </ThemeProvider>
     </QueryClientProvider>

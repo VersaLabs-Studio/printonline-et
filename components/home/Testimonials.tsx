@@ -5,11 +5,14 @@ import { useState } from "react";
 import { Star, Quote } from "lucide-react";
 import Image from "next/image";
 import { SafeMotionDiv, SafeAnimatePresence } from "@/components/shared/SafeMotion";
+import { useTestimonials } from "@/hooks/data/useTestimonials";
 
 const Testimonials = () => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
-  const testimonials = [
+  const { data: testimonialsData = [] } = useTestimonials();
+
+  const fallbackTestimonials = [
     {
       id: 1,
       name: "Sarah Johnson",
@@ -38,6 +41,18 @@ const Testimonials = () => {
       project: "Vehicle Wraps",
     },
   ];
+
+  const testimonials = testimonialsData.length > 0
+    ? testimonialsData.map((t) => ({
+        id: t.id,
+        name: t.name,
+        company: t.role && t.company ? `${t.role}, ${t.company}` : (t.company || t.role || ""),
+        avatar: t.avatar_url,
+        rating: t.rating,
+        text: t.quote,
+        project: t.project,
+      }))
+    : fallbackTestimonials;
 
   return (
     <section className="py-24 bg-linear-to-br from-primary/5 to-secondary/5 overflow-hidden">

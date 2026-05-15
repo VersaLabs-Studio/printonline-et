@@ -45,8 +45,8 @@ const Testimonials = dynamic(
   }
 );
 
-const NewsLettersSignup = dynamic(
-  () => import("@/components/home").then((mod) => ({ default: mod.NewsLettersSignup })),
+const ContactUsSection = dynamic(
+  () => import("@/components/home").then((mod) => ({ default: mod.ContactUsSection })),
   {
     loading: () => <div className="h-64 bg-muted/20 animate-pulse" />,
     ssr: true,
@@ -66,7 +66,7 @@ export default function Home() {
       <CategoryShowcase />
       <SpecialOffers />
       <Testimonials />
-      <NewsLettersSignup />
+      <ContactUsSection />
     </main>
   );
 }

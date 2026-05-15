@@ -80,3 +80,39 @@ export {
   useUpdateOptionValue,
   useDeleteOptionValue,
 } from "./useProductOptions";
+
+// Hero Slides
+export {
+  useHeroSlides,
+  useAllHeroSlides,
+  useCreateHeroSlide,
+  useUpdateHeroSlide,
+  useDeleteHeroSlide,
+} from "./useHeroSlides";
+
+// Deals
+export {
+  useDeals,
+  useAllDeals,
+  useCreateDeal,
+  useUpdateDeal,
+  useDeleteDeal,
+} from "./useDeals";
+
+// Testimonials
+export {
+  useTestimonials,
+  useAllTestimonials,
+  useCreateTestimonial,
+  useUpdateTestimonial,
+  useDeleteTestimonial,
+} from "./useTestimonials";
+
+// Privacy Policies
+export {
+  usePrivacyPolicies,
+  useAllPrivacyPolicies,
+  useCreatePrivacyPolicy,
+  useUpdatePrivacyPolicy,
+  useDeletePrivacyPolicy,
+} from "./usePrivacyPolicies";

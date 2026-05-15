@@ -35,6 +35,7 @@ import {
   EyeOff,
 } from "lucide-react";
 import { SafeMotionDiv } from "@/components/shared/SafeMotion";
+import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons";
 
 function RegisterFormContent() {
   const router = useRouter();
@@ -76,11 +77,8 @@ function RegisterFormContent() {
           error.message || "Something went wrong during registration.",
         );
       } else {
-        toast.success("Account created successfully! Please log in.");
-        const redirectUrl = callbackUrl
-          ? `&redirect=${encodeURIComponent(callbackUrl)}`
-          : "";
-        router.push(`/login?registered=true${redirectUrl}`);
+        toast.success("Account created successfully! Please check your email.");
+        router.push("/verify-email");
       }
     } catch (err) {
       toast.error("An unexpected error occurred. Please try again later.");
@@ -268,6 +266,17 @@ function RegisterFormContent() {
               )}
             </Button>
           </form>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+            </div>
+          </div>
+
+          <SocialLoginButtons callbackURL={callbackUrl || undefined} />
         </CardContent>
         <CardFooter className="flex flex-wrap items-center justify-center gap-1 border-t border-border/50 bg-muted/20 py-4 px-6 rounded-b-(--radius)">
           <span className="text-sm text-muted-foreground">

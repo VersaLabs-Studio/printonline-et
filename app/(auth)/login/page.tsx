@@ -23,6 +23,7 @@ import {
 import { toast } from "sonner";
 import { Loader2, Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { SafeMotionDiv } from "@/components/shared/SafeMotion";
+import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons";
 import { Suspense } from "react";
 
 function LoginFormContent() {
@@ -177,6 +178,17 @@ function LoginFormContent() {
               )}
             </Button>
           </form>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+            </div>
+          </div>
+
+          <SocialLoginButtons callbackURL={callbackUrl} />
         </CardContent>
         <CardFooter className="flex flex-wrap items-center justify-center gap-1 border-t border-border/50 bg-muted/20 py-4 px-6 rounded-b-(--radius)">
           <span className="text-sm text-muted-foreground">

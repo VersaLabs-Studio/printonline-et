@@ -5,13 +5,16 @@ import { ArrowRight, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { SafeMotionDiv, SafeAnimatePresence } from "@/components/shared/SafeMotion";
+import { useHeroSlides } from "@/hooks/data/useHeroSlides";
 
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef<number | null>(null);
 
-  const slides = [
+  const { data: heroSlides = [] } = useHeroSlides();
+
+  const fallbackSlides = [
     {
       id: 1,
       title: "Professional Printing Solutions",
@@ -31,6 +34,15 @@ const HeroSection = () => {
       image: "/sample3.jpg",
     },
   ];
+
+  const slides = heroSlides.length > 0
+    ? heroSlides.map((s) => ({
+        id: s.id,
+        title: s.title,
+        subtitle: s.subtitle,
+        image: s.image_url,
+      }))
+    : fallbackSlides;
 
   useEffect(() => {
     if (isPaused) return;

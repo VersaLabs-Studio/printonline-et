@@ -1,7 +1,7 @@
 import CategoryShowcase from "./CategoryShowcase";
 import FeaturedProducts from "./FeaturedProducts";
 import HeroSection from "./HeroSection";
-import NewsLettersSignup from "./NewsLettersSignup";
+import ContactUsSection from "./ContactUsSection";
 import SpecialOffers from "./SpecialOffers";
 import Testimonials from "./Testimonials";
 import TopSellers from "./TopSellers";
@@ -12,7 +12,7 @@ export {
   CategoryShowcase,
   FeaturedProducts,
   HeroSection,
-  NewsLettersSignup,
+  ContactUsSection,
   SpecialOffers,
   Testimonials,
   TopSellers,

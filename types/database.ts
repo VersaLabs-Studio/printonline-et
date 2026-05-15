@@ -498,6 +498,9 @@ export type Database = {
           slug: string;
           specifications: Json | null;
           stock_status: string;
+          manual_quantity_entry: boolean | null;
+          quantity_interval: number | null;
+          quantity_presets: Json | null;
           updated_at: string | null;
         };
         Insert: {
@@ -526,6 +529,9 @@ export type Database = {
           slug: string;
           specifications?: Json | null;
           stock_status?: string;
+          manual_quantity_entry?: boolean | null;
+          quantity_interval?: number | null;
+          quantity_presets?: Json | null;
           updated_at?: string | null;
         };
         Update: {
@@ -554,6 +560,9 @@ export type Database = {
           slug?: string;
           specifications?: Json | null;
           stock_status?: string;
+          manual_quantity_entry?: boolean | null;
+          quantity_interval?: number | null;
+          quantity_presets?: Json | null;
           updated_at?: string | null;
         };
         Relationships: [
@@ -760,6 +769,177 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      hero_slides: {
+        Row: {
+          id: string;
+          title: string;
+          subtitle: string | null;
+          image_url: string;
+          cta_text: string;
+          cta_link: string;
+          display_order: number | null;
+          is_active: boolean | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          subtitle?: string | null;
+          image_url: string;
+          cta_text?: string;
+          cta_link?: string;
+          display_order?: number | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          subtitle?: string | null;
+          image_url?: string;
+          cta_text?: string;
+          cta_link?: string;
+          display_order?: number | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      homepage_deals: {
+        Row: {
+          id: string;
+          title: string;
+          subtitle: string | null;
+          description: string | null;
+          image_url: string | null;
+          badge_text: string | null;
+          badge_color: string;
+          link_url: string | null;
+          link_text: string;
+          countdown_label: string | null;
+          display_order: number | null;
+          is_active: boolean | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          subtitle?: string | null;
+          description?: string | null;
+          image_url?: string | null;
+          badge_text?: string | null;
+          badge_color?: string;
+          link_url?: string | null;
+          link_text?: string;
+          countdown_label?: string | null;
+          display_order?: number | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          subtitle?: string | null;
+          description?: string | null;
+          image_url?: string | null;
+          badge_text?: string | null;
+          badge_color?: string;
+          link_url?: string | null;
+          link_text?: string;
+          countdown_label?: string | null;
+          display_order?: number | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      homepage_testimonials: {
+        Row: {
+          id: string;
+          name: string;
+          role: string | null;
+          company: string | null;
+          avatar_url: string | null;
+          rating: number;
+          quote: string;
+          project: string | null;
+          display_order: number | null;
+          is_active: boolean | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          role?: string | null;
+          company?: string | null;
+          avatar_url?: string | null;
+          rating?: number;
+          quote: string;
+          project?: string | null;
+          display_order?: number | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          role?: string | null;
+          company?: string | null;
+          avatar_url?: string | null;
+          rating?: number;
+          quote?: string;
+          project?: string | null;
+          display_order?: number | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      privacy_policies: {
+        Row: {
+          id: string;
+          title: string;
+          content: string;
+          policy_type: string;
+          version: number;
+          is_active: boolean | null;
+          effective_date: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          content: string;
+          policy_type?: string;
+          version?: number;
+          is_active?: boolean | null;
+          effective_date?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          content?: string;
+          policy_type?: string;
+          version?: number;
+          is_active?: boolean | null;
+          effective_date?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [];
       };
       order_item_design_assets: {
         Row: {
@@ -970,6 +1150,14 @@ export type DesignerFeeTier =
   Database["public"]["Tables"]["designer_fee_tiers"]["Row"];
 export type CategoryImage =
   Database["public"]["Tables"]["category_images"]["Row"];
+export type HeroSlide =
+  Database["public"]["Tables"]["hero_slides"]["Row"];
+export type HomepageDeal =
+  Database["public"]["Tables"]["homepage_deals"]["Row"];
+export type HomepageTestimonial =
+  Database["public"]["Tables"]["homepage_testimonials"]["Row"];
+export type PrivacyPolicy =
+  Database["public"]["Tables"]["privacy_policies"]["Row"];
 
 // Insert types (what you pass to INSERT)
 export type CategoryInsert =
@@ -994,6 +1182,14 @@ export type DeliveryQuantityTierInsert =
   Database["public"]["Tables"]["delivery_quantity_tiers"]["Insert"];
 export type DesignerFeeTierInsert =
   Database["public"]["Tables"]["designer_fee_tiers"]["Insert"];
+export type HeroSlideInsert =
+  Database["public"]["Tables"]["hero_slides"]["Insert"];
+export type HomepageDealInsert =
+  Database["public"]["Tables"]["homepage_deals"]["Insert"];
+export type HomepageTestimonialInsert =
+  Database["public"]["Tables"]["homepage_testimonials"]["Insert"];
+export type PrivacyPolicyInsert =
+  Database["public"]["Tables"]["privacy_policies"]["Insert"];
 
 // Update types (what you pass to UPDATE)
 export type CategoryUpdate =
@@ -1008,6 +1204,14 @@ export type DeliveryZoneUpdate =
   Database["public"]["Tables"]["delivery_zones"]["Update"];
 export type DesignerFeeTierUpdate =
   Database["public"]["Tables"]["designer_fee_tiers"]["Update"];
+export type HeroSlideUpdate =
+  Database["public"]["Tables"]["hero_slides"]["Update"];
+export type HomepageDealUpdate =
+  Database["public"]["Tables"]["homepage_deals"]["Update"];
+export type HomepageTestimonialUpdate =
+  Database["public"]["Tables"]["homepage_testimonials"]["Update"];
+export type PrivacyPolicyUpdate =
+  Database["public"]["Tables"]["privacy_policies"]["Update"];
 
 // ============================================================
 // COMPOSITE / JOINED TYPES (for queries with relations)
