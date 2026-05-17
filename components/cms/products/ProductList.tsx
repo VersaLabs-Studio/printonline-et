@@ -262,9 +262,9 @@ export function ProductList() {
             setDeleteTarget(null);
           }
         }}
-        title={`Delete ${deleteTarget?.name}?`}
-        description={`This will permanently remove "${deleteTarget?.name}" and all associated images, options, and pricing data. This action cannot be reversed.`}
-        confirmLabel="Delete Product"
+        title={`Deactivate ${deleteTarget?.name}?`}
+        description={`This will deactivate "${deleteTarget?.name}" and hide it from the storefront. The product data will be preserved and it can be reactivated later.`}
+        confirmLabel="Deactivate Product"
       />
     </>
   );

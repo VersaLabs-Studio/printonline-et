@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { ArrowRight, Star } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { SafeMotionDiv, SafeAnimatePresence } from "@/components/shared/SafeMotion";
 import { useHeroSlides } from "@/hooks/data/useHeroSlides";
@@ -12,40 +11,17 @@ const HeroSection = () => {
   const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef<number | null>(null);
 
-  const { data: heroSlides = [] } = useHeroSlides();
+  const { data: heroSlides = [], isLoading, isError } = useHeroSlides();
 
-  const fallbackSlides = [
-    {
-      id: 1,
-      title: "Professional Printing Solutions",
-      subtitle: "High-quality prints for your business needs",
-      image: "/sample1.jpg",
-    },
-    {
-      id: 2,
-      title: "Custom Branding Materials",
-      subtitle: "Stand out with personalized designs",
-      image: "/sample2.jpg",
-    },
-    {
-      id: 3,
-      title: "Premium Promotional Items",
-      subtitle: "Elevate your brand presence",
-      image: "/sample3.jpg",
-    },
-  ];
-
-  const slides = heroSlides.length > 0
-    ? heroSlides.map((s) => ({
-        id: s.id,
-        title: s.title,
-        subtitle: s.subtitle,
-        image: s.image_url,
-      }))
-    : fallbackSlides;
+  const slides = heroSlides.map((s: { id: string; title: string; subtitle?: string; image_url: string }) => ({
+    id: s.id,
+    title: s.title,
+    subtitle: s.subtitle || "",
+    image: s.image_url,
+  }));
 
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || slides.length === 0) return;
     intervalRef.current = window.setInterval(() => {
       setCurrentSlide((s) => (s + 1) % slides.length);
     }, 6000);
@@ -53,6 +29,28 @@ const HeroSection = () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [isPaused, slides.length]);
+
+  if (isLoading) {
+    return <div className="relative h-[600px] md:h-[700px] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 animate-pulse" />;
+  }
+
+  if (isError || slides.length === 0) {
+    return (
+      <div className="relative h-[600px] md:h-[700px] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700">
+        <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/50 to-transparent" />
+        <div className="relative container mx-auto px-4 h-full flex items-center">
+          <div className="max-w-2xl text-white">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 leading-tight">
+              Print Online Ethiopia
+            </h1>
+            <p className="text-lg sm:text-xl md:text-2xl mb-8 text-gray-200">
+              Professional printing and branding solutions
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <section
@@ -73,12 +71,11 @@ const HeroSection = () => {
                   transition={{ duration: 0.8 }}
                 >
                   <div className="absolute inset-0">
-                    <Image
+                    <img
                       src={slide.image}
                       alt={slide.title}
-                      fill
-                      className="object-cover"
-                      priority
+                      className="absolute inset-0 w-full h-full object-cover"
+                      loading="eager"
                     />
                     <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/50 to-transparent" />
                   </div>

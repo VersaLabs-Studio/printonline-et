@@ -25,6 +25,8 @@ export const categoryFormSchema = z.object({
   imageUrl: z.string().optional().or(z.literal("")),
   displayOrder: z.number().int().min(0).default(0),
   isActive: z.boolean().default(true),
+  showOnHomepage: z.boolean().default(true),
+  homepageDisplayOrder: z.number().int().min(0).default(0),
   metaTitle: z
     .string()
     .max(70, "Meta title should be under 70 characters")

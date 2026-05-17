@@ -12,7 +12,8 @@ export function useHeroSlides() {
       const json = await res.json();
       return json.data ?? [];
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
   });
 }
 

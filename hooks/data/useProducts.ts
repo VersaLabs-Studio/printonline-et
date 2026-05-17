@@ -13,6 +13,7 @@ export interface UseProductsOptions {
   sortBy?: "name" | "base_price" | "created_at" | "display_order";
   sortOrder?: "asc" | "desc";
   inStock?: boolean;
+  includeInactive?: boolean;
 }
 
 export function useProducts(options: UseProductsOptions = {}) {
@@ -27,9 +28,10 @@ export function useProducts(options: UseProductsOptions = {}) {
 
       let query = supabase.from("products").select(selectStr);
 
-      // For CMS we might want all products, for storefront only active ones
-      // In a real app we'd probably have an 'includeInactive' flag
-      // query = query.eq("is_active", true);
+      // Storefront only shows active products; CMS shows all
+      if (!options.includeInactive) {
+        query = query.eq("is_active", true);
+      }
 
       // Filter by category slug (via inner join)
       if (options.categorySlug) {
@@ -92,7 +94,7 @@ export function useFeaturedProducts(limit: number = 8) {
 }
 
 export function useAllProducts() {
-  return useProducts({ sortBy: "name", sortOrder: "asc" });
+  return useProducts({ sortBy: "name", sortOrder: "asc", includeInactive: true });
 }
 
 export function useCreateProduct() {

@@ -89,7 +89,8 @@ export function useCategoriesWithCounts() {
         .from("categories")
         .select("*")
         .eq("is_active", true)
-        .order("display_order", { ascending: true });
+        .eq("show_on_homepage", true)
+        .order("homepage_display_order", { ascending: true });
 
       if (catError) throw catError;
 
@@ -116,7 +117,8 @@ export function useCategoriesWithCounts() {
         productCount: countMap[cat.id] || 0,
       }));
     },
-    staleTime: 10 * 60 * 1000,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
   });
 }
 

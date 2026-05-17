@@ -1,7 +1,6 @@
 "use client";
 
 import { Clock, Tag, TrendingUp, ArrowRight } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { CSSFadeIn } from "@/components/shared/SafeMotion";
 import { useDeals } from "@/hooks/data/useDeals";
@@ -15,53 +14,34 @@ const SPECIAL_OFFERS_BADGE_COLORS: Record<string, string> = {
 };
 
 const SpecialOffers = () => {
-  const { data: deals = [] } = useDeals();
+  const { data: deals = [], isLoading, isError } = useDeals();
 
-  const fallbackOffers = [
-    {
-      id: 1,
-      title: "Flash Sale",
-      subtitle: "Business Cards",
-      description: "Premium quality business cards with custom designs",
-      image: "/sample20.jpg",
-      expires: "2 days left",
-      bgColor: "bg-red-500",
-      link: "/products/premium-business-cards",
-    },
-    {
-      id: 2,
-      title: "Bundle Deal",
-      subtitle: "Complete Branding Package",
-      description: "Get logo, business cards, and letterheads together",
-      image: "/sample21.jpg",
-      expires: "5 days left",
-      bgColor: "bg-blue-500",
-      link: "/digital-paper-prints",
-    },
-    {
-      id: 3,
-      title: "Limited Time",
-      subtitle: "Banner Printing",
-      description: "Large format banners for events and promotions",
-      image: "/sample22.jpg",
-      expires: "1 week left",
-      bgColor: "bg-green-500",
-      link: "/flex-banners",
-    },
-  ];
+  const offers = deals.map((d: { id: string; title: string; subtitle: string; description: string; image_url: string; countdown_label: string; badge_color: string; link_url: string }) => ({
+    id: d.id,
+    title: d.title,
+    subtitle: d.subtitle,
+    description: d.description,
+    image: d.image_url,
+    expires: d.countdown_label,
+    bgColor: SPECIAL_OFFERS_BADGE_COLORS[d.badge_color] || "bg-red-500",
+    link: d.link_url,
+  }));
 
-  const offers = deals.length > 0
-    ? deals.map((d) => ({
-        id: d.id,
-        title: d.title,
-        subtitle: d.subtitle,
-        description: d.description,
-        image: d.image_url,
-        expires: d.countdown_label,
-        bgColor: SPECIAL_OFFERS_BADGE_COLORS[d.badge_color] || "bg-red-500",
-        link: d.link_url,
-      }))
-    : fallbackOffers;
+  if (isLoading) {
+    return (
+      <section className="py-16 hidden lg:block">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-96 rounded-2xl bg-muted animate-pulse" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (isError || offers.length === 0) return null;
 
   return (
     <section className="py-16 hidden lg:block">
@@ -84,21 +64,21 @@ const SpecialOffers = () => {
 
         {/* Offers */}
         <div className="grid grid-cols-3 gap-8">
-          {offers.map((offer) => (
+          {offers.map((offer: { id: string; title: string; subtitle: string; description: string; image: string; expires: string; bgColor: string; link: string }) => (
             <CSSFadeIn key={offer.id}>
               <Link href={offer.link} className="block">
                 <div className="relative group rounded-2xl overflow-hidden shadow-lg cursor-pointer transition-transform duration-200 hover:scale-[1.02]">
                   <div className="relative h-72 rounded-2xl overflow-hidden mb-4">
-                    <Image
+                    <img
                       src={offer.image}
                       alt={offer.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      loading="lazy"
                     />
                     <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
                     {/* Badge */}
-                    <CSSFadeIn delay={offer.id * 100}>
+                    <CSSFadeIn delay={100}>
                       <div
                         className={`absolute top-4 left-4 ${offer.bgColor} text-white px-4 py-2 rounded-lg`}
                       >

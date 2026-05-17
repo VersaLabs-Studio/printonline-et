@@ -77,6 +77,8 @@ export async function PUT(
         image_url: validatedData.imageUrl || null,
         display_order: validatedData.displayOrder,
         is_active: validatedData.isActive,
+        show_on_homepage: validatedData.showOnHomepage,
+        homepage_display_order: validatedData.homepageDisplayOrder,
         meta_title: validatedData.metaTitle || null,
         meta_description: validatedData.metaDescription || null,
         updated_at: new Date().toISOString(),
