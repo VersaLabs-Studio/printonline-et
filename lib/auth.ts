@@ -5,7 +5,6 @@
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import { Pool } from "pg";
-import { google } from "better-auth/social-providers";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email";
 import { emailTemplateWelcome } from "@/lib/email-templates/welcome";
@@ -53,13 +52,14 @@ export const auth = betterAuth({
 
   // ── Social Providers ──────────────────────────────────────────
   // Only enable providers with valid env vars. Facebook/TikTok deferred.
+  // Pass raw options objects — better-auth calls the provider factories internally.
   socialProviders: {
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
       ? {
-          google: google({
+          google: {
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          }),
+          },
         }
       : {}),
   },

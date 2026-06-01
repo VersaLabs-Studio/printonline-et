@@ -4,6 +4,15 @@ import { headers } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { z } from "zod";
 import { isAdmin } from "@/lib/permissions";
+import { sendEmail } from "@/lib/email";
+import { emailTemplateOrderStatusUpdate } from "@/lib/email-templates/order-status-update";
+
+interface StatusHistoryEntry {
+  status: string;
+  timestamp: string;
+  by?: string;
+  note?: string;
+}
 
 export async function GET(
   req: Request,
@@ -134,9 +143,9 @@ export async function PUT(
     }
 
     const currentHistory = Array.isArray(order.status_history)
-      ? order.status_history
+      ? (order.status_history as StatusHistoryEntry[])
       : [];
-    const newHistory = [
+    const newHistory: StatusHistoryEntry[] = [
       ...currentHistory,
       {
         status,
@@ -150,7 +159,7 @@ export async function PUT(
       .from("orders")
       .update({
         status,
-        status_history: newHistory as any[],
+        status_history: newHistory,
       })
       .eq("id", id)
       .select()
@@ -161,6 +170,28 @@ export async function PUT(
         { error: "Failed to update order" },
         { status: 500 },
       );
+    }
+
+    // Send status update email to customer (fire-and-forget)
+    if (order.status !== status) {
+      // Fetch customer email from the order
+      const { data: orderWithEmail } = await supabaseAdmin
+        .from("orders")
+        .select("order_number, customer_name, customer_email")
+        .eq("id", id)
+        .single();
+
+      if (orderWithEmail?.customer_email) {
+        sendEmail({
+          to: orderWithEmail.customer_email,
+          subject: `Order Update - #${orderWithEmail.order_number}`,
+          html: emailTemplateOrderStatusUpdate(
+            orderWithEmail.order_number,
+            status,
+            note || undefined,
+          ),
+        }).catch((err) => console.error("[ORDER UPDATE] Status email failed:", err));
+      }
     }
 
     return NextResponse.json(

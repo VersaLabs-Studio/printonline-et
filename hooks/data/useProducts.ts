@@ -159,13 +159,63 @@ export function useDeleteProduct() {
       });
       if (!res.ok) {
         const json = await res.json();
+        throw new Error(json.error || "Failed to deactivate product");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      toast.success("Product deactivated");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to deactivate product");
+    },
+  });
+}
+
+export function useToggleProduct() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
+      const res = await fetch(`/api/cms/products/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_active: isActive }),
+      });
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error || "Failed to update product status");
+      }
+      return res.json();
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      toast.success(variables.isActive ? "Product activated" : "Product deactivated");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update product status");
+    },
+  });
+}
+
+export function useHardDeleteProduct() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/cms/products/${id}?permanent=true`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const json = await res.json();
         throw new Error(json.error || "Failed to delete product");
       }
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      toast.success("Product deleted");
+      toast.success("Product permanently deleted");
     },
     onError: (error) => {
       toast.error(error.message || "Failed to delete product");

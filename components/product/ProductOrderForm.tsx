@@ -159,6 +159,21 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
       return;
     }
 
+    // Quantity validation
+    const minQty = product.min_order_quantity || 1;
+    if (quantity < minQty) {
+      toast.error("Quantity Below Minimum", {
+        description: `Minimum order quantity is ${minQty} pcs.`,
+      });
+      return;
+    }
+    if (manualQuantityEntry && quantityInterval > 1 && quantity % quantityInterval !== 0) {
+      toast.error("Invalid Quantity", {
+        description: `Quantity must be a multiple of ${quantityInterval}.`,
+      });
+      return;
+    }
+
     if (designFiles.length === 0) {
       toast.error("Design Required", {
         description: "Please upload your design file(s) before adding to cart.",
@@ -427,11 +442,23 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
                 step={quantityInterval}
                 min={product.min_order_quantity || 1}
                 value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value) || (product.min_order_quantity || 1))}
+                onChange={(e) => {
+                  const raw = parseInt(e.target.value);
+                  if (isNaN(raw) || raw <= 0) {
+                    setQuantity(product.min_order_quantity || 1);
+                    return;
+                  }
+                  const min = product.min_order_quantity || 1;
+                  const interval = quantityInterval;
+                  // Round down to nearest valid interval multiple, enforce minimum
+                  const rounded = Math.floor(raw / interval) * interval;
+                  const valid = Math.max(rounded, min);
+                  setQuantity(valid);
+                }}
                 className="h-10 rounded-lg border-border/40 text-xs font-semibold"
               />
               <p className="text-[9px] text-muted-foreground font-medium">
-                Enter quantity (increments of {quantityInterval})
+                Min: {product.min_order_quantity || 1} · Increments of {quantityInterval}
               </p>
             </div>
           ) : (
@@ -445,7 +472,7 @@ export function ProductOrderForm({ product }: ProductOrderFormProps) {
               <SelectContent className="rounded-xl shadow-xl border-border/40">
                 {(() => {
                   const min = product.min_order_quantity || 1;
-                  const presets = quantityPresets ?? (
+                  const presets = (quantityPresets && quantityPresets.length > 0) ? quantityPresets : (
                     product.slug === "business-cards"
                       ? [50, 100, 250, 500, 1000, 2000, 5000]
                       : [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2000, 5000]

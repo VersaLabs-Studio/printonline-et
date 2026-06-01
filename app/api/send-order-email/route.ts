@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
-import {
-  emailTemplateOrderConfirmation,
-  emailTemplateOrderStatusUpdate,
-} from "@/lib/email-template";
+import { emailTemplateOrderConfirmation } from "@/lib/email-templates/order-confirmation";
+import { emailTemplateOrderStatusUpdate } from "@/lib/email-templates/order-status-update";
 import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 

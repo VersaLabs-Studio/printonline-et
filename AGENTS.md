@@ -1,85 +1,113 @@
-# AGENTS.md
+# AGENTS.md — Kidus Abdula Engineering Workflow
+> Orchestrated under Architectural DNA v1.0.0
 
-This file provides guidance to WARP (warp.dev) when working with code in this repository.
+This file governs how all AI agents in this OpenCode setup coordinate. Every agent operates under the Six Pillars of the Architectural DNA. No exceptions.
 
-## Project Overview
+---
 
-Print Online Ethiopia (`printonline-et`) is an e-commerce storefront for a printing and branding company based in Addis Ababa, Ethiopia. It sells printing products across six categories: Digital Paper Prints, Signage Solutions, Flex Banners, Vinyl Prints & Wraps, Fabric Prints, and Promotional Items.
+## Agent Roster & Responsibilities
 
-This is a **frontend-only** Next.js 16 app (React 19) with no backend API routes. Product data is hardcoded in `lib/products.ts`. Cart state is persisted to `localStorage`. The TanStack React Query hooks in `hooks/data/useProductsQuery.ts` are fully commented out (mock/placeholder for future API integration).
+| Agent File | Role | Trigger |
+|-----------|------|---------|
+| `orchestrator.md` | Routes all requests to the correct agent | **Primary entry point — always start here** |
+| `plan.md` | Architectural planner, schema designer | Any new feature, module, or project |
+| `execute.md` | Full-stack implementer | After approved plan document exists |
+| `debug.md` | Root cause analyst, bug fixer | Bugs, type errors, cache issues |
+| `tech-lead.md` | Principal engineer, strategic decisions | Complex cross-cutting features, library decisions |
+| `auditor.md` | Compliance scorer (0–10 report) | Post-implementation, pre-merge |
+| `code-review.md` | PR reviewer | Every merge request |
 
-## Build & Dev Commands
+---
 
-- **Dev server:** `pnpm dev` (runs on http://localhost:3000)
-- **Build:** `pnpm build` (note: `next.config.ts` has `ignoreBuildErrors: true` for TypeScript)
-- **Lint:** `pnpm lint` (ESLint 9 with next/core-web-vitals and next/typescript configs)
-- **Add UI component:** `npx shadcn@latest add <component-name>` (shadcn/ui with "new-york" style)
+## Active Skills (Loaded Contextually)
 
-There is no test framework configured in this project.
+| Skill | Purpose | Load When |
+|-------|---------|-----------|
+| `architectural-dna` | Master reference for all Six Pillars | Always — every agent loads this |
+| `premium-ui` | OKLCH, glassmorphism, Framer Motion standards | Any UI/component work |
+| `schema-first` | SQL → Types → Zod → Config → Factory flow | Any new entity or schema change |
+| `frontend-craft` | Factory hooks, TanStack Query, page patterns | Any implementation work |
+| `ui-auditor` | Scoring rubric, audit checklists | Any review or compliance check |
 
-## Architecture
+---
 
-### Routing & Pages
+## The Standard Feature Workflow
 
-Next.js App Router with the following page structure:
+```
+1. Human → Orchestrator        (classify request)
+2. Orchestrator → Plan         (produce plan document)
+3. Plan → Execute              (approved plan handed off)
+4. Execute → Code Review       (implementation reviewed)
+5. Code Review → Auditor       (scored compliance report)
+6. Auditor: ≥8.5 → Merge      (<8.5 → required fixes → re-audit)
+```
 
-- `/` — Home page composed of section components from `components/home/`
-- `/products/[slug]` — Dynamic product detail page; slug can be a numeric ID or a product name slug. Uses `generateStaticParams` for SSG.
-- `/digital-paper-prints`, `/signage-solutions`, `/flex-banners`, `/vinyl-prints`, `/fabric-prints`, `/promotional-items` — Category pages, each using the shared `CategoryTemplate` component with category-specific data.
-- `/all-products`, `/cart`, `/checkout`, `/order-summary`, `/order-confirmation`, `/contact`, `/account` — Standard e-commerce flow pages.
+Use **Tech Lead** before Plan for:
+- Cross-cutting features (touching multiple tiers or modules)
+- New library or major dependency additions
+- Parallel module development strategy
+- Major refactors
 
-### Layout & Providers
+Use **Debug** at any point when something breaks.
 
-`app/layout.tsx` (server component) wraps everything with Header and Footer. `app/LayoutClient.tsx` (client component) provides:
-- `ThemeProvider` from `next-themes` (light/dark, default light)
-- `CartProvider` from `context/CartContext.tsx`
-- `Toaster` from `sonner`
+---
 
-### Product Data Model
+## The Six Pillars (Every Agent Enforces These)
 
-Two `Product` interfaces exist:
-- `lib/products.ts` — The canonical one used throughout the app. Contains the hardcoded product array (~25 items) and helper functions (`getProductById`, `getProductBySlug`, `getProductsByCategory`, `getAllProducts`, `getCategories`). `getProductBySlug` falls back to dynamically generating a product from the slug name if not found in the array.
-- `types/product.ts` — A more complete schema with Order, Address, CartItem types. Used by `components/category/CategoryTemplate.tsx` and `hooks/domain/useProductValidation.ts`.
+| # | Pillar | Short Rule |
+|---|--------|-----------|
+| P1 | Schema-First | Schema → Types → Zod → Config → Factory → UI (always this order) |
+| P2 | Factory Pattern | No bespoke CRUD. Use generic factories. |
+| P3 | Extreme Modularization | Features have hard boundaries. No cross-feature imports. |
+| P4 | Premium UI | OKLCH tokens, dual theme, glassmorphism, Framer Motion. Always. |
+| P5 | Documentation First | Plan docs are written before code. AGENTS.md is always current. |
+| P6 | End-to-End Type Safety | TypeScript strict. Zod at all boundaries. No `any`. |
 
-These two Product interfaces are slightly different (e.g. `id: number` in lib vs mixed in types). Be aware of which import is used in each file.
+---
 
-### Dynamic Product Forms
+## Global Anti-Patterns (Any Agent Blocks These)
 
-The product detail page (`components/product/ProductDetailPage.tsx`) uses a schema-driven form system:
-- `ProductFormTypes.ts` defines `ProductFormType` (`paper`, `large-format`, `apparel`, `gift`, `board`) and `PRODUCT_TYPE_MAP` which maps product names to form types.
-- `ProductFormSchemas.ts` defines the full form schema for each type (fields, options, conditional logic, grouped options).
-- `FormFields.tsx` renders the form fields (select, radio, radio-visual, checkbox, multi-select).
-- `ProductTabContent.ts` provides tab content per product.
+```
+❌ Starting implementation before plan is approved
+❌ Handwriting types that should be generated
+❌ Using `any` anywhere in production code
+❌ Hardcoding colors instead of semantic tokens
+❌ Writing custom CRUD hooks when factory exists
+❌ Importing across feature module boundaries
+❌ Skipping Zod validation in API routes
+❌ Missing cache invalidation after mutations
+❌ Merging with an Auditor score below 8.5
+❌ "We'll polish the UI later" — premium is the baseline, not a phase
+```
 
-When adding a new product type, you need to: add a mapping in `PRODUCT_TYPE_MAP`, create a schema in `ProductFormSchemas.ts`, and optionally add tab content.
+---
 
-### Cart
+## Merge Requirements Checklist
 
-`context/CartContext.tsx` provides a React Context with `localStorage` persistence (key: `printonline-cart`). The `CartItem` interface here differs from the one in `types/product.ts` — the context uses `id: number` while types uses `id: string` with a nested `product` object.
+Before any feature is merged:
 
-### Styling
+```
+[ ] Plan document approved
+[ ] Execute implementation complete (all files per plan)
+[ ] Code Review: no blockers remaining
+[ ] Auditor score: 8.5 / 10 or higher
+[ ] Dual theme (light + dark) verified manually
+[ ] TypeScript compiles with zero errors (strict mode)
+[ ] No `any` in production paths
+[ ] Loading states present (skeleton-based)
+[ ] Empty states present (with action)
+[ ] Mobile layout verified at 375px
+```
 
-- Tailwind CSS v4 with CSS variables defined in `app/globals.css`
-- Brand color theme ("Pana") uses light yellow as primary (`oklch(0.85 0.18 75)`), with full light/dark mode support
-- Custom utility classes: `btn-pana`, `card-pana`, `bg-pana-gradient`, `text-pana-gradient`, `divider-pana`
-- shadcn/ui (new-york style) for base UI components in `components/ui/`
-- `framer-motion` for animations
-- Icons from `lucide-react`
+---
 
-### Path Aliases
+## Updating This File
 
-`@/*` maps to the project root (configured in `tsconfig.json`). Always use `@/components`, `@/lib`, `@/hooks`, `@/types`, `@/context` for imports.
+Update AGENTS.md when:
+- A new agent is added to the roster
+- A new skill is created
+- The standard workflow changes
+- A new global anti-pattern is identified
+- The merge requirements evolve
 
-### Hooks Organization
-
-Hooks are organized by concern:
-- `hooks/data/` — Data fetching hooks (currently commented out, for future API use)
-- `hooks/domain/` — Business logic/validation (Zod schemas for products, cart items, orders)
-- `hooks/ui/` — UI-related hooks (currently empty)
-
-### Key Patterns
-
-- Category pages follow a template pattern: define `categoryData` inline, call `getProductsByCategory()`, render `<CategoryTemplate>`.
-- Home page sections are barrel-exported from `components/home/index.ts`.
-- Toast notifications use `sonner` via `toast.success()` / `toast.error()`.
-- Form validation in domain hooks uses `zod` schemas.
+This file is a living document. It reflects the current state of the workflow, not its history.

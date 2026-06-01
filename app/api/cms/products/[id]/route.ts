@@ -139,8 +139,47 @@ export async function PUT(
   }
 }
 
+const toggleSchema = z.object({ is_active: z.boolean() });
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user || !isAdmin(session.user)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const body = await req.json();
+    const { is_active } = toggleSchema.parse(body);
+
+    const { data: product, error } = await supabaseAdmin
+      .from("products")
+      .update({ is_active, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .select("id, name, is_active")
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") {
+        return NextResponse.json({ error: "Product not found" }, { status: 404 });
+      }
+      return NextResponse.json({ error: "Failed to update product", details: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, data: product });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: "Validation failed", details: error.errors }, { status: 400 });
+    }
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
 export async function DELETE(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -153,7 +192,44 @@ export async function DELETE(
     }
 
     const { id } = await params;
+    const url = new URL(req.url);
+    const permanent = url.searchParams.get("permanent") === "true";
 
+    if (permanent) {
+      // Guard: only deactivated products can be permanently deleted
+      const { data: existing, error: fetchError } = await supabaseAdmin
+        .from("products")
+        .select("is_active")
+        .eq("id", id)
+        .single();
+
+      if (fetchError) {
+        if (fetchError.code === "PGRST116") {
+          return NextResponse.json({ error: "Product not found" }, { status: 404 });
+        }
+        return NextResponse.json({ error: "Failed to fetch product", details: fetchError.message }, { status: 500 });
+      }
+
+      if (existing.is_active) {
+        return NextResponse.json(
+          { error: "Only deactivated products can be permanently deleted. Deactivate the product first." },
+          { status: 400 }
+        );
+      }
+
+      const { error } = await supabaseAdmin
+        .from("products")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        return NextResponse.json({ error: "Failed to delete product", details: error.message }, { status: 500 });
+      }
+
+      return NextResponse.json({ success: true, message: "Product permanently deleted" });
+    }
+
+    // Soft delete: deactivate
     const { data: product, error } = await supabaseAdmin
       .from("products")
       .update({

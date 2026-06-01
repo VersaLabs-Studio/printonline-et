@@ -44,14 +44,6 @@ function OrderConfirmationContent() {
         
         if (data.success) {
           clearCart();
-          fetch("/api/send-order-email", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              type: "order_confirmation",
-              order_id: data.order.id,
-            }),
-          }).catch(() => {});
         }
         
         return data;
@@ -101,18 +93,18 @@ function OrderConfirmationContent() {
   if (txRef && verificationData && !verificationData.success) {
     return (
       <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
-        <div className="h-24 w-24 bg-red-500/10 rounded-3xl flex items-center justify-center text-red-500 shadow-inner">
+        <div className="h-24 w-24 bg-destructive/10 rounded-3xl flex items-center justify-center text-destructive shadow-inner">
           <ShoppingBag size={48} />
         </div>
         <div className="space-y-3">
-          <h1 className="text-3xl font-bold tracking-tight uppercase text-red-500">
+          <h1 className="text-3xl font-bold tracking-tight uppercase text-destructive">
             Payment Verification Failed
           </h1>
           <p className="max-w-md mx-auto text-muted-foreground font-medium text-sm leading-relaxed">
             We couldn&apos;t automatically verify your payment. This might be due to a network delay or a canceled transaction.
           </p>
           {verificationData.details && (
-             <p className="text-[10px] font-bold uppercase tracking-widest text-red-400 opacity-60">
+             <p className="text-[10px] font-bold uppercase tracking-widest text-destructive/80 opacity-60">
                Reason: {verificationData.details}
              </p>
           )}

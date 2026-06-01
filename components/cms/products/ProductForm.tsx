@@ -215,7 +215,7 @@ export function ProductForm({
               .split("\n")
               .map((s: string) => s.trim())
               .filter(Boolean)
-          : null,
+          : [],
         is_active: true,
       };
 
@@ -672,7 +672,7 @@ export function ProductForm({
                           Allow Manual Quantity Entry
                         </FormLabel>
                         <FormDescription className="text-[10px]">
-                          Let customers type any quantity instead of choosing presets.
+                          Let customers type any quantity instead of choosing presets. Minimum order quantity ({form.watch("min_order_quantity") || 1}) is enforced automatically.
                         </FormDescription>
                       </div>
                     </FormItem>

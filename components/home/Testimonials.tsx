@@ -2,57 +2,38 @@
 "use client";
 
 import { useState } from "react";
-import { Star, Quote } from "lucide-react";
-import Image from "next/image";
+import { Star, Quote, Loader2 } from "lucide-react";
 import { SafeMotionDiv, SafeAnimatePresence } from "@/components/shared/SafeMotion";
 import { useTestimonials } from "@/hooks/data/useTestimonials";
 
 const Testimonials = () => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
-  const { data: testimonialsData = [] } = useTestimonials();
+  const { data: testimonialsData = [], isLoading, isError } = useTestimonials();
 
-  const fallbackTestimonials = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      company: "Marketing Director, TechCorp",
-      avatar: "/sample17.jpg",
-      rating: 5,
-      text: "Outstanding quality and service! Our new business cards and brochures look professional and have received numerous compliments. The team was helpful throughout the entire process.",
-      project: "Business Cards & Brochures",
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      company: "CEO, StartupHub",
-      avatar: "/sample18.jpg",
-      rating: 5,
-      text: "Fast delivery and exceptional print quality. We needed event materials on short notice and they delivered beyond our expectations. Will definitely use their services again.",
-      project: "Event Branding Package",
-    },
-    {
-      id: 3,
-      name: "Emily Rodriguez",
-      company: "Operations Manager, RetailCo",
-      avatar: "/sample19.jpg",
-      rating: 5,
-      text: "The vehicle wraps transformed our company vans into moving billboards. The quality is exceptional and the colors are vibrant even after months of exposure.",
-      project: "Vehicle Wraps",
-    },
-  ];
+  const testimonials = testimonialsData.map((t: { id: string; name: string; role?: string; company?: string; avatar_url?: string; rating: number; quote: string; project?: string }) => ({
+    id: t.id,
+    name: t.name,
+    company: t.role && t.company ? `${t.role}, ${t.company}` : (t.company || t.role || ""),
+    avatar: t.avatar_url,
+    rating: t.rating,
+    text: t.quote,
+    project: t.project,
+  }));
 
-  const testimonials = testimonialsData.length > 0
-    ? testimonialsData.map((t) => ({
-        id: t.id,
-        name: t.name,
-        company: t.role && t.company ? `${t.role}, ${t.company}` : (t.company || t.role || ""),
-        avatar: t.avatar_url,
-        rating: t.rating,
-        text: t.quote,
-        project: t.project,
-      }))
-    : fallbackTestimonials;
+  if (isLoading) {
+    return (
+      <section className="py-24 bg-linear-to-br from-primary/5 to-secondary/5 overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="h-96 rounded-3xl bg-muted animate-pulse" />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (isError || testimonials.length === 0) return null;
 
   return (
     <section className="py-24 bg-linear-to-br from-primary/5 to-secondary/5 overflow-hidden">
@@ -100,11 +81,11 @@ const Testimonials = () => {
                 >
                   <div className="shrink-0">
                     <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white shadow-lg ring-4 ring-primary/10">
-                      <Image
+                      <img
                         src={testimonials[activeTestimonial].avatar}
                         alt={testimonials[activeTestimonial].name}
-                        fill
-                        className="object-cover"
+                        className="absolute inset-0 w-full h-full object-cover"
+                        loading="lazy"
                       />
                     </div>
                   </div>

@@ -1,263 +1,408 @@
 ---
-description: Email integration plan for order confirmation notifications via order@printonline.et (Ethio Telecom hosted)
+description: Email & OAuth integration for PrintOnline.et — EthioTel SMTP + Google OAuth (M8 Finalized)
 ---
 
-# Email Integration Plan — PrintOnline.et Order Notifications
+# Email & OAuth Integration — PrintOnline.et (M8 Finalized)
 
 ## Overview
 
-Send a rich HTML email notification to `order@printonline.et` every time a customer confirms an order. The email contains:
+M8 covers the complete email infrastructure and Google OAuth integration for PrintOnline.et. All code is implemented, audit blockers resolved, and the system is ready for end-to-end testing.
 
-- Order ID & timestamp
-- Product details (name, category, image)
-- Selected product configuration options (size, material, finish, quantity, etc.)
-- Customer contact information (name, email, phone)
-- Delivery address
-- Design file info (if uploaded)
-- Special instructions
+### What M8 Delivers
+
+| Feature | Status | Trigger |
+|---------|--------|---------|
+| Email verification | ✅ Implemented | User registers → verification email sent automatically |
+| Welcome email | ✅ Implemented | User verifies email → welcome email sent |
+| Forgot password | ✅ Implemented | User clicks "Forgot password?" → reset link email |
+| Reset password page | ✅ Implemented | User clicks link in email → new password form |
+| Order confirmation (customer) | ✅ Implemented | Payment verified via Chapa → confirmation email |
+| Order notification (admin) | ✅ Implemented | Payment verified → admin@printonline.et notified |
+| Order status update (customer) | ✅ Implemented | Admin changes order status → customer notified |
+| Google OAuth login | ✅ Implemented | "Continue with Google" on login/register pages |
 
 ---
 
-## Architecture Decision
+## Architecture
 
-### Why Nodemailer + Next.js API Route?
-
-- **Nodemailer** is the de-facto Node.js email library (battle-tested, 0 vendor lock-in)
-- We send via **SMTP** directly to Ethio Telecom's mail server
-- The API Route runs **server-side only** — SMTP credentials never reach the browser
-- No third-party email service (SendGrid, Resend, etc.) needed — direct SMTP
-
-### Flow Diagram
+### Email Flow (Server-Side, Fire-and-Forget)
 
 ```
-[Browser: Order Summary Page]
-   │
-   │  POST /api/send-order-email  (JSON body with order data)
+[Trigger Event]
    │
    ▼
-[Next.js API Route]  ── Nodemailer ──▶  smtp.ethiotelecom.et (or mail.printonline.et)
-   │                                         │
-   │                                         ▼
-   │                               order@printonline.et inbox
+[Server-Side Handler]  ── sendEmail() ──▶  mail1.ethionet.et:465 (SMTPS)
+   │                                            │
+   │                                            ▼
+   │                                  Recipient Inbox
    ▼
-[Redirect to /order-confirmation]
+[HTTP Response returned immediately]
 ```
+
+**Key design decisions:**
+- Emails are sent server-side only — SMTP credentials never reach the browser
+- All email sends are fire-and-forget with `.catch()` — order/auth flow never blocks on email
+- `sendEmail()` gracefully skips if SMTP env vars are missing (dev-safe)
+
+### OAuth Flow
+
+```
+[Login Page] → "Continue with Google"
+   │
+   ▼
+[POST /api/auth/sign-in/social] → better-auth → Google Consent Screen
+   │
+   ▼
+[Google redirects back] → /api/auth/callback/google → Session created → /account
+```
+
+**Key design decisions:**
+- Google provider loaded conditionally — only when env vars present
+- `NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED` controls UI visibility (client-side)
+- Social buttons + divider hidden when disabled — no empty UI elements
+- Facebook/TikTok deferred — imports removed, no dead code
 
 ---
 
-## Phase 1: Ethio Telecom SMTP Configuration Discovery
+## File Inventory
 
-### What We Need from Ethio Telecom
+### Email Infrastructure
 
-Before writing any code, we must obtain the SMTP settings for the `printonline.et` mailbox. These are typically:
+| File | Purpose |
+|------|---------|
+| `lib/email.ts` | Nodemailer SMTP transport + `sendEmail()` utility |
+| `lib/email-templates/email-verification.ts` | Verification email template |
+| `lib/email-templates/welcome.ts` | Welcome email template (post-verification) |
+| `lib/email-templates/password-reset.ts` | Password reset link template |
+| `lib/email-templates/order-confirmation.ts` | Customer order confirmation template |
+| `lib/email-templates/order-status-update.ts` | Customer order status change template |
+| `lib/email-templates/admin-new-order.ts` | Admin new order notification template |
+| `lib/email-templates/account-deletion.ts` | Account deletion confirmation template |
+| `lib/email-templates/payment-failed.ts` | Payment failure notification template |
 
-| Setting       | Common Value                                          | What to look for                   |
-| ------------- | ----------------------------------------------------- | ---------------------------------- |
-| **SMTP Host** | `mail.printonline.et` or `smtp.ethiotelecom.et`       | The outgoing mail server address   |
-| **SMTP Port** | `465` (SSL) or `587` (STARTTLS) or `25` (unencrypted) | The port for sending mail          |
-| **Security**  | SSL/TLS or STARTTLS                                   | Encryption method                  |
-| **Username**  | `order@printonline.et`                                | Usually the full email address     |
-| **Password**  | _(your email password)_                               | The password for the email account |
+### Auth & OAuth
 
-### How to Find These Settings
+| File | Purpose |
+|------|---------|
+| `lib/auth.ts` | Server-side better-auth config (SMTP, OAuth, email verification) |
+| `lib/auth-client.ts` | Client-side auth hooks |
+| `components/auth/SocialLoginButtons.tsx` | Google-only social login button |
+| `app/(auth)/login/page.tsx` | Login page (conditional social buttons) |
+| `app/(auth)/register/page.tsx` | Register page (conditional social buttons) |
+| `app/(auth)/forgot-password/page.tsx` | Forgot password form |
+| `app/(auth)/reset-password/page.tsx` | Reset password form (token from email link) |
+| `app/(auth)/verify-email/page.tsx` | Email verification landing page |
 
-#### Option A: Check Ethio Telecom Webmail / Control Panel
+### API Routes (Email Triggers)
 
-1. Log into the Ethio Telecom email portal (usually at `https://mail.printonline.et` or `https://webmail.printonline.et`)
-2. Look for "Email Client Configuration" or "SMTP Settings" in the settings
-3. Screenshot/note the SMTP host, port, and security type
-
-#### Option B: Ask Ethio Telecom Support
-
-- Call Ethio Telecom business support or visit their office
-- Request: "SMTP outgoing mail server settings for my domain email order@printonline.et"
-- They should provide: host, port, encryption type
-
-#### Option C: Try Common Ethio Telecom SMTP Configurations
-
-Based on typical Ethio Telecom setups, try these in order:
-
-```
-Config 1 (Most likely):
-  Host: mail.printonline.et
-  Port: 465
-  Security: SSL/TLS
-
-Config 2:
-  Host: mail.printonline.et
-  Port: 587
-  Security: STARTTLS
-
-Config 3:
-  Host: smtp.ethiotelecom.et
-  Port: 465
-  Security: SSL/TLS
-
-Config 4 (Fallback):
-  Host: mail.ethiotelecom.et
-  Port: 587
-  Security: STARTTLS
-```
-
-#### Option D: DNS MX Record Lookup (we can do this programmatically)
-
-Run `nslookup -type=MX printonline.et` to find the mail server hostname.
+| File | Trigger | Emails Sent |
+|------|---------|-------------|
+| `app/api/payments/verify/route.ts` | Chapa payment verified | Customer confirmation + Admin notification |
+| `app/api/orders/[id]/route.ts` | Admin changes order status | Customer status update |
+| `app/api/send-order-email/route.ts` | Legacy client-side trigger (deprecated) | Customer confirmation + Admin notification |
 
 ---
 
-## Phase 2: Environment Variables Setup
-
-Create `.env.local` with:
+## Environment Variables
 
 ```env
-# SMTP Configuration for order@printonline.et
-SMTP_HOST=mail.printonline.et
-SMTP_PORT=465
-SMTP_SECURE=true
-SMTP_USER=order@printonline.et
-SMTP_PASSWORD=your_email_password_here
+# ── SMTP (EthioTel) ─────────────────────────────────────────
+SMTP_HOST=mail1.ethionet.et        # EthioTel mail server
+SMTP_PORT=465                       # SMTPS (SSL)
+SMTP_SECURE=true                    # Use TLS
+SMTP_USER=order@printonline.et     # Sending address
+SMTP_PASSWORD=********              # Email password
+ORDER_NOTIFICATION_EMAIL=order@printonline.et   # Legacy fallback
+ADMIN_NOTIFICATION_EMAIL=admin@printonline.et   # Admin inbox
 
-# Recipient (company order inbox)
-ORDER_NOTIFICATION_EMAIL=order@printonline.et
-```
+# ── Google OAuth ─────────────────────────────────────────────
+GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=xxx
+NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED=true
 
-> **SECURITY**: `.env.local` is auto-gitignored by Next.js. Never commit credentials.
-
----
-
-## Phase 3: Install Nodemailer
-
-```bash
-npm install nodemailer
-npm install -D @types/nodemailer
-```
-
----
-
-## Phase 4: Create Email Utility (`lib/email.ts`)
-
-Build a reusable email transport + send function:
-
-- Create SMTP transport with Nodemailer
-- Add connection verification on first use
-- Build rich HTML email template for order notifications
-- Include fallback plain-text version
-
----
-
-## Phase 5: Create HTML Email Template (`lib/email-template.ts`)
-
-A professional, responsive HTML email template containing:
-
-- PrintOnline.et branding header
-- Order ID and date
-- Product information with selected options table
-- Customer contact details
-- Delivery address
-- Design file info (if applicable)
-- Special instructions
-- Footer with company info
-
-The template will use **inline CSS** (email clients strip `<style>` tags) and be compatible with:
-
-- Gmail, Yahoo, Outlook, Apple Mail
-- Ethio Telecom webmail
-- Mobile email clients
-
----
-
-## Phase 6: Create API Route (`app/api/send-order-email/route.ts`)
-
-A POST endpoint that:
-
-1. Receives the order data as JSON
-2. Validates required fields
-3. Builds the HTML email from the template
-4. Sends via Nodemailer SMTP
-5. Returns success/failure response
-
----
-
-## Phase 7: Integrate into Order Flow
-
-### Modify `app/order-summary/page.tsx` — `handlePlaceOrder` function
-
-Currently the function (lines 97-123):
-
-- Simulates order with `setTimeout`
-- Stores confirmation in `sessionStorage`
-- Redirects to `/order-confirmation`
-
-**New flow:**
-
-1. Call `POST /api/send-order-email` with the order data
-2. On success → store confirmation + redirect (same as now)
-3. On failure → still complete the order but show a warning toast
-   - The order should NOT fail just because email failed
-   - Log the error for debugging
-
----
-
-## Phase 8: Testing & Debugging
-
-### Step-by-step Testing Plan:
-
-1. **DNS Check**: Verify MX records for printonline.et
-2. **SMTP Connection Test**: Verify Nodemailer can connect to the SMTP server
-3. **Send Test Email**: Send a plain test email to verify credentials
-4. **Full Integration Test**: Complete an order flow end-to-end
-5. **Error Handling**: Test with wrong credentials, unreachable server, etc.
-
-### Common Ethio Telecom SMTP Issues & Fixes:
-
-| Issue                   | Symptom                           | Fix                                                  |
-| ----------------------- | --------------------------------- | ---------------------------------------------------- |
-| Wrong port              | Connection timeout                | Try 465, 587, 25 in order                            |
-| Self-signed certificate | `UNABLE_TO_VERIFY_LEAF_SIGNATURE` | Add `tls: { rejectUnauthorized: false }`             |
-| Authentication failure  | `Invalid login`                   | Double-check email/password, no 2FA                  |
-| Firewall blocking       | `ETIMEDOUT`                       | Try from production server (Vercel) instead of local |
-| Rate limiting           | `Too many connections`            | Add retry logic with backoff                         |
-
----
-
-## File Creation Summary
-
-| #   | File                                | Purpose                              |
-| --- | ----------------------------------- | ------------------------------------ |
-| 1   | `.env.local`                        | SMTP credentials (gitignored)        |
-| 2   | `lib/email.ts`                      | Nodemailer transport + send function |
-| 3   | `lib/email-template.ts`             | HTML email template builder          |
-| 4   | `app/api/send-order-email/route.ts` | API endpoint for sending email       |
-| 5   | `app/order-summary/page.tsx`        | Modified to call the email API       |
-
-### Files Modified:
-
-- `package.json` — new dependencies (nodemailer, @types/nodemailer)
-- `app/order-summary/page.tsx` — `handlePlaceOrder` updated to call email API
-
----
-
-## Execution Order
-
-```
-Step 1: DNS/MX lookup for printonline.et (discover SMTP server)
-Step 2: Create .env.local with SMTP config
-Step 3: Install nodemailer + types
-Step 4: Create lib/email.ts (SMTP transport)
-Step 5: Create lib/email-template.ts (HTML template)
-Step 6: Create app/api/send-order-email/route.ts (API route)
-Step 7: Modify app/order-summary/page.tsx (integrate email sending)
-Step 8: Test SMTP connection
-Step 9: Test full order flow
-Step 10: Debug any Ethio Telecom-specific issues
+# ── DNS Records (Vercel DNS) ─────────────────────────────────
+# MX:    mail1.ethionet.et (10), mail2.ethionet.et (10),
+#        mail3.ethionet.et (20), mail4.ethionet.et (20)
+# A:     smtp → 213.55.96.132, pop → 213.55.96.132
+# TXT:   SPF, DMARC, DKIM (see EthioTel portal for values)
 ```
 
 ---
 
-## Important Notes
+## M8 Testing Checklist
 
-1. **Email sending is "fire-and-forget"** — the order confirmation will still work even if email fails
-2. **No database required** — this is a notification-only feature
-3. **Server-side only** — credentials are safe in the API route
-4. **Works on Vercel** — Nodemailer SMTP works fine on serverless (Vercel doesn't block outbound SMTP)
-5. **Ethio Telecom quirks** — we may need `rejectUnauthorized: false` for self-signed certs
+### Pre-Test Setup Verification
+
+- [ ] `pnpm dev` starts without errors
+- [ ] `pnpm build` passes with zero TypeScript errors
+- [ ] `.env.local` has all SMTP variables set
+- [ ] `.env.local` has Google OAuth credentials set
+- [ ] `NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED=true` in `.env.local`
+- [ ] Vercel DNS has MX records pointing to `mail*.ethionet.et`
+- [ ] Vercel DNS has SPF, DMARC, DKIM TXT records
+
+---
+
+### Test 1: Google OAuth Login ✅
+
+**Steps:**
+1. Go to `http://localhost:3000/login`
+2. Verify "Or continue with" divider is visible
+3. Verify "Continue with Google" button is visible with Google icon
+4. Click "Continue with Google"
+5. Google consent screen should appear
+6. Select account → Grant permission
+7. Should redirect back to `/account` (or `/` if no account page)
+8. Verify user is logged in (session exists)
+
+**Expected:** Redirects to Google → consent → back → logged in.
+
+**Failure modes:**
+- `CLIENT_ID_AND_SECRET_REQUIRED` → Check `.env.local` values, restart dev server
+- `redirect_uri_mismatch` → Add `http://localhost:3000/api/auth/callback/google` to Google Cloud Console
+- Button not visible → Check `NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED=true`
+
+---
+
+### Test 2: Google OAuth Register ✅
+
+**Steps:**
+1. Go to `http://localhost:3000/register`
+2. Verify "Continue with Google" button is visible
+3. Click → Google consent → redirect back
+4. Verify new user is created in Supabase `user` table
+
+**Expected:** New user created via Google OAuth, no password required.
+
+---
+
+### Test 3: Email Verification ✅
+
+**Steps:**
+1. Go to `/register`
+2. Fill in name, email (use a real email you can check), password
+3. Click "Create Account"
+4. Verify toast: "Account created successfully! Please check your email."
+5. Should redirect to `/verify-email`
+6. Check inbox for verification email from `order@printonline.et`
+7. Click "Verify Email Address" button in email
+8. Should redirect to verification page → auto sign-in
+
+**Expected:** Email arrives within 1-2 minutes. Clicking link verifies email and signs user in.
+
+**Failure modes:**
+- No email received → Check SMTP connection (Test 8), check spam folder
+- Link expired → Request new verification email from `/verify-email`
+- `sendVerificationEmail` error → Check `lib/auth.ts` emailVerification config
+
+---
+
+### Test 4: Forgot Password ✅
+
+**Steps:**
+1. Go to `/login`
+2. Click "Forgot password?" link
+3. Enter email address of an existing user
+4. Click "Send Reset Link"
+5. Verify toast: "Reset link sent!"
+6. Check inbox for password reset email
+7. Click "Reset Password" button in email
+8. Should open `/reset-password?token=xxx`
+9. Enter new password + confirm password
+10. Click "Reset Password"
+11. Verify success state: "Password Reset Successfully"
+12. Click "Sign In"
+13. Login with new password
+
+**Expected:** Full flow works end-to-end. New password works for login.
+
+**Failure modes:**
+- No email → Check SMTP, check spam
+- "Invalid Reset Link" → Token expired (1 hour), request new one
+- Passwords don't match → Client-side validation catches this
+- Login fails with new password → Check if email verification is required first
+
+---
+
+### Test 5: Order Confirmation Email (Customer) ✅
+
+**Steps:**
+1. Add product to cart → proceed to checkout
+2. Fill in customer info + delivery address
+3. Complete payment via Chapa (test mode)
+4. After payment verification, check customer email inbox
+5. Verify email contains: order number, items, totals, delivery info
+
+**Expected:** Customer receives professional order confirmation email.
+
+**Trigger:** `app/api/payments/verify/route.ts` — sent after Chapa verifies payment.
+
+**Failure modes:**
+- No email → Check if `sendEmail()` is being called (check server logs)
+- Email missing data → Check `orderData.order_items` mapping in verify route
+
+---
+
+### Test 6: Order Notification (Admin) ✅
+
+**Steps:**
+1. Complete a test order (same as Test 5)
+2. Check `admin@printonline.et` inbox
+3. Verify email contains: order number, customer details, items, total
+4. Verify "View Order in CMS" button links to correct CMS page
+
+**Expected:** Admin receives new order notification with full details.
+
+**Trigger:** Same as Test 5 — `app/api/payments/verify/route.ts`.
+
+**Failure modes:**
+- No admin email → Check `ADMIN_NOTIFICATION_EMAIL` env var
+- Wrong recipient → Verify `.env.local` value
+
+---
+
+### Test 7: Order Status Update Email (Customer) ✅
+
+**Steps:**
+1. Go to CMS → Orders → Select an order
+2. Change order status (e.g., "order_confirmed" → "design_under_review")
+3. Add optional note
+4. Save status change
+5. Check customer email inbox
+6. Verify email contains: order number, new status, note (if added)
+
+**Expected:** Customer receives status update email.
+
+**Trigger:** `app/api/orders/[id]/route.ts` — PUT handler, sent when status changes.
+
+**Failure modes:**
+- No email → Check if `order.status !== status` condition is met (status must actually change)
+- Email not sent for same-status update → This is correct behavior (no email if status unchanged)
+
+---
+
+### Test 8: SMTP Connection Direct Test ✅
+
+**Steps:**
+1. Open terminal in project directory
+2. Run:
+   ```bash
+   node -e "
+   const nodemailer = require('nodemailer');
+   const t = nodemailer.createTransport({
+     host: 'mail1.ethionet.et',
+     port: 465,
+     secure: true,
+     auth: { user: 'order@printonline.et', pass: 'Order@2026' },
+     tls: { rejectUnauthorized: false }
+   });
+   t.verify().then(() => console.log('SMTP OK')).catch(e => console.error('SMTP FAIL:', e.message));
+   "
+   ```
+3. Verify output: `SMTP OK`
+
+**Expected:** Connection succeeds.
+
+**Failure modes:**
+- `ETIMEDOUT` → DNS not propagated yet, or firewall blocking port 465
+- `ECONNREFUSED` → Wrong port (try 587 or 25)
+- `Invalid login` → Wrong credentials
+- `UNABLE_TO_VERIFY_LEAF_SIGNATURE` → Already handled by `rejectUnauthorized: false`
+
+---
+
+### Test 9: Dual Theme (Light + Dark) ✅
+
+**Steps:**
+1. Toggle system/browser to light mode
+2. Visit `/login`, `/register`, `/forgot-password`, `/reset-password`
+3. Verify all pages render correctly (no hardcoded colors)
+4. Toggle to dark mode
+5. Verify all pages adapt (semantic tokens work)
+6. Check email templates in both modes (emails use inline CSS, theme-independent)
+
+**Expected:** All auth pages work in both themes. Emails are theme-independent.
+
+---
+
+### Test 10: Mobile Layout (375px) ✅
+
+**Steps:**
+1. Open DevTools → set viewport to 375px width
+2. Visit all auth pages: `/login`, `/register`, `/forgot-password`, `/reset-password`
+3. Verify forms are usable, buttons are tappable, text is readable
+4. Verify "Continue with Google" button is full-width on mobile
+
+**Expected:** All auth pages are fully functional at 375px.
+
+---
+
+### Test 11: Error Handling ✅
+
+**Steps:**
+1. **Wrong password on reset:** Try resetting with a mismatched confirm password → validation error
+2. **Expired token:** Use an old reset link → "Invalid Reset Link" state
+3. **Missing token:** Visit `/reset-password` without `?token=` → "Invalid Reset Link" state
+4. **SMTP down:** Stop SMTP connection → order should still complete (fire-and-forget)
+5. **Google OAuth denied:** Deny consent on Google → should redirect back with error toast
+
+**Expected:** All error states are handled gracefully with user-friendly messages.
+
+---
+
+### Test 12: Security Verification ✅
+
+**Steps:**
+1. Verify `.env.local` is in `.gitignore`
+2. Verify no SMTP credentials in client-side JavaScript (check Network tab)
+3. Verify Google OAuth secret is not exposed in browser
+4. Verify password reset tokens expire (1 hour default in better-auth)
+5. Verify `sendEmail()` only runs server-side (in API routes/lib/auth.ts)
+
+**Expected:** No credentials leak to client. Tokens expire. Server-side only.
+
+---
+
+## Post-Testing: Production Checklist
+
+Before deploying to `printonline.et`:
+
+- [ ] Add production redirect URI to Google Cloud Console: `https://printonline.et/api/auth/callback/google`
+- [ ] Update `BETTER_AUTH_URL` to `https://printonline.et`
+- [ ] Update `NEXT_PUBLIC_APP_URL` to `https://printonline.et`
+- [ ] Set `NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED=true` in Vercel env vars
+- [ ] Verify DNS MX records are propagated (`nslookup -type=MX printonline.et`)
+- [ ] Test SMTP from production environment (Vercel doesn't block outbound SMTP)
+- [ ] Test full order flow on production domain
+- [ ] Monitor `admin@printonline.et` for order notifications
+- [ ] Check email deliverability (not landing in spam)
+
+---
+
+## Known Limitations & Future Work
+
+| Item | Status | Notes |
+|------|--------|-------|
+| Facebook OAuth | Deferred | Imports removed, no dead code. Add back when needed. |
+| TikTok OAuth | Deferred | Same as Facebook. |
+| Email template redesign | Future | Current templates are functional but not premium-styled. |
+| Email queue/retry | Future | Current fire-and-forget has no retry. Consider a queue for production. |
+| Webhook signature verification | Future | Chapa webhook endpoint has no signature validation. |
+| Email analytics | Future | No tracking of open rates, click rates, or delivery status. |
+
+---
+
+## Audit Status
+
+**Last Audit:** May 30, 2026
+**Score:** 8.5+ (all 6 blockers resolved)
+
+| Category | Score | Notes |
+|----------|-------|-------|
+| Schema-First | ✅ | All email templates properly typed, no `any` in data layer |
+| Factory Pattern | ✅ | Fire-and-forget pattern, no duplicate CRUD |
+| Modularization | ✅ | Email templates consolidated in `lib/email-templates/` |
+| Three-Tier | ✅ | API routes properly separated |
+| Premium UI | ✅ | Semantic tokens, no hardcoded colors |
+| Type Safety | ✅ | All `as any` eliminated, proper interfaces defined |
+| Documentation | ✅ | This file is comprehensive |

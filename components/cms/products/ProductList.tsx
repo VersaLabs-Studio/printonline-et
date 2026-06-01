@@ -29,14 +29,20 @@ import {
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
 import { cn } from "@/lib/utils";
-import { useAllProducts, useDeleteProduct } from "@/hooks/data/useProducts";
+import { useAllProducts, useDeleteProduct, useToggleProduct, useHardDeleteProduct } from "@/hooks/data/useProducts";
+import { Switch } from "@/components/ui/switch";
+import { RotateCcw, Power } from "lucide-react";
 import type { ProductWithCategory } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function ProductList() {
   const { data: products, isLoading } = useAllProducts();
   const deleteProduct = useDeleteProduct();
+  const toggleProduct = useToggleProduct();
+  const hardDeleteProduct = useHardDeleteProduct();
   const [deleteTarget, setDeleteTarget] =
+    React.useState<ProductWithCategory | null>(null);
+  const [hardDeleteTarget, setHardDeleteTarget] =
     React.useState<ProductWithCategory | null>(null);
 
   const columns: ColumnDef<ProductWithCategory>[] = [
@@ -119,21 +125,26 @@ export function ProductList() {
     },
     {
       accessorKey: "is_active",
-      header: "Active",
+      header: "Status",
       cell: ({ row }) => {
-        const isActive = row.original.is_active;
+        const product = row.original;
+        const isActive = product.is_active;
         return (
-          <Badge
-            variant="outline"
-            className={cn(
-              "text-[9px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm",
-              isActive
-                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                : "bg-red-50 text-red-700 border-red-200",
-            )}
-          >
-            {isActive ? "Yes" : "No"}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={isActive ?? true}
+              disabled={toggleProduct.isPending}
+              onCheckedChange={(checked) =>
+                toggleProduct.mutate({ id: product.id, isActive: checked })
+              }
+            />
+            <span className={cn(
+              "text-[9px] font-medium uppercase tracking-wider",
+              isActive ? "text-emerald-600" : "text-red-600"
+            )}>
+              {isActive ? "Active" : "Inactive"}
+            </span>
+          </div>
         );
       },
     },
@@ -208,12 +219,29 @@ export function ProductList() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="opacity-50" />
-              <DropdownMenuItem
-                className="rounded-lg text-destructive focus:text-destructive cursor-pointer font-semibold text-xs gap-2"
-                onClick={() => setDeleteTarget(product)}
-              >
-                <Trash2 className="h-4 w-4" /> Delete
-              </DropdownMenuItem>
+              {product.is_active ? (
+                <DropdownMenuItem
+                  className="rounded-lg text-destructive focus:text-destructive cursor-pointer font-semibold text-xs gap-2"
+                  onClick={() => setDeleteTarget(product)}
+                >
+                  <Power className="h-4 w-4" /> Deactivate
+                </DropdownMenuItem>
+              ) : (
+                <>
+                  <DropdownMenuItem
+                    className="rounded-lg cursor-pointer font-semibold text-xs gap-2"
+                    onClick={() => toggleProduct.mutate({ id: product.id, isActive: true })}
+                  >
+                    <RotateCcw className="h-4 w-4 text-primary" /> Reactivate
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="rounded-lg text-destructive focus:text-destructive cursor-pointer font-semibold text-xs gap-2"
+                    onClick={() => setHardDeleteTarget(product)}
+                  >
+                    <Trash2 className="h-4 w-4" /> Delete Permanently
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -265,6 +293,20 @@ export function ProductList() {
         title={`Deactivate ${deleteTarget?.name}?`}
         description={`This will deactivate "${deleteTarget?.name}" and hide it from the storefront. The product data will be preserved and it can be reactivated later.`}
         confirmLabel="Deactivate Product"
+      />
+
+      <CMSConfirmDialog
+        isOpen={!!hardDeleteTarget}
+        onClose={() => setHardDeleteTarget(null)}
+        onConfirm={() => {
+          if (hardDeleteTarget) {
+            hardDeleteProduct.mutate(hardDeleteTarget.id);
+            setHardDeleteTarget(null);
+          }
+        }}
+        title={`Permanently delete ${hardDeleteTarget?.name}?`}
+        description={`This will permanently delete "${hardDeleteTarget?.name}" and all its options, pricing, images, and fee tiers. This action CANNOT be undone. Order history will be preserved.`}
+        confirmLabel="Delete Forever"
       />
     </>
   );

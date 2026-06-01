@@ -19,11 +19,19 @@ export async function POST(req: Request) {
       <p>${validatedData.message}</p>
     `;
 
-    await sendEmail({
-      to: "panapromotionplc@gmail.com",
+    const sent = await sendEmail({
+      to: process.env.ADMIN_NOTIFICATION_EMAIL || "admin@printonline.et",
       subject: `Contact Form: ${validatedData.subject}`,
       html: emailHtml,
     });
+
+    if (!sent) {
+      console.error("[CONTACT POST] Email failed to send");
+      return NextResponse.json(
+        { error: "Failed to send message. Please try again." },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 interface SendEmailParams {
   to: string | string[];
@@ -6,43 +6,33 @@ interface SendEmailParams {
   html: string;
 }
 
-export async function sendEmail({ to, subject, html }: SendEmailParams) {
-  if (
-    !process.env.SMTP_HOST ||
-    !process.env.SMTP_USER ||
-    !process.env.SMTP_PASSWORD
-  ) {
-    console.warn("Email configuration missing. Skipping email send:", {
-      to,
-      subject,
-    });
-    return;
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+const FROM_ADDRESS = "PrintOnline.et <order@printonline.et>";
+
+export async function sendEmail({ to, subject, html }: SendEmailParams): Promise<boolean> {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("RESEND_API_KEY not configured. Skipping email send:", { to, subject });
+    return false;
   }
 
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || "465", 10),
-    secure: process.env.SMTP_SECURE !== "false",
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
-    },
-    tls: {
-      rejectUnauthorized: false,
-    },
-  });
-
   try {
-    const info = await transporter.sendMail({
-      from: `"PrintOnline.et" <${process.env.SMTP_USER}>`,
-      to: Array.isArray(to) ? to.join(", ") : to,
+    const { data, error } = await resend.emails.send({
+      from: FROM_ADDRESS,
+      to: Array.isArray(to) ? to : [to],
       subject,
       html,
     });
-    console.log("Message sent: %s", info.messageId);
+
+    if (error) {
+      console.error("[email] Resend API error:", error);
+      return false;
+    }
+
+    console.log("[email] Sent successfully:", data?.id);
     return true;
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error("[email] Failed to send email:", error);
     return false;
   }
 }

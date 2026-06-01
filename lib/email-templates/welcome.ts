@@ -43,7 +43,7 @@ export const emailTemplateWelcome = (name: string) => `
               <table border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 30px;">
                 <tr>
                   <td align="center" style="border-radius: 12px; background-color: #fbbf24;">
-                    <a href="https://printonline.et/catalog" target="_blank" style="display: inline-block; padding: 16px 32px; font-size: 14px; font-weight: 700; color: #000000; text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em;">Start Your First Project</a>
+                    <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://printonline.et"}/catalog" target="_blank" style="display: inline-block; padding: 16px 32px; font-size: 14px; font-weight: 700; color: #000000; text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em;">Start Your First Project</a>
                   </td>
                 </tr>
               </table>

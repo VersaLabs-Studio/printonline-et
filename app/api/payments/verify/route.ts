@@ -1,6 +1,16 @@
 import { NextResponse } from "next/server";
 import { chapa } from "@/lib/chapa";
+import type { ChapaVerifyResponse } from "@/lib/chapa";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { sendEmail } from "@/lib/email";
+import { emailTemplateOrderConfirmation } from "@/lib/email-templates/order-confirmation";
+import { emailTemplateAdminNewOrder } from "@/lib/email-templates/admin-new-order";
+
+interface StatusHistoryEntry {
+  status: string;
+  timestamp: string;
+  note?: string;
+}
 
 export async function GET(req: Request) {
   try {
@@ -77,10 +87,9 @@ export async function GET(req: Request) {
           payment_status: "paid",
           status: "order_confirmed",
           payment_completed_at: new Date().toISOString(),
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          payment_receipt: verification.data as any, // Store full Chapa response
+          payment_receipt: verification.data as ChapaVerifyResponse["data"],
           status_history: [
-            ...((existingOrder as any).status_history || []),
+            ...((existingOrder.status_history as StatusHistoryEntry[] | null) || []),
             {
               status: "order_confirmed",
               timestamp: new Date().toISOString(),
@@ -121,10 +130,61 @@ export async function GET(req: Request) {
         .eq("id", existingOrder.id)
         .single();
 
+      // Send order confirmation emails (server-side, fire-and-forget)
+      const orderData = completeOrder || updatedOrder;
+      if (orderData) {
+        // Customer confirmation email
+        sendEmail({
+          to: orderData.customer_email,
+          subject: `Order Confirmed - #${orderData.order_number}`,
+          html: emailTemplateOrderConfirmation(
+            {
+              order_number: orderData.order_number,
+              status: orderData.status,
+              items: (orderData.order_items || []).map((item: Record<string, unknown>) => ({
+                product_name: item.product_name as string,
+                quantity: item.quantity as number,
+                line_total: item.line_total as number,
+                selected_options: item.selected_options as Record<string, string> | undefined,
+                design_preference: item.design_preference as string | undefined,
+              })),
+              subtotal: orderData.subtotal,
+              delivery_fee: orderData.delivery_fee,
+              total_amount: orderData.total_amount,
+            },
+            orderData.customer_name
+          ),
+        }).catch((err) => console.error("[PAYMENT VERIFY] Customer email failed:", err));
+
+        // Admin notification email
+        const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.ORDER_NOTIFICATION_EMAIL;
+        if (adminEmail) {
+          sendEmail({
+            to: adminEmail,
+            subject: `New Order - #${orderData.order_number}`,
+            html: emailTemplateAdminNewOrder({
+              order_number: orderData.order_number,
+              customer_name: orderData.customer_name,
+              customer_email: orderData.customer_email,
+              customer_phone: orderData.customer_phone,
+              total_amount: orderData.total_amount,
+              currency: orderData.currency,
+              items: (orderData.order_items || []).map((item: Record<string, unknown>) => ({
+                product_name: item.product_name as string,
+                quantity: item.quantity as number,
+                unit_price: item.unit_price as number,
+                total_price: item.line_total as number,
+              })),
+              created_at: orderData.created_at,
+            }),
+          }).catch((err) => console.error("[PAYMENT VERIFY] Admin email failed:", err));
+        }
+      }
+
       return NextResponse.json({
         success: true,
         message: "Payment verified successfully",
-        order: completeOrder || updatedOrder
+        order: orderData,
       });
     } else {
       return NextResponse.json({ 
