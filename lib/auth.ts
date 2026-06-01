@@ -27,10 +27,18 @@ export const auth = betterAuth({
   // ── Trusted Origins ───────────────────────────────────────────
   // Allow auth requests from localhost and ngrok domains for demos
   // Add additional origins via AUTH_TRUSTED_ORIGINS env var (comma-separated)
+  //
+  // DEPLOYMENT CHECKLIST (P5 — Documentation First):
+  //   Production (Vercel) MUST have:
+  //     BETTER_AUTH_URL         = https://printonline.et        (no trailing slash)
+  //     NEXT_PUBLIC_APP_URL     = https://printonline.et
+  //     AUTH_TRUSTED_ORIGINS    = https://printonline.et
+  //   baseURL is auto-trusted by better-auth, so a missing/mismatched
+  //   BETTER_AUTH_URL is the #1 cause of 403 "Invalid Origin" in prod.
   trustedOrigins: [
     "http://localhost:3000",
     "https://localhost:3000",
-    ...(process.env.AUTH_TRUSTED_ORIGINS?.split(",").filter(Boolean) ?? []),
+    ...(process.env.AUTH_TRUSTED_ORIGINS?.split(",").map((o) => o.trim()).filter(Boolean) ?? []),
   ],
 
   // ── Secret ────────────────────────────────────────────────────
@@ -53,6 +61,26 @@ export const auth = betterAuth({
   // ── Social Providers ──────────────────────────────────────────
   // Only enable providers with valid env vars. Facebook/TikTok deferred.
   // Pass raw options objects — better-auth calls the provider factories internally.
+  //
+  // ─────────────────────────────────────────────────────────────────────
+  // GOOGLE OAUTH — REQUIRED REDIRECT URIS (Google Cloud Console)
+  // ─────────────────────────────────────────────────────────────────────
+  // To avoid `redirect_uri_mismatch` errors, the EXACT callback URLs
+  // below must be added under:
+  //   Google Cloud Console → APIs & Services → Credentials →
+  //   OAuth 2.0 Client IDs → [Your Web Client] → Authorized redirect URIs
+  //
+  // Production (both required — www redirects to non-www at edge):
+  //   • https://www.printonline.et/api/auth/callback/google
+  //   • https://printonline.et/api/auth/callback/google
+  //
+  // Development / preview (optional, only if testing locally):
+  //   • http://localhost:3000/api/auth/callback/google
+  //
+  // Note: better-auth automatically builds the callback as
+  // `${baseURL}/api/auth/callback/${providerId}`, so the registered
+  // URIs MUST match baseURL exactly (scheme + host + path).
+  // ─────────────────────────────────────────────────────────────────────
   socialProviders: {
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
       ? {
@@ -189,6 +217,34 @@ export const auth = betterAuth({
     },
   },
 });
+
+// ── Production Origin Guard (fail-fast on misconfig) ─────────────
+// If BETTER_AUTH_URL points at localhost in a production deployment,
+// every auth request will 403 with "Invalid Origin". Detect this at
+// module load and throw so the problem surfaces at deploy time, not
+// at the first user signup attempt. This is the defense-in-depth layer
+// documented in AGENTS.md → Deployment Checklist.
+//
+// We scope the check to the production SERVER runtime phase only
+// (NEXT_PHASE === "phase-production-server"), so that local
+// `pnpm build` runs — which also runs with NODE_ENV=production —
+// still succeed. The guard's job is to protect live traffic, not
+// the build step. On Vercel, the build step sees the project's
+// production env vars (so the guard would not fire there either
+// when configured correctly), and the runtime phase is where the
+// 403 would actually bite users.
+if (
+  process.env.NODE_ENV === "production" &&
+  process.env.NEXT_PHASE === "phase-production-server" &&
+  process.env.BETTER_AUTH_URL &&
+  /localhost|127\.0\.0\.1|0\.0\.0\.0/.test(process.env.BETTER_AUTH_URL)
+) {
+  throw new Error(
+    `[auth] FATAL: BETTER_AUTH_URL is "${process.env.BETTER_AUTH_URL}" but NODE_ENV is "production". ` +
+      `Set BETTER_AUTH_URL to the production origin (e.g. https://printonline.et) in Vercel env vars. ` +
+      `This is the cause of 403 "Invalid Origin" errors.`,
+  );
+}
 
 // Export the auth type for client-side type inference
 export type Auth = typeof auth;

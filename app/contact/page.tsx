@@ -4,20 +4,63 @@
 import { CSSFadeIn } from "@/components/shared/SafeMotion";
 import { Mail, Phone, MapPin, Send, MessageSquare } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import {
+  contactFormSchema,
+  type ContactFormData,
+} from "@/lib/validations/cms";
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ContactFormData>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      subject: "Hire a Designer Request",
+      message: "",
+    },
+  });
+
+  const onSubmit = async (values: ContactFormData) => {
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast.success("Message sent! We'll get back to you soon.", {
-        description: "Our design team will contact you regarding your request.",
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
       });
-    }, 1500);
+
+      const data: { success?: boolean; message?: string; error?: string } =
+        await response.json().catch(() => ({}));
+
+      if (!response.ok || data.success !== true) {
+        toast.error(data.error || "Failed to send message. Please try again.");
+        return;
+      }
+
+      toast.success("Message sent!", {
+        description:
+          data.message ||
+          "Our design team will contact you regarding your request.",
+      });
+      reset({ ...values, message: "" });
+    } catch (err) {
+      console.error("[CONTACT_SUBMIT_ERROR]:", err);
+      toast.error("Network error. Please check your connection and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -60,7 +103,7 @@ export default function ContactPage() {
                       Email
                     </p>
                     <p className="text-base font-bold text-foreground">
-                      design@printonline.et
+                      order@printonline.et
                     </p>
                   </div>
                 </div>
@@ -94,51 +137,134 @@ export default function ContactPage() {
 
             <div className="md:col-span-2">
               <div className="bg-card p-8 rounded-xl border border-border shadow-sm">
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form
+                  onSubmit={handleSubmit(onSubmit)}
+                  className="space-y-4"
+                  noValidate
+                >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-sm font-bold">Your Name</label>
+                      <label
+                        htmlFor="contact-name"
+                        className="text-sm font-bold"
+                      >
+                        Your Name
+                      </label>
                       <input
-                        required
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                        id="contact-name"
+                        type="text"
                         placeholder="John Doe"
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                        aria-invalid={errors.name ? "true" : "false"}
+                        {...register("name")}
                       />
+                      {errors.name && (
+                        <p className="text-xs font-bold text-destructive">
+                          {errors.name.message}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-bold">
+                      <label
+                        htmlFor="contact-email"
+                        className="text-sm font-bold"
+                      >
                         Email Address
                       </label>
                       <input
-                        required
+                        id="contact-email"
                         type="email"
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
                         placeholder="john@example.com"
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                        aria-invalid={errors.email ? "true" : "false"}
+                        {...register("email")}
                       />
+                      {errors.email && (
+                        <p className="text-xs font-bold text-destructive">
+                          {errors.email.message}
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold">Subject</label>
-                    <input
-                      required
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-                      placeholder="I need help with my design"
-                      defaultValue="Hire a Designer Request"
-                    />
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="contact-phone"
+                        className="text-sm font-bold"
+                      >
+                        Phone{" "}
+                        <span className="text-muted-foreground font-normal">
+                          (optional)
+                        </span>
+                      </label>
+                      <input
+                        id="contact-phone"
+                        type="tel"
+                        placeholder="+251 9.. .. .. .."
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                        aria-invalid={errors.phone ? "true" : "false"}
+                        {...register("phone")}
+                      />
+                      {errors.phone && (
+                        <p className="text-xs font-bold text-destructive">
+                          {errors.phone.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="contact-subject"
+                        className="text-sm font-bold"
+                      >
+                        Subject
+                      </label>
+                      <input
+                        id="contact-subject"
+                        type="text"
+                        placeholder="I need help with my design"
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                        aria-invalid={errors.subject ? "true" : "false"}
+                        {...register("subject")}
+                      />
+                      {errors.subject && (
+                        <p className="text-xs font-bold text-destructive">
+                          {errors.subject.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
+
                   <div className="space-y-2">
-                    <label className="text-sm font-bold">Message</label>
+                    <label
+                      htmlFor="contact-message"
+                      className="text-sm font-bold"
+                    >
+                      Message
+                    </label>
                     <textarea
-                      required
+                      id="contact-message"
                       rows={5}
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none resize-none"
                       placeholder="Tell us about your design requirements..."
+                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none resize-none"
+                      aria-invalid={errors.message ? "true" : "false"}
+                      {...register("message")}
                     />
+                    {errors.message && (
+                      <p className="text-xs font-bold text-destructive">
+                        {errors.message.message}
+                      </p>
+                    )}
                   </div>
+
                   <button
+                    type="submit"
                     disabled={isSubmitting}
                     className="w-full btn-pana py-3 rounded-lg font-bold flex items-center justify-center space-x-2"
                   >
-                    <span>{isSubmitting ? "Sending..." : "Send Message"}</span>
+                    <span>
+                      {isSubmitting ? "Sending..." : "Send Message"}
+                    </span>
                     <Send className="h-4 w-4" />
                   </button>
                 </form>

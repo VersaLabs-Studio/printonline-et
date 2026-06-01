@@ -70,6 +70,11 @@ function RegisterFormContent() {
         phone: values.phone || undefined,
         tinNumber: values.tinNumber || undefined,
         companyName: values.companyName || undefined,
+        // Tell better-auth where to send the user AFTER the verification
+        // email link is consumed. Without this, the callbackURL defaults
+        // to `/` and a stale-token re-hit yields ?error=token_expired on
+        // the homepage, even though the account is verified.
+        callbackURL: "/account",
       });
 
       if (error) {

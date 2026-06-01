@@ -1,14 +1,14 @@
 ---
-description: Email & OAuth integration for PrintOnline.et — EthioTel SMTP + Google OAuth (M8 Finalized)
+description: Email & OAuth integration for PrintOnline.et — Resend API + Google OAuth (v3.8 Finalized)
 ---
 
-# Email & OAuth Integration — PrintOnline.et (M8 Finalized)
+# Email & OAuth Integration — PrintOnline.et (v3.8 Finalized)
 
 ## Overview
 
-M8 covers the complete email infrastructure and Google OAuth integration for PrintOnline.et. All code is implemented, audit blockers resolved, and the system is ready for end-to-end testing.
+PrintOnline.et v3.8 ships the complete email infrastructure and Google OAuth integration on **Resend** (transactional API), replacing the legacy EthioTel SMTP relay. All code is implemented, audit blockers resolved, and the system is ready for end-to-end testing and production deployment.
 
-### What M8 Delivers
+### What This Integration Delivers
 
 | Feature | Status | Trigger |
 |---------|--------|---------|
@@ -19,30 +19,33 @@ M8 covers the complete email infrastructure and Google OAuth integration for Pri
 | Order confirmation (customer) | ✅ Implemented | Payment verified via Chapa → confirmation email |
 | Order notification (admin) | ✅ Implemented | Payment verified → admin@printonline.et notified |
 | Order status update (customer) | ✅ Implemented | Admin changes order status → customer notified |
+| Payment failure notification | ✅ Implemented | Chapa webhook reports failure → customer notified |
 | Google OAuth login | ✅ Implemented | "Continue with Google" on login/register pages |
+| Contact form delivery | ✅ Implemented | POST /api/contact → email to ADMIN_NOTIFICATION_EMAIL |
 
 ---
 
 ## Architecture
 
-### Email Flow (Server-Side, Fire-and-Forget)
+### Email Flow (Server-Side, via Resend API)
 
 ```
 [Trigger Event]
    │
    ▼
-[Server-Side Handler]  ── sendEmail() ──▶  mail1.ethionet.et:465 (SMTPS)
+[Server-Side Handler]  ── sendEmail() ──▶  api.resend.com (HTTPS POST)
    │                                            │
    │                                            ▼
-   │                                  Recipient Inbox
+   │                                  Recipient Inbox (reliable)
    ▼
 [HTTP Response returned immediately]
 ```
 
 **Key design decisions:**
-- Emails are sent server-side only — SMTP credentials never reach the browser
-- All email sends are fire-and-forget with `.catch()` — order/auth flow never blocks on email
-- `sendEmail()` gracefully skips if SMTP env vars are missing (dev-safe)
+- Single provider: **Resend** (no SMTP, no Nodemailer). Simpler, faster, proper deliverability.
+- Emails are sent server-side only — API key never reaches the browser.
+- `sendEmail()` returns `boolean`. Routes that depend on delivery (contact form) check the result; order/auth flows are fire-and-forget via `.catch()` so they never block on email.
+- `sendEmail()` gracefully returns `false` if `RESEND_API_KEY` is missing (dev-safe).
 
 ### OAuth Flow
 
@@ -57,10 +60,10 @@ M8 covers the complete email infrastructure and Google OAuth integration for Pri
 ```
 
 **Key design decisions:**
-- Google provider loaded conditionally — only when env vars present
-- `NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED` controls UI visibility (client-side)
-- Social buttons + divider hidden when disabled — no empty UI elements
-- Facebook/TikTok deferred — imports removed, no dead code
+- Google provider loaded conditionally — only when env vars present.
+- `NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED` controls UI visibility (client-side).
+- Social buttons + divider hidden when disabled — no empty UI elements.
+- Facebook/TikTok deferred — imports removed, no dead code.
 
 ---
 
@@ -70,21 +73,23 @@ M8 covers the complete email infrastructure and Google OAuth integration for Pri
 
 | File | Purpose |
 |------|---------|
-| `lib/email.ts` | Nodemailer SMTP transport + `sendEmail()` utility |
+| `lib/email.ts` | Resend SDK client + `sendEmail()` utility |
+| `lib/email-templates/layout.ts` | Shared `emailLayout({ title, children, headerTagline })` wrapper — all 7 templates use it |
 | `lib/email-templates/email-verification.ts` | Verification email template |
 | `lib/email-templates/welcome.ts` | Welcome email template (post-verification) |
 | `lib/email-templates/password-reset.ts` | Password reset link template |
 | `lib/email-templates/order-confirmation.ts` | Customer order confirmation template |
 | `lib/email-templates/order-status-update.ts` | Customer order status change template |
 | `lib/email-templates/admin-new-order.ts` | Admin new order notification template |
-| `lib/email-templates/account-deletion.ts` | Account deletion confirmation template |
 | `lib/email-templates/payment-failed.ts` | Payment failure notification template |
+
+> **Note:** `account-deletion.ts` was removed in v3.8 — account deletion is currently disabled at the API layer (`app/api/account/delete/route.ts` returns 503), so the template was dead code. Recreate from `emailLayout` pattern if/when the flow is re-enabled.
 
 ### Auth & OAuth
 
 | File | Purpose |
 |------|---------|
-| `lib/auth.ts` | Server-side better-auth config (SMTP, OAuth, email verification) |
+| `lib/auth.ts` | Server-side better-auth config (Resend, OAuth, email verification) |
 | `lib/auth-client.ts` | Client-side auth hooks |
 | `components/auth/SocialLoginButtons.tsx` | Google-only social login button |
 | `app/(auth)/login/page.tsx` | Login page (conditional social buttons) |
@@ -97,49 +102,45 @@ M8 covers the complete email infrastructure and Google OAuth integration for Pri
 
 | File | Trigger | Emails Sent |
 |------|---------|-------------|
+| `app/api/contact/route.ts` | Contact form submission | Notification to `ADMIN_NOTIFICATION_EMAIL` |
 | `app/api/payments/verify/route.ts` | Chapa payment verified | Customer confirmation + Admin notification |
+| `app/api/payments/webhook/route.ts` | Chapa payment failure | Customer payment-failed email |
 | `app/api/orders/[id]/route.ts` | Admin changes order status | Customer status update |
-| `app/api/send-order-email/route.ts` | Legacy client-side trigger (deprecated) | Customer confirmation + Admin notification |
 
 ---
 
 ## Environment Variables
 
 ```env
-# ── SMTP (EthioTel) ─────────────────────────────────────────
-SMTP_HOST=mail1.ethionet.et        # EthioTel mail server
-SMTP_PORT=465                       # SMTPS (SSL)
-SMTP_SECURE=true                    # Use TLS
-SMTP_USER=order@printonline.et     # Sending address
-SMTP_PASSWORD=********              # Email password
-ORDER_NOTIFICATION_EMAIL=order@printonline.et   # Legacy fallback
-ADMIN_NOTIFICATION_EMAIL=admin@printonline.et   # Admin inbox
+# ── Resend (Transactional Email) ───────────────────────────
+# Sole email provider. Get an API key at https://resend.com/api-keys
+# Domain DKIM/SPF/DMARC configured in Resend dashboard for printonline.et
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxx
 
-# ── Google OAuth ─────────────────────────────────────────────
+# ── Notification Recipients ───────────────────────────────
+ADMIN_NOTIFICATION_EMAIL=admin@printonline.et
+ORDER_NOTIFICATION_EMAIL=order@printonline.et
+
+# ── Google OAuth ───────────────────────────────────────────
 GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=xxx
 NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED=true
-
-# ── DNS Records (Vercel DNS) ─────────────────────────────────
-# MX:    mail1.ethionet.et (10), mail2.ethionet.et (10),
-#        mail3.ethionet.et (20), mail4.ethionet.et (20)
-# A:     smtp → 213.55.96.132, pop → 213.55.96.132
-# TXT:   SPF, DMARC, DKIM (see EthioTel portal for values)
 ```
+
+**DNS for `printonline.et`** is managed by Resend (DKIM, SPF, DMARC TXT records) — no Vercel DNS or EthioTel MX records required for outbound delivery.
 
 ---
 
-## M8 Testing Checklist
+## Testing Checklist
 
 ### Pre-Test Setup Verification
 
 - [ ] `pnpm dev` starts without errors
 - [ ] `pnpm build` passes with zero TypeScript errors
-- [ ] `.env.local` has all SMTP variables set
+- [ ] `.env.local` has `RESEND_API_KEY` set
 - [ ] `.env.local` has Google OAuth credentials set
 - [ ] `NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED=true` in `.env.local`
-- [ ] Vercel DNS has MX records pointing to `mail*.ethionet.et`
-- [ ] Vercel DNS has SPF, DMARC, DKIM TXT records
+- [ ] Resend domain `printonline.et` is verified and active in the Resend dashboard
 
 ---
 
@@ -191,7 +192,7 @@ NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED=true
 **Expected:** Email arrives within 1-2 minutes. Clicking link verifies email and signs user in.
 
 **Failure modes:**
-- No email received → Check SMTP connection (Test 8), check spam folder
+- No email received → Check Resend API key (Test 8), check spam folder
 - Link expired → Request new verification email from `/verify-email`
 - `sendVerificationEmail` error → Check `lib/auth.ts` emailVerification config
 
@@ -217,7 +218,7 @@ NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED=true
 **Expected:** Full flow works end-to-end. New password works for login.
 
 **Failure modes:**
-- No email → Check SMTP, check spam
+- No email → Check `RESEND_API_KEY`, check spam
 - "Invalid Reset Link" → Token expired (1 hour), request new one
 - Passwords don't match → Client-side validation catches this
 - Login fails with new password → Check if email verification is required first
@@ -281,37 +282,54 @@ NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED=true
 
 ---
 
-### Test 8: SMTP Connection Direct Test ✅
+### Test 8: Resend API Direct Test ✅
 
 **Steps:**
 1. Open terminal in project directory
 2. Run:
    ```bash
-   node -e "
-   const nodemailer = require('nodemailer');
-   const t = nodemailer.createTransport({
-     host: 'mail1.ethionet.et',
-     port: 465,
-     secure: true,
-     auth: { user: 'order@printonline.et', pass: 'Order@2026' },
-     tls: { rejectUnauthorized: false }
-   });
-   t.verify().then(() => console.log('SMTP OK')).catch(e => console.error('SMTP FAIL:', e.message));
-   "
+   curl -X POST https://api.resend.com/emails \
+     -H "Authorization: Bearer $RESEND_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "from": "PrintOnline.et <order@printonline.et>",
+       "to": ["your-personal-email@example.com"],
+       "subject": "Resend API Test",
+       "html": "<h1>It works</h1><p>If you can read this, Resend is wired up correctly.</p>"
+     }'
    ```
-3. Verify output: `SMTP OK`
+3. Verify response is `200 OK` with an `id` field
+4. Check your personal email inbox — message should arrive within 1 minute
 
-**Expected:** Connection succeeds.
+**Expected:** Resend returns `200 { "id": "..." }`. Email arrives in inbox.
 
 **Failure modes:**
-- `ETIMEDOUT` → DNS not propagated yet, or firewall blocking port 465
-- `ECONNREFUSED` → Wrong port (try 587 or 25)
-- `Invalid login` → Wrong credentials
-- `UNABLE_TO_VERIFY_LEAF_SIGNATURE` → Already handled by `rejectUnauthorized: false`
+- `401 Unauthorized` → Wrong/expired API key. Regenerate in Resend dashboard.
+- `403 Forbidden` → Sender domain not verified. Add `printonline.et` in Resend → Domains.
+- `422 Unprocessable Entity` → Malformed payload (check JSON syntax).
+- Email arrives in spam → DKIM/SPF/DMARC not propagated. Wait for DNS or check Resend domain status.
 
 ---
 
-### Test 9: Dual Theme (Light + Dark) ✅
+### Test 9: Contact Form Submission ✅
+
+**Steps:**
+1. Go to `http://localhost:3000/contact`
+2. Fill in name, email, message (all required)
+3. Click "Send Message"
+4. Verify success toast: "Message sent!"
+5. Check `ADMIN_NOTIFICATION_EMAIL` inbox
+
+**Expected:** Submission posts to `/api/contact`, returns `{ success: true }`, and triggers admin email.
+
+**Failure modes:**
+- Toast shows "Failed to send message" → Check server logs for the error
+- Toast shows "Network error" → Frontend couldn't reach the API
+- No email to admin → Check `RESEND_API_KEY` and `ADMIN_NOTIFICATION_EMAIL`
+
+---
+
+### Test 10: Dual Theme (Light + Dark) ✅
 
 **Steps:**
 1. Toggle system/browser to light mode
@@ -325,7 +343,7 @@ NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED=true
 
 ---
 
-### Test 10: Mobile Layout (375px) ✅
+### Test 11: Mobile Layout (375px) ✅
 
 **Steps:**
 1. Open DevTools → set viewport to 375px width
@@ -337,24 +355,24 @@ NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED=true
 
 ---
 
-### Test 11: Error Handling ✅
+### Test 12: Error Handling ✅
 
 **Steps:**
 1. **Wrong password on reset:** Try resetting with a mismatched confirm password → validation error
 2. **Expired token:** Use an old reset link → "Invalid Reset Link" state
 3. **Missing token:** Visit `/reset-password` without `?token=` → "Invalid Reset Link" state
-4. **SMTP down:** Stop SMTP connection → order should still complete (fire-and-forget)
+4. **Resend down:** Use a bad `RESEND_API_KEY` → order should still complete (fire-and-forget)
 5. **Google OAuth denied:** Deny consent on Google → should redirect back with error toast
 
 **Expected:** All error states are handled gracefully with user-friendly messages.
 
 ---
 
-### Test 12: Security Verification ✅
+### Test 13: Security Verification ✅
 
 **Steps:**
 1. Verify `.env.local` is in `.gitignore`
-2. Verify no SMTP credentials in client-side JavaScript (check Network tab)
+2. Verify no `RESEND_API_KEY` in client-side JavaScript (check Network tab)
 3. Verify Google OAuth secret is not exposed in browser
 4. Verify password reset tokens expire (1 hour default in better-auth)
 5. Verify `sendEmail()` only runs server-side (in API routes/lib/auth.ts)
@@ -368,11 +386,13 @@ NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED=true
 Before deploying to `printonline.et`:
 
 - [ ] Add production redirect URI to Google Cloud Console: `https://printonline.et/api/auth/callback/google`
-- [ ] Update `BETTER_AUTH_URL` to `https://printonline.et`
+- [ ] Add `https://www.printonline.et/api/auth/callback/google` (www variant, if applicable)
+- [ ] Update `BETTER_AUTH_URL` to `https://printonline.et` (no trailing slash)
+- [ ] Update `AUTH_TRUSTED_ORIGINS` to include `https://printonline.et` (and `www` variant)
 - [ ] Update `NEXT_PUBLIC_APP_URL` to `https://printonline.et`
+- [ ] Set `RESEND_API_KEY` to a production key in Vercel env vars (NOT the dev/test key)
 - [ ] Set `NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED=true` in Vercel env vars
-- [ ] Verify DNS MX records are propagated (`nslookup -type=MX printonline.et`)
-- [ ] Test SMTP from production environment (Vercel doesn't block outbound SMTP)
+- [ ] Verify `printonline.et` domain is verified in Resend (DKIM/SPF/DMARC green)
 - [ ] Test full order flow on production domain
 - [ ] Monitor `admin@printonline.et` for order notifications
 - [ ] Check email deliverability (not landing in spam)
@@ -385,7 +405,7 @@ Before deploying to `printonline.et`:
 |------|--------|-------|
 | Facebook OAuth | Deferred | Imports removed, no dead code. Add back when needed. |
 | TikTok OAuth | Deferred | Same as Facebook. |
-| Email template redesign | Future | Current templates are functional but not premium-styled. |
+| Account deletion flow | Disabled | API returns 503, page stub in place. Re-enable when product priorities allow. |
 | Email queue/retry | Future | Current fire-and-forget has no retry. Consider a queue for production. |
 | Webhook signature verification | Future | Chapa webhook endpoint has no signature validation. |
 | Email analytics | Future | No tracking of open rates, click rates, or delivery status. |
@@ -394,15 +414,15 @@ Before deploying to `printonline.et`:
 
 ## Audit Status
 
-**Last Audit:** May 30, 2026
-**Score:** 8.5+ (all 6 blockers resolved)
+**Last Audit:** v3.8 (June 2026)
+**Score:** Target ≥ 8.5 / 10
 
 | Category | Score | Notes |
 |----------|-------|-------|
 | Schema-First | ✅ | All email templates properly typed, no `any` in data layer |
 | Factory Pattern | ✅ | Fire-and-forget pattern, no duplicate CRUD |
-| Modularization | ✅ | Email templates consolidated in `lib/email-templates/` |
-| Three-Tier | ✅ | API routes properly separated |
-| Premium UI | ✅ | Semantic tokens, no hardcoded colors |
-| Type Safety | ✅ | All `as any` eliminated, proper interfaces defined |
-| Documentation | ✅ | This file is comprehensive |
+| Modularization | ✅ | Email templates consolidated in `lib/email-templates/`, all using shared layout |
+| Three-Tier | ✅ | API routes properly separated (`/api/contact`, `/api/payments/*`, `/api/orders/*`) |
+| Premium UI | ✅ | Semantic tokens, no hardcoded colors; email templates share premium design system |
+| Type Safety | ✅ | All `any` eliminated, proper interfaces defined |
+| Documentation | ✅ | This file is comprehensive and reflects production reality (Resend, not SMTP) |

@@ -78,7 +78,28 @@ Use **Debug** at any point when something breaks.
 ❌ Missing cache invalidation after mutations
 ❌ Merging with an Auditor score below 8.5
 ❌ "We'll polish the UI later" — premium is the baseline, not a phase
+❌ Deploying without verifying `BETTER_AUTH_URL` matches the production origin — causes silent 403 on every auth request
 ```
+
+---
+
+## Deployment Checklist (Vercel Production Env Vars)
+
+Before any deployment that touches authentication, verify these env vars are set on **Vercel → Project → Settings → Environment Variables → Production**. A misconfigured `BETTER_AUTH_URL` causes 403 "Invalid Origin" on every auth request and is silent until the first user tries to sign up.
+
+```
+BETTER_AUTH_URL         = https://printonline.et   (no trailing slash — this becomes baseURL, which better-auth auto-trusts)
+NEXT_PUBLIC_APP_URL     = https://printonline.et
+AUTH_TRUSTED_ORIGINS    = https://printonline.et   (comma-separated, supports multiple origins)
+BETTER_AUTH_SECRET      = <32+ char random string> (NEVER reuse the .env.local value in prod)
+DATABASE_URL            = <Supabase pooler URI>    (Supabase Dashboard → Settings → Database → Connection String → URI)
+RESEND_API_KEY          = <production Resend key, NOT the test key>
+GOOGLE_CLIENT_ID        = <from Google Cloud Console — must be authorized for https://printonline.et>
+GOOGLE_CLIENT_SECRET    = <matching secret>
+CHAPA_*                 = <live keys, not _TEST_ keys>
+```
+
+**Defense in depth:** `lib/auth.ts` throws at module load if `NODE_ENV=production` and `BETTER_AUTH_URL` points at localhost/127.0.0.1/0.0.0.0. If the deploy build crashes, the env vars are wrong — do not bypass the guard.
 
 ---
 
