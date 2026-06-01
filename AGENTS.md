@@ -79,6 +79,7 @@ Use **Debug** at any point when something breaks.
 ❌ Merging with an Auditor score below 8.5
 ❌ "We'll polish the UI later" — premium is the baseline, not a phase
 ❌ Deploying without verifying `BETTER_AUTH_URL` matches the production origin — causes silent 403 on every auth request
+❌ Pasting real env values (passwords, API keys, tokens) into plan, workflow, or documentation files — always use `<REDACTED>` or `***REDACTED***` placeholders
 ```
 
 ---
